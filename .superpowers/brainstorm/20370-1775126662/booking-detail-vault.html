@@ -1,0 +1,232 @@
+<h2>Merchant — Booking Detail (Vault Flow)</h2>
+<p class="subtitle">Shows full payment timeline for Bali Adventure Retreat</p>
+
+<div class="section">
+  <div class="mockup">
+    <div class="mockup-header">/merchant/bookings/TERRA-B7K2 — Booking Detail</div>
+    <div class="mockup-body" style="background: #FAF6F1; color: #3D2B1F; font-family: 'Segoe UI', sans-serif;">
+      <!-- Nav -->
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 24px; background: #5C3D2E; color: #FAF6F1;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 16px; font-weight: 600; letter-spacing: 3px;">TERRA</span>
+          <span style="font-size: 10px; background: #A0522D; padding: 2px 8px; border-radius: 4px;">MERCHANT</span>
+        </div>
+        <div style="font-size: 12px; opacity: 0.8;">
+          <span style="opacity: 0.6;">Dashboard</span>
+          <span style="margin: 0 6px;">›</span>
+          <span style="opacity: 0.6;">Bookings</span>
+          <span style="margin: 0 6px;">›</span>
+          <span>TERRA-B7K2</span>
+        </div>
+      </div>
+
+      <!-- Booking Header -->
+      <div style="padding: 20px 24px; border-bottom: 1px solid #E8DFD4;">
+        <div style="display: flex; justify-content: space-between; align-items: start;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+              <span style="font-size: 20px; font-weight: 600; color: #5C3D2E;">Bali Adventure Retreat</span>
+              <span style="font-size: 10px; background: #DBEAFE; color: #1E40AF; padding: 3px 10px; border-radius: 10px; font-weight: 500;">IN PROGRESS</span>
+              <span style="font-size: 10px; background: #F0EBE3; color: #5C3D2E; padding: 3px 10px; border-radius: 10px;">VAULT</span>
+            </div>
+            <div style="font-size: 13px; color: #8B7355;">Booking #TERRA-B7K2 • 7 Days • Indonesia</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 11px; color: #8B7355;">Vault Token</div>
+            <div style="font-size: 12px; font-family: monospace; color: #5C3D2E; background: #F0EBE3; padding: 2px 8px; border-radius: 4px;">5XN...R8K</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two Column Layout -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px 24px;">
+
+        <!-- Left: Customer & Trip Info -->
+        <div>
+          <!-- Customer Card -->
+          <div style="background: #FFFDF9; border: 1px solid #E8DFD4; border-radius: 8px; padding: 14px; margin-bottom: 16px;">
+            <div style="font-size: 11px; color: #8B7355; letter-spacing: 1px; margin-bottom: 10px;">CUSTOMER</div>
+            <div style="font-size: 14px; font-weight: 500;">Jane Smith</div>
+            <div style="font-size: 12px; color: #8B7355;">customer@terra.demo</div>
+            <div style="font-size: 12px; color: #8B7355; margin-top: 4px;">Booked: Mar 20, 2026</div>
+            <div style="font-size: 12px; color: #8B7355;">Trip dates: Apr 5 – Apr 11, 2026</div>
+          </div>
+
+          <!-- Payment Summary Card -->
+          <div style="background: #FFFDF9; border: 1px solid #E8DFD4; border-radius: 8px; padding: 14px; margin-bottom: 16px;">
+            <div style="font-size: 11px; color: #8B7355; letter-spacing: 1px; margin-bottom: 10px;">PAYMENT SUMMARY</div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+              <span style="color: #8B7355;">Setup Fee (Deposit)</span>
+              <span style="font-weight: 500;">$500.00</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+              <span style="color: #8B7355;">Add-on Services</span>
+              <span style="font-weight: 500;">$550.00</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+              <span style="color: #8B7355;">Final Settlement</span>
+              <span style="font-weight: 500;">$1,450.00</span>
+            </div>
+            <div style="border-top: 1px solid #E8DFD4; margin-top: 8px; padding-top: 8px; display: flex; justify-content: space-between; font-size: 14px;">
+              <span style="font-weight: 600; color: #5C3D2E;">Total Charged</span>
+              <span style="font-weight: 600; color: #5C3D2E;">$2,500.00</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-top: 4px;">
+              <span style="color: #86A873;">5 of 6 payments completed</span>
+              <span style="color: #8B7355;">$200.00 pending</span>
+            </div>
+            <!-- Progress bar -->
+            <div style="height: 4px; background: #E8DFD4; border-radius: 2px; margin-top: 8px;">
+              <div style="height: 100%; width: 83%; background: #86A873; border-radius: 2px;"></div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="display: flex; gap: 8px;">
+            <div style="flex: 1; background: #A0522D; color: #FAF6F1; text-align: center; padding: 10px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer;">
+              + Charge Add-on
+            </div>
+            <div style="flex: 1; background: #5C3D2E; color: #FAF6F1; text-align: center; padding: 10px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer;">
+              Final Settlement
+            </div>
+            <div style="background: #FFFDF9; border: 1px solid #DC2626; color: #DC2626; text-align: center; padding: 10px 14px; border-radius: 6px; font-size: 12px; cursor: pointer;">
+              Delete Vault
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Payment Timeline -->
+        <div>
+          <div style="background: #FFFDF9; border: 1px solid #E8DFD4; border-radius: 8px; padding: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <div style="font-size: 11px; color: #8B7355; letter-spacing: 1px;">PAYMENT TIMELINE</div>
+              <div style="font-size: 10px; color: #8B7355;">6 transactions</div>
+            </div>
+
+            <!-- Timeline entries -->
+            <div style="position: relative; padding-left: 24px;">
+              <!-- Vertical line -->
+              <div style="position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px; background: #E8DFD4;"></div>
+
+              <!-- Entry 1: Setup Fee -->
+              <div style="position: relative; margin-bottom: 18px;">
+                <div style="position: absolute; left: -24px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: #86A873; display: flex; align-items: center; justify-content: center;">
+                  <div style="width: 6px; height: 6px; background: white; border-radius: 50%;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                  <div>
+                    <div style="font-size: 13px; font-weight: 500;">Setup Fee (Deposit)</div>
+                    <div style="font-size: 11px; color: #8B7355;">Vault created • PayPal wallet</div>
+                    <div style="font-size: 10px; color: #8B7355; margin-top: 2px;">Mar 20, 2026 — 10:32 AM</div>
+                  </div>
+                  <div style="text-align: right;">
+                    <div style="font-size: 14px; font-weight: 600; color: #86A873;">$500.00</div>
+                    <div style="font-size: 9px; color: #86A873;">CAPTURED</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Entry 2: Spa -->
+              <div style="position: relative; margin-bottom: 18px;">
+                <div style="position: absolute; left: -24px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: #86A873; display: flex; align-items: center; justify-content: center;">
+                  <div style="width: 6px; height: 6px; background: white; border-radius: 50%;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                  <div>
+                    <div style="font-size: 13px; font-weight: 500;">Balinese Spa Treatment</div>
+                    <div style="font-size: 11px; color: #8B7355;">Activity add-on • Merchant-initiated</div>
+                    <div style="font-size: 10px; color: #8B7355; margin-top: 2px;">Apr 6, 2026 — 2:15 PM <span style="color: #A0522D;">(Day 2)</span></div>
+                  </div>
+                  <div style="text-align: right;">
+                    <div style="font-size: 14px; font-weight: 600; color: #86A873;">$150.00</div>
+                    <div style="font-size: 9px; color: #86A873;">CAPTURED</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Entry 3: Scuba Diving -->
+              <div style="position: relative; margin-bottom: 18px;">
+                <div style="position: absolute; left: -24px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: #86A873; display: flex; align-items: center; justify-content: center;">
+                  <div style="width: 6px; height: 6px; background: white; border-radius: 50%;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                  <div>
+                    <div style="font-size: 13px; font-weight: 500;">Scuba Diving Session</div>
+                    <div style="font-size: 11px; color: #8B7355;">Activity add-on • Merchant-initiated</div>
+                    <div style="font-size: 10px; color: #8B7355; margin-top: 2px;">Apr 7, 2026 — 9:45 AM <span style="color: #A0522D;">(Day 3)</span></div>
+                  </div>
+                  <div style="text-align: right;">
+                    <div style="font-size: 14px; font-weight: 600; color: #86A873;">$200.00</div>
+                    <div style="font-size: 9px; color: #86A873;">CAPTURED</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Entry 4: City Walk -->
+              <div style="position: relative; margin-bottom: 18px;">
+                <div style="position: absolute; left: -24px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: #86A873; display: flex; align-items: center; justify-content: center;">
+                  <div style="width: 6px; height: 6px; background: white; border-radius: 50%;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                  <div>
+                    <div style="font-size: 13px; font-weight: 500;">Ubud City Walk Guidance</div>
+                    <div style="font-size: 11px; color: #8B7355;">Guide service fee • Merchant-initiated</div>
+                    <div style="font-size: 10px; color: #8B7355; margin-top: 2px;">Apr 8, 2026 — 8:00 AM <span style="color: #A0522D;">(Day 4)</span></div>
+                  </div>
+                  <div style="text-align: right;">
+                    <div style="font-size: 14px; font-weight: 600; color: #86A873;">$80.00</div>
+                    <div style="font-size: 9px; color: #86A873;">CAPTURED</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Entry 5: Sunset Event -->
+              <div style="position: relative; margin-bottom: 18px;">
+                <div style="position: absolute; left: -24px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: #86A873; display: flex; align-items: center; justify-content: center;">
+                  <div style="width: 6px; height: 6px; background: white; border-radius: 50%;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                  <div>
+                    <div style="font-size: 13px; font-weight: 500;">Kecak Fire Dance Event</div>
+                    <div style="font-size: 11px; color: #8B7355;">Event ticket fee • Merchant-initiated</div>
+                    <div style="font-size: 10px; color: #8B7355; margin-top: 2px;">Apr 9, 2026 — 5:30 PM <span style="color: #A0522D;">(Day 5)</span></div>
+                  </div>
+                  <div style="text-align: right;">
+                    <div style="font-size: 14px; font-weight: 600; color: #86A873;">$120.00</div>
+                    <div style="font-size: 9px; color: #86A873;">CAPTURED</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Entry 6: Final Settlement (pending) -->
+              <div style="position: relative;">
+                <div style="position: absolute; left: -24px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: #D4A054; display: flex; align-items: center; justify-content: center;">
+                  <div style="width: 6px; height: 6px; background: white; border-radius: 50%;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: start; background: #FFF8F0; padding: 10px; margin: -10px; border-radius: 6px; border: 1px dashed #D4A054;">
+                  <div>
+                    <div style="font-size: 13px; font-weight: 500;">Final Settlement</div>
+                    <div style="font-size: 11px; color: #8B7355;">Remaining balance • Pending</div>
+                    <div style="font-size: 10px; color: #D4A054; margin-top: 2px;">Scheduled after trip ends (Apr 11, 2026)</div>
+                  </div>
+                  <div style="text-align: right;">
+                    <div style="font-size: 14px; font-weight: 600; color: #D4A054;">$1,450.00</div>
+                    <div style="font-size: 9px; color: #D4A054;">PENDING</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vault info footer -->
+            <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #E8DFD4; font-size: 11px; color: #8B7355;">
+              <div style="display: flex; justify-content: space-between;">
+                <span>Vault token active since Mar 20, 2026</span>
+                <span>Token will be deleted after final settlement</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

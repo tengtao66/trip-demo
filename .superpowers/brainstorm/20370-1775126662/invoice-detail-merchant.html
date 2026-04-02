@@ -1,0 +1,221 @@
+<h2>Merchant — Invoice Detail (Flow 3)</h2>
+<p class="subtitle">Shows invoice status, payment link, and line items for Custom European Tour</p>
+
+<div class="section">
+  <div class="mockup">
+    <div class="mockup-header">/merchant/invoices/INV2-XXXX — Invoice Detail</div>
+    <div class="mockup-body" style="background: #FAF6F1; color: #3D2B1F; font-family: 'Segoe UI', sans-serif;">
+      <!-- Nav -->
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 24px; background: #5C3D2E; color: #FAF6F1;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 16px; font-weight: 600; letter-spacing: 3px;">TERRA</span>
+          <span style="font-size: 10px; background: #A0522D; padding: 2px 8px; border-radius: 4px;">MERCHANT</span>
+        </div>
+        <div style="font-size: 12px; opacity: 0.8;">
+          <span style="opacity: 0.6;">Dashboard</span>
+          <span style="margin: 0 6px;">›</span>
+          <span style="opacity: 0.6;">Invoices</span>
+          <span style="margin: 0 6px;">›</span>
+          <span>INV2-8F3K</span>
+        </div>
+      </div>
+
+      <!-- Invoice Header -->
+      <div style="padding: 20px 24px; border-bottom: 1px solid #E8DFD4;">
+        <div style="display: flex; justify-content: space-between; align-items: start;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+              <span style="font-size: 20px; font-weight: 600; color: #5C3D2E;">Custom European Grand Tour</span>
+              <span style="font-size: 10px; background: #FEF3C7; color: #92400E; padding: 3px 10px; border-radius: 10px; font-weight: 500;">DEPOSIT RECEIVED</span>
+              <span style="font-size: 10px; background: #F0EBE3; color: #5C3D2E; padding: 3px 10px; border-radius: 10px;">INVOICE</span>
+            </div>
+            <div style="font-size: 13px; color: #8B7355;">Invoice #INV2-8F3K • PayPal ID: INV2-Z9XY-ABC1-DEF2</div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <div style="background: #FFFDF9; border: 1px solid #E8DFD4; color: #5C3D2E; padding: 8px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+              ↻ Refresh Status
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two Column Layout -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px 24px;">
+
+        <!-- Left Column -->
+        <div>
+          <!-- Customer Info -->
+          <div style="background: #FFFDF9; border: 1px solid #E8DFD4; border-radius: 8px; padding: 14px; margin-bottom: 16px;">
+            <div style="font-size: 11px; color: #8B7355; letter-spacing: 1px; margin-bottom: 10px;">CUSTOMER</div>
+            <div style="font-size: 14px; font-weight: 500;">Bob Wilson</div>
+            <div style="font-size: 12px; color: #8B7355;">bob.wilson@email.com</div>
+            <div style="font-size: 12px; color: #8B7355; margin-top: 4px;">Request submitted: Mar 25, 2026</div>
+            <div style="font-size: 12px; color: #8B7355;">Trip dates: May 10 – May 22, 2026 (12 days)</div>
+          </div>
+
+          <!-- Invoice Link Card — THE KEY FEATURE -->
+          <div style="background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 8px; padding: 14px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <div style="font-size: 11px; color: #1E40AF; letter-spacing: 1px; font-weight: 600;">INVOICE PAYMENT LINK</div>
+              <span style="font-size: 9px; background: #DBEAFE; color: #1E40AF; padding: 2px 6px; border-radius: 4px;">SHAREABLE</span>
+            </div>
+            <div style="font-size: 12px; color: #3D2B1F; margin-bottom: 8px;">
+              This is the link sent to the customer. Click to preview the invoice as the customer sees it.
+            </div>
+            <div style="background: #FFFFFF; border: 1px solid #BFDBFE; border-radius: 6px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center;">
+              <div style="font-size: 12px; font-family: monospace; color: #1E40AF; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 280px;">
+                https://www.sandbox.paypal.com/invoice/p/#INV2-Z9XY-ABC1-DEF2
+              </div>
+              <div style="display: flex; gap: 6px;">
+                <div style="background: #1E40AF; color: white; padding: 5px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; white-space: nowrap;">
+                  Open ↗
+                </div>
+                <div style="background: #DBEAFE; color: #1E40AF; padding: 5px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; white-space: nowrap;">
+                  Copy
+                </div>
+              </div>
+            </div>
+            <div style="font-size: 10px; color: #8B7355; margin-top: 6px;">
+              Tip: Open this link in a browser to show the audience the PayPal invoice view
+            </div>
+          </div>
+
+          <!-- Payment Summary -->
+          <div style="background: #FFFDF9; border: 1px solid #E8DFD4; border-radius: 8px; padding: 14px;">
+            <div style="font-size: 11px; color: #8B7355; letter-spacing: 1px; margin-bottom: 10px;">PAYMENT PROGRESS</div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+              <span style="color: #8B7355;">Deposit</span>
+              <div>
+                <span style="font-weight: 500;">$3,400.00</span>
+                <span style="font-size: 10px; color: #86A873; margin-left: 6px;">PAID ✓</span>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+              <span style="color: #8B7355;">Balance</span>
+              <div>
+                <span style="font-weight: 500;">$5,100.00</span>
+                <span style="font-size: 10px; color: #D4A054; margin-left: 6px;">PENDING</span>
+              </div>
+            </div>
+            <div style="border-top: 1px solid #E8DFD4; margin-top: 8px; padding-top: 8px; display: flex; justify-content: space-between; font-size: 14px;">
+              <span style="font-weight: 600; color: #5C3D2E;">Total</span>
+              <span style="font-weight: 600; color: #5C3D2E;">$8,500.00</span>
+            </div>
+            <!-- Progress bar -->
+            <div style="height: 4px; background: #E8DFD4; border-radius: 2px; margin-top: 8px;">
+              <div style="height: 100%; width: 40%; background: #86A873; border-radius: 2px;"></div>
+            </div>
+            <div style="font-size: 11px; color: #86A873; margin-top: 4px;">40% paid — deposit received</div>
+          </div>
+        </div>
+
+        <!-- Right Column: Invoice Line Items -->
+        <div>
+          <div style="background: #FFFDF9; border: 1px solid #E8DFD4; border-radius: 8px; padding: 14px; margin-bottom: 16px;">
+            <div style="font-size: 11px; color: #8B7355; letter-spacing: 1px; margin-bottom: 14px;">INVOICE LINE ITEMS</div>
+
+            <!-- Destinations -->
+            <div style="font-size: 10px; color: #A0522D; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600;">DESTINATIONS</div>
+            <div style="margin-bottom: 14px;">
+              <div style="display: flex; justify-content: space-between; font-size: 12px; padding: 6px 0; border-bottom: 1px solid #F0EBE3;">
+                <span>Paris, France</span>
+                <span style="font-weight: 500;">$1,200.00</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 12px; padding: 6px 0; border-bottom: 1px solid #F0EBE3;">
+                <span>Rome, Italy</span>
+                <span style="font-weight: 500;">$1,000.00</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 12px; padding: 6px 0; border-bottom: 1px solid #F0EBE3;">
+                <span>Santorini, Greece</span>
+                <span style="font-weight: 500;">$1,500.00</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 12px; padding: 6px 0; border-bottom: 1px solid #F0EBE3;">
+                <span>Swiss Alps</span>
+                <span style="font-weight: 500;">$1,800.00</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 12px; padding: 6px 0; border-bottom: 1px solid #F0EBE3;">
+                <span>Barcelona, Spain</span>
+                <span style="font-weight: 500;">$900.00</span>
+              </div>
+            </div>
+
+            <!-- Activities -->
+            <div style="font-size: 10px; color: #A0522D; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600;">ACTIVITIES</div>
+            <div style="margin-bottom: 14px;">
+              <div style="display: flex; justify-content: space-between; font-size: 12px; padding: 6px 0; border-bottom: 1px solid #F0EBE3;">
+                <span>Guided Museum Tour × 3</span>
+                <span style="font-weight: 500;">$450.00</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 12px; padding: 6px 0; border-bottom: 1px solid #F0EBE3;">
+                <span>Wine Tasting × 2</span>
+                <span style="font-weight: 500;">$200.00</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 12px; padding: 6px 0; border-bottom: 1px solid #F0EBE3;">
+                <span>Cooking Class</span>
+                <span style="font-weight: 500;">$120.00</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 12px; padding: 6px 0; border-bottom: 1px solid #F0EBE3;">
+                <span>Boat Excursion × 2</span>
+                <span style="font-weight: 500;">$400.00</span>
+              </div>
+            </div>
+
+            <!-- Merchant Notes -->
+            <div style="font-size: 10px; color: #A0522D; letter-spacing: 1px; margin-bottom: 8px; font-weight: 600;">CUSTOM NOTES</div>
+            <div style="font-size: 12px; color: #8B7355; background: #F5EDE3; padding: 10px; border-radius: 6px; line-height: 1.5;">
+              "We'd like a romantic dinner in Paris on our anniversary (May 15). Also interested in a private guide for the Swiss Alps hiking day."
+            </div>
+
+            <!-- Totals -->
+            <div style="margin-top: 14px; padding-top: 10px; border-top: 2px solid #E8DFD4;">
+              <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                <span style="color: #8B7355;">Subtotal (5 destinations + activities)</span>
+                <span>$7,570.00</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                <span style="color: #8B7355;">Service & planning fee</span>
+                <span>$930.00</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; margin-top: 6px; padding-top: 6px; border-top: 1px solid #E8DFD4;">
+                <span>Invoice Total</span>
+                <span>$8,500.00</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Invoice Timeline -->
+          <div style="background: #FFFDF9; border: 1px solid #E8DFD4; border-radius: 8px; padding: 14px;">
+            <div style="font-size: 11px; color: #8B7355; letter-spacing: 1px; margin-bottom: 10px;">INVOICE TIMELINE</div>
+            <div style="position: relative; padding-left: 24px;">
+              <div style="position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px; background: #E8DFD4;"></div>
+
+              <div style="position: relative; margin-bottom: 14px;">
+                <div style="position: absolute; left: -24px; top: 3px; width: 14px; height: 14px; border-radius: 50%; background: #86A873;"></div>
+                <div style="font-size: 12px; font-weight: 500;">Request Submitted</div>
+                <div style="font-size: 10px; color: #8B7355;">Mar 25, 2026 — 3:15 PM</div>
+              </div>
+
+              <div style="position: relative; margin-bottom: 14px;">
+                <div style="position: absolute; left: -24px; top: 3px; width: 14px; height: 14px; border-radius: 50%; background: #86A873;"></div>
+                <div style="font-size: 12px; font-weight: 500;">Invoice Created & Sent</div>
+                <div style="font-size: 10px; color: #8B7355;">Mar 27, 2026 — 10:42 AM</div>
+              </div>
+
+              <div style="position: relative; margin-bottom: 14px;">
+                <div style="position: absolute; left: -24px; top: 3px; width: 14px; height: 14px; border-radius: 50%; background: #86A873;"></div>
+                <div style="font-size: 12px; font-weight: 500;">Deposit Received — $3,400.00</div>
+                <div style="font-size: 10px; color: #8B7355;">Mar 28, 2026 — 9:18 AM</div>
+              </div>
+
+              <div style="position: relative;">
+                <div style="position: absolute; left: -24px; top: 3px; width: 14px; height: 14px; border-radius: 50%; background: #D4A054;"></div>
+                <div style="font-size: 12px; font-weight: 500; color: #D4A054;">Awaiting Balance — $5,100.00</div>
+                <div style="font-size: 10px; color: #8B7355;">Due before trip start (May 10)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

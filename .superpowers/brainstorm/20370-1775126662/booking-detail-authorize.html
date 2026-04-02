@@ -1,0 +1,292 @@
+<h2>Merchant — Booking Detail (Authorize Flow)</h2>
+<p class="subtitle">Shows authorization lifecycle for Tokyo Cherry Blossom Express</p>
+
+<div class="section">
+  <div class="mockup">
+    <div class="mockup-header">/merchant/bookings/TERRA-A3J9 — Booking Detail (Authorize)</div>
+    <div class="mockup-body" style="background: #FAF6F1; color: #3D2B1F; font-family: 'Segoe UI', sans-serif;">
+      <!-- Nav -->
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 24px; background: #5C3D2E; color: #FAF6F1;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 16px; font-weight: 600; letter-spacing: 3px;">TERRA</span>
+          <span style="font-size: 10px; background: #A0522D; padding: 2px 8px; border-radius: 4px;">MERCHANT</span>
+        </div>
+        <div style="font-size: 12px; opacity: 0.8;">
+          <span style="opacity: 0.6;">Dashboard</span>
+          <span style="margin: 0 6px;">›</span>
+          <span style="opacity: 0.6;">Bookings</span>
+          <span style="margin: 0 6px;">›</span>
+          <span>TERRA-A3J9</span>
+        </div>
+      </div>
+
+      <!-- Booking Header -->
+      <div style="padding: 20px 24px; border-bottom: 1px solid #E8DFD4;">
+        <div style="display: flex; justify-content: space-between; align-items: start;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+              <span style="font-size: 20px; font-weight: 600; color: #5C3D2E;">Tokyo Cherry Blossom Express</span>
+              <span style="font-size: 10px; background: #FEF3C7; color: #92400E; padding: 3px 10px; border-radius: 10px; font-weight: 500;">DEPOSIT CAPTURED</span>
+              <span style="font-size: 10px; background: #F0EBE3; color: #5C3D2E; padding: 3px 10px; border-radius: 10px;">AUTHORIZE</span>
+            </div>
+            <div style="font-size: 13px; color: #8B7355;">Booking #TERRA-A3J9 • 3 Days • Japan</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two Column Layout -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px 24px;">
+
+        <!-- Left Column -->
+        <div>
+          <!-- Customer Info -->
+          <div style="background: #FFFDF9; border: 1px solid #E8DFD4; border-radius: 8px; padding: 14px; margin-bottom: 16px;">
+            <div style="font-size: 11px; color: #8B7355; letter-spacing: 1px; margin-bottom: 10px;">CUSTOMER</div>
+            <div style="font-size: 14px; font-weight: 500;">John Doe</div>
+            <div style="font-size: 12px; color: #8B7355;">customer@terra.demo</div>
+            <div style="font-size: 12px; color: #8B7355; margin-top: 4px;">Booked: Mar 18, 2026</div>
+            <div style="font-size: 12px; color: #8B7355;">Trip dates: Apr 15 – Apr 17, 2026</div>
+          </div>
+
+          <!-- Authorization Status Card — THE KEY FEATURE -->
+          <div style="background: #FFFDF9; border: 1px solid #D4A054; border-radius: 8px; padding: 14px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <div style="font-size: 11px; color: #D4A054; letter-spacing: 1px; font-weight: 600;">AUTHORIZATION STATUS</div>
+              <span style="font-size: 9px; background: #FEF3C7; color: #92400E; padding: 2px 8px; border-radius: 4px;">ACTIVE</span>
+            </div>
+
+            <!-- Authorization Details -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+              <div style="background: #F5EDE3; border-radius: 6px; padding: 10px;">
+                <div style="font-size: 10px; color: #8B7355;">Authorized Amount</div>
+                <div style="font-size: 20px; font-weight: 600; color: #5C3D2E;">$800.00</div>
+              </div>
+              <div style="background: #F5EDE3; border-radius: 6px; padding: 10px;">
+                <div style="font-size: 10px; color: #8B7355;">Remaining to Capture</div>
+                <div style="font-size: 20px; font-weight: 600; color: #D4A054;">$600.00</div>
+              </div>
+            </div>
+
+            <!-- Authorization ID -->
+            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px;">
+              <span style="color: #8B7355;">Authorization ID</span>
+              <span style="font-family: monospace; color: #5C3D2E; background: #F0EBE3; padding: 1px 6px; border-radius: 3px;">66P72...324A</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px;">
+              <span style="color: #8B7355;">PayPal Order ID</span>
+              <span style="font-family: monospace; color: #5C3D2E; background: #F0EBE3; padding: 1px 6px; border-radius: 3px;">48S23...6452</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px;">
+              <span style="color: #8B7355;">Created</span>
+              <span>Mar 18, 2026 — 2:45 PM</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px;">
+              <span style="color: #8B7355;">Expires</span>
+              <span style="color: #D4A054; font-weight: 500;">Apr 16, 2026 — 2:45 PM</span>
+            </div>
+
+            <!-- Countdown Timer -->
+            <div style="margin-top: 12px; background: #FFF8F0; border: 1px solid #D4A054; border-radius: 6px; padding: 10px; text-align: center;">
+              <div style="font-size: 10px; color: #8B7355; letter-spacing: 1px; margin-bottom: 6px;">TIME REMAINING TO CAPTURE</div>
+              <div style="display: flex; justify-content: center; gap: 16px;">
+                <div>
+                  <div style="font-size: 28px; font-weight: 300; color: #D4A054;">22</div>
+                  <div style="font-size: 9px; color: #8B7355;">DAYS</div>
+                </div>
+                <div style="font-size: 28px; font-weight: 300; color: #D4A054;">:</div>
+                <div>
+                  <div style="font-size: 28px; font-weight: 300; color: #D4A054;">14</div>
+                  <div style="font-size: 9px; color: #8B7355;">HOURS</div>
+                </div>
+                <div style="font-size: 28px; font-weight: 300; color: #D4A054;">:</div>
+                <div>
+                  <div style="font-size: 28px; font-weight: 300; color: #D4A054;">32</div>
+                  <div style="font-size: 9px; color: #8B7355;">MINS</div>
+                </div>
+              </div>
+              <div style="font-size: 10px; color: #86A873; margin-top: 6px;">Within 3-day honor period ✓</div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="display: flex; gap: 8px;">
+            <div style="flex: 1; background: #A0522D; color: #FAF6F1; text-align: center; padding: 10px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer;">
+              Capture Balance ($600)
+            </div>
+            <div style="background: #FFFDF9; border: 1px solid #DC2626; color: #DC2626; text-align: center; padding: 10px 14px; border-radius: 6px; font-size: 12px; cursor: pointer;">
+              Void
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Payment Timeline -->
+        <div>
+          <div style="background: #FFFDF9; border: 1px solid #E8DFD4; border-radius: 8px; padding: 14px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <div style="font-size: 11px; color: #8B7355; letter-spacing: 1px;">PAYMENT TIMELINE</div>
+              <div style="font-size: 10px; color: #8B7355;">2 of 2 phases</div>
+            </div>
+
+            <div style="position: relative; padding-left: 24px;">
+              <div style="position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px; background: #E8DFD4;"></div>
+
+              <!-- Phase 1: Authorization -->
+              <div style="position: relative; margin-bottom: 20px;">
+                <div style="position: absolute; left: -24px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: #86A873; display: flex; align-items: center; justify-content: center;">
+                  <div style="width: 6px; height: 6px; background: white; border-radius: 50%;"></div>
+                </div>
+                <div style="font-size: 10px; color: #86A873; letter-spacing: 1px; font-weight: 600; margin-bottom: 4px;">PHASE 1 — BOOKING</div>
+                <div style="background: #F5EDE3; border-radius: 6px; padding: 10px;">
+                  <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                    <div>
+                      <div style="font-size: 13px; font-weight: 500;">Full Amount Authorized</div>
+                      <div style="font-size: 11px; color: #8B7355;">PayPal hold placed on $800.00</div>
+                      <div style="font-size: 10px; color: #8B7355; margin-top: 2px;">Mar 18, 2026 — 2:45 PM</div>
+                    </div>
+                    <div style="text-align: right;">
+                      <div style="font-size: 14px; font-weight: 600; color: #5C3D2E;">$800.00</div>
+                      <div style="font-size: 9px; color: #86A873;">AUTHORIZED</div>
+                    </div>
+                  </div>
+                  <div style="border-top: 1px dashed #E8DFD4; padding-top: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                      <div>
+                        <div style="font-size: 13px; font-weight: 500;">Deposit Captured (Partial)</div>
+                        <div style="font-size: 11px; color: #8B7355;">Immediate partial capture • final_capture=false</div>
+                        <div style="font-size: 10px; color: #8B7355; margin-top: 2px;">Mar 18, 2026 — 2:45 PM</div>
+                      </div>
+                      <div style="text-align: right;">
+                        <div style="font-size: 14px; font-weight: 600; color: #86A873;">$200.00</div>
+                        <div style="font-size: 9px; color: #86A873;">CAPTURED</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Phase 2: Balance Capture -->
+              <div style="position: relative;">
+                <div style="position: absolute; left: -24px; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: #D4A054; display: flex; align-items: center; justify-content: center;">
+                  <div style="width: 6px; height: 6px; background: white; border-radius: 50%;"></div>
+                </div>
+                <div style="font-size: 10px; color: #D4A054; letter-spacing: 1px; font-weight: 600; margin-bottom: 4px;">PHASE 2 — SETTLEMENT</div>
+                <div style="background: #FFF8F0; border: 1px dashed #D4A054; border-radius: 6px; padding: 10px;">
+                  <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div>
+                      <div style="font-size: 13px; font-weight: 500;">Balance Capture</div>
+                      <div style="font-size: 11px; color: #8B7355;">Remaining amount • final_capture=true</div>
+                      <div style="font-size: 10px; color: #D4A054; margin-top: 2px;">Must capture before Apr 16, 2026</div>
+                    </div>
+                    <div style="text-align: right;">
+                      <div style="font-size: 14px; font-weight: 600; color: #D4A054;">$600.00</div>
+                      <div style="font-size: 9px; color: #D4A054;">PENDING</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- How it Works — Explainer for audience -->
+          <div style="background: #FFFDF9; border: 1px solid #E8DFD4; border-radius: 8px; padding: 14px;">
+            <div style="font-size: 11px; color: #8B7355; letter-spacing: 1px; margin-bottom: 10px;">HOW AUTHORIZE & CAPTURE WORKS</div>
+            <div style="font-size: 12px; color: #8B7355; line-height: 1.7;">
+              <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                <div style="min-width: 20px; height: 20px; background: #F0EBE3; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: #5C3D2E;">1</div>
+                <div>Customer approves full amount ($800) via PayPal — funds are <strong style="color: #5C3D2E;">held, not charged</strong></div>
+              </div>
+              <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                <div style="min-width: 20px; height: 20px; background: #F0EBE3; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: #5C3D2E;">2</div>
+                <div>Merchant immediately captures deposit ($200) as partial capture</div>
+              </div>
+              <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                <div style="min-width: 20px; height: 20px; background: #F0EBE3; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: #5C3D2E;">3</div>
+                <div>Merchant verifies trip details (e.g., availability, itinerary confirmed)</div>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <div style="min-width: 20px; height: 20px; background: #F0EBE3; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: #5C3D2E;">4</div>
+                <div>Merchant captures remaining balance ($600) within <strong style="color: #D4A054;">29-day window</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Expired State Variant -->
+<div class="section">
+  <h3>Variant: Authorization Expired (needs reauthorize)</h3>
+  <div class="mockup">
+    <div class="mockup-header">Authorization expired — honor period passed</div>
+    <div class="mockup-body" style="background: #FAF6F1; color: #3D2B1F; font-family: 'Segoe UI', sans-serif; padding: 20px;">
+      <!-- Expired Authorization Card -->
+      <div style="background: #FFFDF9; border: 1px solid #DC2626; border-radius: 8px; padding: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div style="font-size: 11px; color: #DC2626; letter-spacing: 1px; font-weight: 600;">AUTHORIZATION STATUS</div>
+          <span style="font-size: 9px; background: #FEE2E2; color: #DC2626; padding: 2px 8px; border-radius: 4px;">HONOR PERIOD EXPIRED</span>
+        </div>
+
+        <!-- Countdown replaced with expired warning -->
+        <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 6px; padding: 12px; text-align: center; margin-bottom: 12px;">
+          <div style="font-size: 13px; color: #DC2626; font-weight: 500; margin-bottom: 4px;">3-day honor period has expired</div>
+          <div style="font-size: 11px; color: #8B7355;">The authorization is still valid (18 days left) but capture is no longer guaranteed.</div>
+          <div style="font-size: 11px; color: #8B7355; margin-top: 4px;">Reauthorize to get a new 3-day honor period.</div>
+        </div>
+
+        <!-- Action Buttons change -->
+        <div style="display: flex; gap: 8px;">
+          <div style="flex: 1; background: #D4A054; color: white; text-align: center; padding: 10px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer;">
+            Reauthorize ($600)
+          </div>
+          <div style="flex: 1; background: #FFFDF9; border: 1px solid #A0522D; color: #A0522D; text-align: center; padding: 10px; border-radius: 6px; font-size: 12px; cursor: pointer;">
+            Try Capture Anyway
+          </div>
+          <div style="background: #FFFDF9; border: 1px solid #DC2626; color: #DC2626; text-align: center; padding: 10px 14px; border-radius: 6px; font-size: 12px; cursor: pointer;">
+            Void
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Fully Captured State -->
+<div class="section">
+  <h3>Variant: Fully Captured (completed)</h3>
+  <div class="mockup">
+    <div class="mockup-header">Both phases complete — booking settled</div>
+    <div class="mockup-body" style="background: #FAF6F1; color: #3D2B1F; font-family: 'Segoe UI', sans-serif; padding: 20px;">
+      <div style="background: #FFFDF9; border: 1px solid #86A873; border-radius: 8px; padding: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div style="font-size: 11px; color: #86A873; letter-spacing: 1px; font-weight: 600;">AUTHORIZATION STATUS</div>
+          <span style="font-size: 9px; background: #DCFCE7; color: #166534; padding: 2px 8px; border-radius: 4px;">FULLY CAPTURED</span>
+        </div>
+
+        <div style="background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 6px; padding: 12px; text-align: center;">
+          <div style="font-size: 14px; color: #166534; font-weight: 500; margin-bottom: 4px;">All payments captured successfully</div>
+          <div style="display: flex; justify-content: center; gap: 24px; margin-top: 8px; font-size: 12px;">
+            <div>
+              <div style="color: #8B7355;">Deposit</div>
+              <div style="font-weight: 600; color: #166534;">$200.00 ✓</div>
+              <div style="font-size: 10px; color: #8B7355;">Mar 18</div>
+            </div>
+            <div style="color: #E8DFD4; font-size: 20px;">+</div>
+            <div>
+              <div style="color: #8B7355;">Balance</div>
+              <div style="font-weight: 600; color: #166534;">$600.00 ✓</div>
+              <div style="font-size: 10px; color: #8B7355;">Apr 2</div>
+            </div>
+            <div style="color: #E8DFD4; font-size: 20px;">=</div>
+            <div>
+              <div style="color: #8B7355;">Total</div>
+              <div style="font-weight: 600; color: #166534;">$800.00</div>
+              <div style="font-size: 10px; color: #86A873;">Complete</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

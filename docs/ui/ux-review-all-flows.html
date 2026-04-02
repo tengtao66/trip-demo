@@ -1,0 +1,267 @@
+<h2>UI/UX Review — All Three Booking Detail Views</h2>
+<p class="subtitle">Suggestions from UI/UX Pro Max analysis across Flow 1, 2, and 3</p>
+
+<!-- Section 1: Consistency Issues -->
+<div class="section">
+  <h3>1. Cross-Flow Consistency Issues</h3>
+  <div class="mockup">
+    <div class="mockup-header">Things that should look the same across all 3 flows but currently don't</div>
+    <div class="mockup-body" style="background: #FAF6F1; padding: 20px; font-family: 'Segoe UI', sans-serif; color: #3D2B1F;">
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <!-- Issue 1 -->
+        <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; padding: 14px;">
+          <div style="font-size: 11px; color: #DC2626; font-weight: 600; margin-bottom: 6px;">ISSUE: Inconsistent Header Layout</div>
+          <div style="font-size: 12px; color: #3D2B1F; line-height: 1.6;">
+            Flow 1 has trip name + status + flow badge on one line. Flow 2 matches. Flow 3 has the same but also adds "Refresh Status" button in the header. <strong>Standardize</strong>: Keep action buttons in the left column, not the header.
+          </div>
+        </div>
+
+        <!-- Issue 2 -->
+        <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; padding: 14px;">
+          <div style="font-size: 11px; color: #DC2626; font-weight: 600; margin-bottom: 6px;">ISSUE: Timeline Dot Sizes Vary</div>
+          <div style="font-size: 12px; color: #3D2B1F; line-height: 1.6;">
+            Flow 2 uses 16px dots with inner 6px white circles. Flow 3 uses 14px solid dots. <strong>Standardize</strong>: Use 16px dots with inner white circle for all — it's more scannable.
+          </div>
+        </div>
+
+        <!-- Issue 3 -->
+        <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; padding: 14px;">
+          <div style="font-size: 11px; color: #DC2626; font-weight: 600; margin-bottom: 6px;">ISSUE: Customer Card Missing Trip Dates</div>
+          <div style="font-size: 12px; color: #3D2B1F; line-height: 1.6;">
+            Flow 3 shows "Trip dates: May 10 – May 22, 2026 (12 days)" — the duration in parentheses is helpful. Flows 1 and 2 show dates but not duration. <strong>Add</strong> duration to all.
+          </div>
+        </div>
+
+        <!-- Issue 4 -->
+        <div style="background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; padding: 14px;">
+          <div style="font-size: 11px; color: #DC2626; font-weight: 600; margin-bottom: 6px;">ISSUE: No "Back" Navigation</div>
+          <div style="font-size: 12px; color: #3D2B1F; line-height: 1.6;">
+            Breadcrumb in the nav bar is not clickable in the mockup. Add a clickable "← Back to Bookings" link above the booking header for easy return navigation.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 2: Flow 1 Specific -->
+<div class="section">
+  <h3>2. Flow 1 — Authorize & Capture Suggestions</h3>
+  <div class="mockup">
+    <div class="mockup-header">Improvements for the authorization detail page</div>
+    <div class="mockup-body" style="background: #FAF6F1; padding: 20px; font-family: 'Segoe UI', sans-serif; color: #3D2B1F;">
+
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 12px; font-weight: 600; color: #86A873; margin-bottom: 4px;">✓ GOOD: Countdown timer</div>
+        <div style="font-size: 12px; color: #8B7355;">The countdown is the best storytelling element — makes the 29-day concept tangible. Keep it.</div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 12px; font-weight: 600; color: #86A873; margin-bottom: 4px;">✓ GOOD: "How it Works" explainer</div>
+        <div style="font-size: 12px; color: #8B7355;">The 4-step explainer is perfect for demo audiences. Unique to Flow 1 and adds educational value.</div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 12px; font-weight: 600; color: #D4A054; margin-bottom: 4px;">⚡ SUGGESTION: Add visual progress for the authorization window</div>
+        <div style="font-size: 12px; color: #8B7355; margin-bottom: 8px;">The countdown timer shows time remaining but doesn't show where we are in the 29-day window. Add a horizontal progress bar.</div>
+        <div style="background: #FFFDF9; border: 1px solid #E8DFD4; border-radius: 6px; padding: 12px;">
+          <div style="display: flex; justify-content: space-between; font-size: 10px; color: #8B7355; margin-bottom: 4px;">
+            <span>Authorized (Mar 18)</span>
+            <span style="color: #86A873;">Honor period (3 days)</span>
+            <span>Expires (Apr 16)</span>
+          </div>
+          <div style="height: 8px; background: #E8DFD4; border-radius: 4px; position: relative;">
+            <div style="height: 100%; width: 24%; background: linear-gradient(90deg, #86A873 0%, #86A873 90%, #D4A054 100%); border-radius: 4px;"></div>
+            <!-- Honor period marker -->
+            <div style="position: absolute; right: 10.3%; top: -2px; width: 2px; height: 12px; background: #86A873;"></div>
+          </div>
+          <div style="font-size: 10px; color: #8B7355; margin-top: 4px; text-align: center;">Day 7 of 29 — 22 days remaining</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 12px; font-weight: 600; color: #D4A054; margin-bottom: 4px;">⚡ SUGGESTION: Confirmation dialog for "Capture Balance"</div>
+        <div style="font-size: 12px; color: #8B7355;">Capturing $600 is irreversible. Add a confirmation dialog: "Capture $600.00 from John Doe's authorization? This cannot be undone." with Cancel / Confirm buttons. Same for Void and Reauthorize.</div>
+      </div>
+
+      <div>
+        <div style="font-size: 12px; font-weight: 600; color: #D4A054; margin-bottom: 4px;">⚡ SUGGESTION: Toast notification after capture</div>
+        <div style="font-size: 12px; color: #8B7355;">After successful capture/void/reauthorize, show a brief success toast (3-5s auto-dismiss) instead of just updating the card. "Balance of $600.00 captured successfully ✓"</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 3: Flow 2 Specific -->
+<div class="section">
+  <h3>3. Flow 2 — Vaulting Suggestions</h3>
+  <div class="mockup">
+    <div class="mockup-header">Improvements for the vault payment timeline</div>
+    <div class="mockup-body" style="background: #FAF6F1; padding: 20px; font-family: 'Segoe UI', sans-serif; color: #3D2B1F;">
+
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 12px; font-weight: 600; color: #86A873; margin-bottom: 4px;">✓ GOOD: Chronological payment timeline</div>
+        <div style="font-size: 12px; color: #8B7355;">The vertical timeline with day indicators is the strongest storytelling element. Clearly shows the unscheduled nature of charges.</div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 12px; font-weight: 600; color: #D4A054; margin-bottom: 4px;">⚡ SUGGESTION: Add charge type icons</div>
+        <div style="font-size: 12px; color: #8B7355; margin-bottom: 8px;">Each charge type could have a small Lucide icon to make the timeline more scannable:</div>
+        <div style="background: #FFFDF9; border: 1px solid #E8DFD4; border-radius: 6px; padding: 10px; font-size: 12px; line-height: 2;">
+          <div>🔑 Setup Fee → <code>Key</code> icon (Lucide)</div>
+          <div>🧖 Spa Treatment → <code>Sparkles</code> icon</div>
+          <div>🤿 Scuba Diving → <code>Waves</code> icon</div>
+          <div>🚶 City Walk → <code>MapPin</code> icon</div>
+          <div>🎭 Event → <code>Ticket</code> icon</div>
+          <div>💰 Final Settlement → <code>CircleDollarSign</code> icon</div>
+        </div>
+        <div style="font-size: 11px; color: #8B7355; margin-top: 4px;">(Use Lucide React icons, not emoji — listed as emoji here for readability only)</div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 12px; font-weight: 600; color: #D4A054; margin-bottom: 4px;">⚡ SUGGESTION: Running total in the timeline</div>
+        <div style="font-size: 12px; color: #8B7355; margin-bottom: 8px;">Add a cumulative total after each charge to show how the balance builds up:</div>
+        <div style="background: #FFFDF9; border: 1px solid #E8DFD4; border-radius: 6px; padding: 10px; font-size: 12px;">
+          <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #F0EBE3;">
+            <span>Setup Fee</span>
+            <span>$500 <span style="color: #8B7355; font-size: 10px;">total: $500</span></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #F0EBE3;">
+            <span>Spa Treatment</span>
+            <span>$150 <span style="color: #8B7355; font-size: 10px;">total: $650</span></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #F0EBE3;">
+            <span>Scuba Diving</span>
+            <span>$200 <span style="color: #8B7355; font-size: 10px;">total: $850</span></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+            <span>City Walk</span>
+            <span>$80 <span style="color: #8B7355; font-size: 10px;">total: $930</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 12px; font-weight: 600; color: #D4A054; margin-bottom: 4px;">⚡ SUGGESTION: "Charge Add-on" dialog should have preset options</div>
+        <div style="font-size: 12px; color: #8B7355;">Instead of just a free-text amount + description, offer predefined add-on options (Spa $150, Diving $200, etc.) with a "Custom" option for one-off charges. Reduces input errors and makes the demo faster.</div>
+      </div>
+
+      <div>
+        <div style="font-size: 12px; font-weight: 600; color: #DC2626; margin-bottom: 4px;">⚠ IMPORTANT: Confirmation for "Delete Vault"</div>
+        <div style="font-size: 12px; color: #8B7355;">Deleting a vault token is destructive and irreversible. Must show confirmation dialog: "Delete vault token? You will no longer be able to charge this customer's saved payment method. This cannot be undone." Use red destructive button styling.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 4: Flow 3 Specific -->
+<div class="section">
+  <h3>4. Flow 3 — Invoice Suggestions</h3>
+  <div class="mockup">
+    <div class="mockup-header">Improvements for the invoice detail page</div>
+    <div class="mockup-body" style="background: #FAF6F1; padding: 20px; font-family: 'Segoe UI', sans-serif; color: #3D2B1F;">
+
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 12px; font-weight: 600; color: #86A873; margin-bottom: 4px;">✓ GOOD: Invoice payment link with Open/Copy</div>
+        <div style="font-size: 12px; color: #8B7355;">Excellent demo feature. The blue highlight card makes it prominent without being overbearing. The "Open" button is the key action for presentations.</div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 12px; font-weight: 600; color: #D4A054; margin-bottom: 4px;">⚡ SUGGESTION: Copy button feedback</div>
+        <div style="font-size: 12px; color: #8B7355; margin-bottom: 8px;">When "Copy" is clicked, change button text to "Copied ✓" for 2 seconds, then revert. This provides immediate confirmation without a toast.</div>
+        <div style="background: #FFFDF9; border: 1px solid #E8DFD4; border-radius: 6px; padding: 10px; display: flex; gap: 8px; align-items: center;">
+          <div style="background: #DBEAFE; color: #1E40AF; padding: 5px 10px; border-radius: 4px; font-size: 11px;">Copy</div>
+          <span style="font-size: 12px; color: #8B7355;">→ click →</span>
+          <div style="background: #DCFCE7; color: #166534; padding: 5px 10px; border-radius: 4px; font-size: 11px;">Copied ✓</div>
+          <span style="font-size: 12px; color: #8B7355;">→ 2s →</span>
+          <div style="background: #DBEAFE; color: #1E40AF; padding: 5px 10px; border-radius: 4px; font-size: 11px;">Copy</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 12px; font-weight: 600; color: #D4A054; margin-bottom: 4px;">⚡ SUGGESTION: "Last checked" timestamp on Refresh Status</div>
+        <div style="font-size: 12px; color: #8B7355;">Show when the status was last polled: "Last checked: 2 minutes ago" next to the Refresh button. Helps the audience understand the polling mechanism.</div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 12px; font-weight: 600; color: #D4A054; margin-bottom: 4px;">⚡ SUGGESTION: Invoice email preview</div>
+        <div style="font-size: 12px; color: #8B7355;">Add a small "Email sent to: bob.wilson@email.com" note near the invoice link card with a checkmark. Shows the audience that PayPal sends a real email.</div>
+      </div>
+
+      <div>
+        <div style="font-size: 12px; font-weight: 600; color: #D4A054; margin-bottom: 4px;">⚡ SUGGESTION: Show deposit/balance as separate line items on PayPal invoice</div>
+        <div style="font-size: 12px; color: #8B7355;">When creating the PayPal invoice, make sure the two payments (deposit + balance) are clearly labeled as separate items. This way when the audience opens the invoice link, they see exactly the two-payment structure.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 5: Accessibility & Interaction -->
+<div class="section">
+  <h3>5. Accessibility & Interaction (All Flows)</h3>
+  <div class="pros-cons">
+    <div class="pros">
+      <h4>Must Have (CRITICAL/HIGH)</h4>
+      <ul>
+        <li><strong>Confirmation dialogs</strong> — All destructive actions (Void, Delete Vault, Capture Balance) must confirm before executing</li>
+        <li><strong>Color not alone</strong> — Status badges use color + text. Timeline dots use color + position. Good. But also add icons: ✓ for captured, ◷ for pending, ✗ for failed</li>
+        <li><strong>Toast notifications</strong> — After capture/charge/void/send, show success/error toast (3-5s auto-dismiss, aria-live="polite")</li>
+        <li><strong>Loading states</strong> — All action buttons show spinner during API call, disable to prevent double-click</li>
+        <li><strong>Keyboard navigation</strong> — Action buttons must be focusable with visible focus ring (2-4px)</li>
+        <li><strong>Contrast check</strong> — Amber #D4A054 on #FFFDF9 card = 3.2:1 (fails AA for small text). Increase to <strong>#B8860B</strong> for 4.5:1</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>Nice to Have (MEDIUM)</h4>
+      <ul>
+        <li><strong>Skeleton screens</strong> — Show skeleton for booking detail while data loads (timeline, stats, customer card)</li>
+        <li><strong>Print-friendly view</strong> — Add a "Print" button for Flow 3 invoice detail (useful for record keeping in demos)</li>
+        <li><strong>Responsive stacking</strong> — Two columns → single column on mobile (stack left on top of right)</li>
+        <li><strong>Animation</strong> — Timeline entries could animate in with stagger (30ms between entries, 200ms duration) for visual polish</li>
+        <li><strong>Empty state for timeline</strong> — If a vault booking has no add-on charges yet, show "No charges yet — use '+ Charge Add-on' to record a service"</li>
+        <li><strong>Consistent monospace</strong> — All IDs (auth ID, order ID, vault token, invoice ID) should use the same monospace styling</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Section 6: Summary of Recommendations -->
+<div class="section">
+  <h3>6. Summary — Priority Recommendations</h3>
+  <div class="mockup">
+    <div class="mockup-header">Ordered by impact</div>
+    <div class="mockup-body" style="background: #FAF6F1; padding: 20px; font-family: 'Segoe UI', sans-serif; color: #3D2B1F; font-size: 12px; line-height: 2;">
+      <div style="margin-bottom: 12px;">
+        <div style="font-weight: 600; color: #DC2626;">P0 — Must fix before implementation:</div>
+        <div style="padding-left: 16px;">
+          1. Fix amber contrast: #D4A054 → #B8860B on light backgrounds<br>
+          2. Add confirmation dialogs for all destructive/irreversible actions<br>
+          3. Standardize timeline dot sizes (16px + inner white dot) across all flows
+        </div>
+      </div>
+      <div style="margin-bottom: 12px;">
+        <div style="font-weight: 600; color: #D4A054;">P1 — Should include in initial build:</div>
+        <div style="padding-left: 16px;">
+          4. Authorization window progress bar (Flow 1)<br>
+          5. Running total in vault timeline (Flow 2)<br>
+          6. Copy button "Copied ✓" feedback (Flow 3)<br>
+          7. Toast notifications after all payment actions<br>
+          8. Loading spinners on action buttons during API calls<br>
+          9. "← Back to Bookings" link on all detail pages
+        </div>
+      </div>
+      <div>
+        <div style="font-weight: 600; color: #86A873;">P2 — Polish phase:</div>
+        <div style="padding-left: 16px;">
+          10. Charge type icons in vault timeline (Lucide)<br>
+          11. "Last checked" timestamp on invoice refresh<br>
+          12. Timeline entry stagger animation<br>
+          13. Preset add-on options in charge dialog<br>
+          14. Trip duration in customer card across all flows<br>
+          15. Skeleton screens for detail page loading
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
