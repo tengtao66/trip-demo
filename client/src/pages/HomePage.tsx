@@ -18,7 +18,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="bg-primary text-primary-foreground py-16">
         <div className="max-w-6xl mx-auto px-6">
-          <h1 className="text-3xl font-semibold">Guided Tour Packages</h1>
+          <h1 className="text-4xl font-semibold">Guided Tour Packages</h1>
           <p className="mt-2 text-primary-foreground/80 text-lg">
             Book curated trips with flexible payment options
           </p>
@@ -27,7 +27,7 @@ export default function HomePage() {
 
       {/* Trip Card Grid */}
       <section className="max-w-6xl mx-auto px-6 py-12">
-        <h2 className="text-2xl font-semibold text-foreground mb-6">
+        <h2 className="text-2xl font-semibold text-primary mb-6">
           Featured Journeys
         </h2>
 

@@ -32,15 +32,15 @@ export default function TripCard({ trip }: { trip: Trip }) {
           className="relative h-48 w-full"
           style={{ background: trip.image_gradient }}
         >
-          {/* Duration badge */}
-          <span className="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-foreground">
+          {/* Duration badge — top-right */}
+          <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-foreground">
             <Clock className="h-3.5 w-3.5" />
             {trip.duration_days} {trip.duration_days === 1 ? "Day" : "Days"}
           </span>
 
-          {/* Payment flow badge */}
+          {/* Payment flow badge — top-left */}
           <span
-            className={`absolute bottom-3 right-3 rounded-full px-2.5 py-1 text-xs font-medium ${badge.className}`}
+            className={`absolute top-3 left-3 rounded-full px-2.5 py-1 text-xs font-medium ${badge.className}`}
           >
             {badge.label}
           </span>
@@ -54,7 +54,7 @@ export default function TripCard({ trip }: { trip: Trip }) {
           <p className="text-sm text-muted-foreground line-clamp-2">
             {trip.description}
           </p>
-          <p className="text-lg font-semibold text-primary">
+          <p className="text-lg font-semibold text-accent">
             ${trip.base_price.toLocaleString()}
           </p>
         </CardContent>

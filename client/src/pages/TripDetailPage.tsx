@@ -101,7 +101,7 @@ export default function TripDetailPage() {
         className="w-full mt-4"
         style={{
           background: trip.image_gradient,
-          height: "250px",
+          height: "300px",
         }}
       >
         <div className="max-w-6xl mx-auto px-6 h-full flex items-end pb-8">
@@ -141,7 +141,7 @@ export default function TripDetailPage() {
                   {trip.itinerary.map((day) => (
                     <div key={day.day} className="relative">
                       {/* Day circle */}
-                      <div className="absolute -left-8 top-0.5 h-6 w-6 rounded-full bg-primary text-primary-foreground text-xs font-semibold flex items-center justify-center">
+                      <div className="absolute -left-8 top-0.5 h-6 w-6 rounded-full bg-accent text-accent-foreground text-xs font-semibold flex items-center justify-center">
                         {day.day}
                       </div>
                       <div>
