@@ -12,6 +12,7 @@ import MerchantBookingsPage from "@/pages/merchant/MerchantBookingsPage";
 import MerchantBookingDetailPage from "@/pages/merchant/MerchantBookingDetailPage";
 import InvoicesPage from "@/pages/merchant/InvoicesPage";
 import InvoiceDetailPage from "@/pages/merchant/InvoiceDetailPage";
+import CreateInvoicePage from "@/pages/merchant/CreateInvoicePage";
 import TripRequestsPage from "@/pages/merchant/TripRequestsPage";
 import TripRequestDetailPage from "@/pages/merchant/TripRequestDetailPage";
 
@@ -61,6 +62,7 @@ function App() {
           <Route path="/merchant/bookings" element={<MerchantBookingsPage />} />
           <Route path="/merchant/bookings/:id" element={<MerchantBookingDetailPage />} />
           <Route path="/merchant/invoices" element={<InvoicesPage />} />
+          <Route path="/merchant/invoices/create" element={<CreateInvoicePage />} />
           <Route path="/merchant/invoices/:id" element={<InvoiceDetailPage />} />
           <Route path="/merchant/trip-requests" element={<TripRequestsPage />} />
           <Route path="/merchant/trip-requests/:id" element={<TripRequestDetailPage />} />

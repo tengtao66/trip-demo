@@ -22,8 +22,8 @@ export default function RoleSwitcher() {
       <span
         className={`rounded-full px-3 py-1 text-xs font-medium ${
           isCustomer
-            ? "bg-terra-secondary/20 text-terra-secondary"
-            : "bg-terra-accent/20 text-terra-accent"
+            ? "bg-secondary/20 text-secondary"
+            : "bg-accent/20 text-accent"
         }`}
       >
         {user.role}

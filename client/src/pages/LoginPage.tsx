@@ -4,8 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useAuthStore, USERS, type Role } from "@/stores/auth-store";
 
 const roles: { role: Role; icon: typeof User; accent: string; hoverBorder: string }[] = [
-  { role: "customer", icon: User, accent: "text-terra-secondary", hoverBorder: "hover:border-terra-secondary" },
-  { role: "merchant", icon: Building2, accent: "text-terra-accent", hoverBorder: "hover:border-terra-accent" },
+  { role: "customer", icon: User, accent: "text-secondary", hoverBorder: "hover:border-secondary" },
+  { role: "merchant", icon: Building2, accent: "text-accent", hoverBorder: "hover:border-accent" },
 ];
 
 export default function LoginPage() {
@@ -43,8 +43,8 @@ export default function LoginPage() {
                   <span
                     className={`mt-3 inline-block rounded-full px-3 py-1 text-xs font-medium ${
                       role === "customer"
-                        ? "bg-terra-secondary/15 text-terra-secondary"
-                        : "bg-terra-accent/15 text-terra-accent"
+                        ? "bg-secondary/15 text-secondary"
+                        : "bg-accent/15 text-accent"
                     }`}
                   >
                     {role}

@@ -17,7 +17,7 @@ interface AuthState {
 
 const USERS: Record<Role, User> = {
   customer: { email: "customer@terra.demo", name: "Alex Rivera", role: "customer" },
-  merchant: { email: "merchant@terra.demo", name: "Terra Travel Co.", role: "merchant" },
+  merchant: { email: "merchant@terra.demo", name: "TERRA Tours", role: "merchant" },
 };
 
 export const useAuthStore = create<AuthState>()(

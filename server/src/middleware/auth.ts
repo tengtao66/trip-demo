@@ -1,5 +1,10 @@
 import type { Request, Response, NextFunction } from "express";
 
+export interface AuthLocals {
+  userRole: "customer" | "merchant" | null;
+  userEmail: string | null;
+}
+
 export function mockAuth(req: Request, res: Response, next: NextFunction) {
   const role = req.headers["x-user-role"] as string | undefined;
   const email = req.headers["x-user-email"] as string | undefined;
