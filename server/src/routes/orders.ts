@@ -93,29 +93,40 @@ router.post(
         return;
       }
 
-      // Partial capture the deposit amount (not final capture)
-      const { result: captureResult } =
-        await paymentsController.captureAuthorizedPayment({
-          authorizationId: authorization.id,
-          body: {
-            amount: {
-              currencyCode: "USD",
-              value: trip.deposit_amount.toFixed(2),
-            },
-            finalCapture: false,
-          },
-        });
-
-      const captureId = captureResult.id;
-
       // Calculate authorization expiry (29 days from now for PayPal)
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 29);
 
-      // Save booking
       const bookingId = randomUUID();
       const bookingRef = generateBookingReference();
 
+      // Attempt partial capture of deposit — if it fails, persist booking as DEPOSIT_AUTHORIZED
+      let captureId: string | null = null;
+      let status = "DEPOSIT_AUTHORIZED";
+      let paidAmount = 0;
+
+      try {
+        const { result: captureResult } =
+          await paymentsController.captureAuthorizedPayment({
+            authorizationId: authorization.id,
+            body: {
+              amount: {
+                currencyCode: "USD",
+                value: trip.deposit_amount.toFixed(2),
+              },
+              finalCapture: false,
+            },
+          });
+
+        captureId = captureResult.id ?? null;
+        status = "DEPOSIT_CAPTURED";
+        paidAmount = trip.deposit_amount;
+      } catch (captureErr: any) {
+        console.error("Partial capture failed, saving as DEPOSIT_AUTHORIZED:", captureErr);
+        // Continue — booking will be saved with DEPOSIT_AUTHORIZED so merchant can retry
+      }
+
+      // Save booking (always — even if capture failed)
       db.prepare(
         `INSERT INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow,
          total_amount, paid_amount, paypal_order_id, authorization_id, authorization_expires_at, created_at, updated_at)
@@ -125,37 +136,39 @@ router.post(
         bookingRef,
         user.id,
         trip.id,
-        "DEPOSIT_CAPTURED",
+        status,
         "authorize",
         trip.base_price,
-        trip.deposit_amount,
+        paidAmount,
         orderId,
         authorization.id,
         expiresAt.toISOString()
       );
 
-      // Save deposit charge
-      const chargeId = randomUUID();
-      db.prepare(
-        `INSERT INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))`
-      ).run(
-        chargeId,
-        bookingId,
-        "deposit",
-        `Deposit for ${trip.name}`,
-        trip.deposit_amount,
-        captureId,
-        "completed"
-      );
+      // Save deposit charge if capture succeeded
+      if (captureId) {
+        const chargeId = randomUUID();
+        db.prepare(
+          `INSERT INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))`
+        ).run(
+          chargeId,
+          bookingId,
+          "deposit",
+          `Deposit for ${trip.name}`,
+          trip.deposit_amount,
+          captureId,
+          "completed"
+        );
+      }
 
       res.json({
         bookingId,
         bookingReference: bookingRef,
-        status: "DEPOSIT_CAPTURED",
-        depositAmount: trip.deposit_amount,
+        status,
+        depositAmount: status === "DEPOSIT_CAPTURED" ? trip.deposit_amount : 0,
         totalAmount: trip.base_price,
-        balanceRemaining: trip.base_price - trip.deposit_amount,
+        balanceRemaining: trip.base_price - paidAmount,
       });
     } catch (err: any) {
       console.error("Authorize order error:", err);

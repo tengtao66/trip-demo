@@ -85,6 +85,8 @@ router.get(
     const userEmail = res.locals.userEmail as string;
     const userRole = res.locals.userRole as string;
 
+    // Accept lookup by UUID or booking reference (TERRA-XXXX)
+    const isRef = id.startsWith("TERRA-");
     const booking = db
       .prepare(
         `SELECT b.*, t.name as trip_name, t.slug as trip_slug, t.image_gradient,
@@ -94,7 +96,7 @@ router.get(
          FROM bookings b
          JOIN trips t ON b.trip_id = t.id
          JOIN users u ON b.user_id = u.id
-         WHERE b.id = ?`
+         WHERE ${isRef ? "b.booking_reference" : "b.id"} = ?`
       )
       .get(id) as any;
 
@@ -118,7 +120,7 @@ router.get(
       .prepare(
         "SELECT * FROM booking_charges WHERE booking_id = ? ORDER BY created_at ASC"
       )
-      .all(id) as ChargeRow[];
+      .all(booking.id) as ChargeRow[];
 
     res.json({ ...booking, charges });
   }

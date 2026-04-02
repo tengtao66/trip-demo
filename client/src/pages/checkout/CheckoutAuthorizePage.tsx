@@ -181,7 +181,7 @@ export default function CheckoutAuthorizePage({ trip }: Props) {
                     return;
                   }
                   const result = await res.json();
-                  navigate(`/bookings/${result.bookingId}?confirmed=true`);
+                  navigate(`/bookings/${result.bookingReference}?confirmed=true`);
                 }}
                 onError={(err) => {
                   console.error("PayPal error:", err);
