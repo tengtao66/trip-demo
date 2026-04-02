@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import db from "./services/db.js";
+import "./services/db.js"; // Side-effect: initializes SQLite + runs schema + seeds
 
 const app = express();
 app.use(cors());
