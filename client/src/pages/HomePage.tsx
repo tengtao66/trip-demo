@@ -15,13 +15,25 @@ export default function HomePage() {
 
   return (
     <div>
-      {/* Hero Section */}
-      <section className="bg-primary text-primary-foreground py-16">
-        <div className="max-w-6xl mx-auto px-6">
+      {/* Hero Section — split: text left, image right */}
+      <section className="bg-primary text-primary-foreground relative overflow-hidden">
+        <div className="max-w-6xl mx-auto px-6 py-16 relative z-10">
           <h1 className="text-4xl font-semibold">Guided Tour Packages</h1>
           <p className="mt-2 text-primary-foreground/80 text-lg">
             Book curated trips with flexible payment options
           </p>
+        </div>
+        {/* Right-half background image */}
+        <div className="absolute inset-y-0 right-0 w-1/2">
+          <img
+            src="/guided-tour-16.webp"
+            alt="Guided tours"
+            className="w-full h-full object-cover"
+            style={{
+              maskImage: "linear-gradient(to right, transparent 0%, black 30%)",
+              WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 30%)",
+            }}
+          />
         </div>
       </section>
 

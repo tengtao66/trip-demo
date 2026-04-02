@@ -5,6 +5,12 @@ import { fetchTrip } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import type { Trip } from "@/types/trip";
 
+const tripImages: Record<string, string> = {
+  "tokyo-cherry-blossom": "/tokyo.webp",
+  "bali-adventure": "/bali2.webp",
+  "custom-european-tour": "/euro2.jpg",
+};
+
 function PricingSidebar({ trip }: { trip: Trip }) {
   return (
     <div className="rounded-xl border border-border bg-card p-6 space-y-4 sticky top-24">
@@ -96,22 +102,37 @@ export default function TripDetailPage() {
         </Link>
       </div>
 
-      {/* Hero banner */}
-      <div
-        className="w-full mt-4"
-        style={{
-          background: trip.image_gradient,
-          height: "300px",
-        }}
-      >
-        <div className="max-w-6xl mx-auto px-6 h-full flex items-end pb-8">
-          <div className="bg-black/30 backdrop-blur-sm rounded-lg px-5 py-3">
-            <h1 className="text-2xl font-semibold text-white">{trip.name}</h1>
-            <p className="text-white/80 text-sm flex items-center gap-1 mt-1">
+      {/* Hero banner — split layout: text left, image right */}
+      <div className="max-w-6xl mx-auto px-6 mt-4">
+        <div
+          className="rounded-2xl overflow-hidden flex"
+          style={{ background: trip.image_gradient, minHeight: "280px" }}
+        >
+          {/* Left: text content */}
+          <div className="flex-1 flex flex-col justify-center p-10 text-white">
+            <h1 className="text-3xl font-bold leading-tight">{trip.name}</h1>
+            <p className="mt-3 text-white/80 text-sm leading-relaxed max-w-md">
+              {trip.description}
+            </p>
+            <p className="mt-4 text-white/70 text-sm flex items-center gap-1.5">
               <Clock className="h-4 w-4" />
               {trip.duration_days} {trip.duration_days === 1 ? "Day" : "Days"}
             </p>
           </div>
+          {/* Right: image (if available) */}
+          {tripImages[trip.slug] && (
+            <div className="w-2/5 relative">
+              <img
+                src={tripImages[trip.slug]}
+                alt={trip.name}
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{
+                  maskImage: "linear-gradient(to right, transparent 0%, black 30%)",
+                  WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 30%)",
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
 

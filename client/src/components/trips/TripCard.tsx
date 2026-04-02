@@ -6,6 +6,8 @@ import type { Trip } from "@/types/trip";
 // Map slugs to real images (fallback to gradient)
 const tripImages: Record<string, string> = {
   "tokyo-cherry-blossom": "/tokyo.webp",
+  "bali-adventure": "/bali2.webp",
+  "custom-european-tour": "/euro2.jpg",
 };
 
 const flowBadge: Record<

@@ -8,6 +8,12 @@ import { Clock, AlertCircle, ShieldCheck } from "lucide-react";
 import { authFetch } from "@/lib/auth-fetch";
 import type { Trip } from "@/types/trip";
 
+const tripImages: Record<string, string> = {
+  "tokyo-cherry-blossom": "/tokyo.webp",
+  "bali-adventure": "/bali2.webp",
+  "custom-european-tour": "/euro2.jpg",
+};
+
 interface Props {
   trip: Trip;
 }
@@ -51,9 +57,14 @@ export default function CheckoutAuthorizePage({ trip }: Props) {
           <div className="space-y-6">
             <div className="rounded-xl overflow-hidden border border-border">
               <div
-                className="h-40 w-full"
-                style={{ background: trip.image_gradient }}
-              />
+                className="h-40 w-full bg-cover bg-center relative"
+                style={tripImages[trip.slug]
+                  ? { backgroundImage: `url(${tripImages[trip.slug]})` }
+                  : { background: trip.image_gradient }
+                }
+              >
+                <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-card to-transparent" />
+              </div>
               <div className="p-5 space-y-3">
                 <h2 className="text-lg font-semibold text-foreground">
                   {trip.name}
