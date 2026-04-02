@@ -41,11 +41,11 @@ function PricingSidebar({ trip }: { trip: Trip }) {
         </>
       )}
 
-      <Button asChild className="w-full">
-        <Link to={`/checkout/${trip.slug}`}>
+      <Link to={`/checkout/${trip.slug}`} className="block w-full">
+        <Button className="w-full cursor-pointer">
           {trip.payment_flow === "invoice" ? "Design Your Trip" : "Book Now"}
-        </Link>
-      </Button>
+        </Button>
+      </Link>
     </div>
   );
 }
