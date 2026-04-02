@@ -1,0 +1,26 @@
+{
+  "name": "terra-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file=../.env src/index.ts",
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "express": "^5.1",
+    "@paypal/paypal-server-sdk": "^2",
+    "better-sqlite3": "^12",
+    "cors": "^2.8"
+  },
+  "devDependencies": {
+    "tsx": "^4.19",
+    "typescript": "~5.9",
+    "vitest": "^4",
+    "supertest": "^7",
+    "@types/express": "^5",
+    "@types/cors": "^2.8",
+    "@types/better-sqlite3": "^7"
+  }
+}
