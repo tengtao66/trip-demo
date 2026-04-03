@@ -7,6 +7,7 @@ import {
 } from "@paypal/react-paypal-js";
 import { Car, AlertCircle, CalendarDays, CheckCircle2 } from "lucide-react";
 import { authFetch } from "@/lib/auth-fetch";
+import { usePayPalIntent } from "@/lib/use-paypal-intent";
 import { tripImages } from "@/lib/constants";
 import type { Trip } from "@/types/trip";
 
@@ -38,6 +39,7 @@ export default function CheckoutInstantPage({ trip }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
   const [error, setError] = useState<string | null>(null);
+  usePayPalIntent("capture");
 
   const pickupDate: string | undefined = location.state?.pickupDate;
   const dropoffDate: string | undefined = location.state?.dropoffDate;

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { PayPalButtons } from "@paypal/react-paypal-js";
 import { Clock, AlertCircle, ShieldCheck, Repeat } from "lucide-react";
 import { authFetch } from "@/lib/auth-fetch";
+import { usePayPalIntent } from "@/lib/use-paypal-intent";
 import { tripImages } from "@/lib/constants";
 import type { Trip } from "@/types/trip";
 
@@ -24,6 +25,7 @@ export default function CheckoutVaultPage({ trip }: Props) {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  usePayPalIntent("capture");
 
   const setupFee = trip.deposit_amount;
 

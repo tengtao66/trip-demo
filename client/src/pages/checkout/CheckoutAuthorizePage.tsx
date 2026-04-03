@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { PayPalButtons } from "@paypal/react-paypal-js";
 import { Clock, AlertCircle, ShieldCheck } from "lucide-react";
 import { authFetch } from "@/lib/auth-fetch";
+import { usePayPalIntent } from "@/lib/use-paypal-intent";
 import { tripImages } from "@/lib/constants";
 import type { Trip } from "@/types/trip";
 
@@ -13,6 +14,7 @@ interface Props {
 export default function CheckoutAuthorizePage({ trip }: Props) {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  usePayPalIntent("authorize");
 
   const balanceAmount = trip.base_price - trip.deposit_amount;
 
