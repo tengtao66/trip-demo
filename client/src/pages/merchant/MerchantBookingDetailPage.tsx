@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { authFetch } from "@/lib/auth-fetch";
 import type { BookingDetail } from "@/types/booking";
 import AuthorizeBookingDetailPage from "./AuthorizeBookingDetailPage";
+import VaultBookingDetailPage from "./VaultBookingDetailPage";
 
 export default function MerchantBookingDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -46,9 +47,7 @@ export default function MerchantBookingDetailPage() {
       );
     case "vault":
       return (
-        <div className="text-center py-20 text-2xl text-muted-foreground">
-          Vault Booking Detail — Coming Soon
-        </div>
+        <VaultBookingDetailPage booking={booking} onRefresh={loadBooking} />
       );
     case "invoice":
       return (

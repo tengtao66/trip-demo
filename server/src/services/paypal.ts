@@ -16,16 +16,17 @@ const client = new Client({
 export const ordersController = new OrdersController(client);
 export const paymentsController = new PaymentsController(client);
 
-// Helper for direct REST calls (used by Invoice API in Section 6)
+export const PAYPAL_BASE_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://api-m.paypal.com"
+    : "https://api-m.sandbox.paypal.com";
+
+// Helper for direct REST calls
 export async function getPayPalAccessToken(): Promise<string> {
   const auth = Buffer.from(
     `${process.env.PAYPAL_CLIENT_ID}:${process.env.PAYPAL_CLIENT_SECRET}`
   ).toString("base64");
-  const baseUrl =
-    process.env.NODE_ENV === "production"
-      ? "https://api-m.paypal.com"
-      : "https://api-m.sandbox.paypal.com";
-  const res = await fetch(`${baseUrl}/v1/oauth2/token`, {
+  const res = await fetch(`${PAYPAL_BASE_URL}/v1/oauth2/token`, {
     method: "POST",
     headers: {
       Authorization: `Basic ${auth}`,

@@ -5,6 +5,7 @@ import "./services/db.js"; // Side-effect: initializes SQLite + runs schema + se
 import tripsRouter from "./routes/trips.js";
 import ordersRouter from "./routes/orders.js";
 import bookingsRouter from "./routes/bookings.js";
+import vaultRouter from "./routes/vault.js";
 
 const app = express();
 app.use(cors());
@@ -18,6 +19,7 @@ app.get("/api/health", (_req, res) => {
 app.use("/api", tripsRouter);
 app.use("/api", ordersRouter);
 app.use("/api", bookingsRouter);
+app.use("/api", vaultRouter);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`TERRA server running on :${PORT}`));

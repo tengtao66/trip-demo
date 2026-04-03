@@ -3,6 +3,7 @@ import { useParams, Navigate } from "react-router-dom";
 import { fetchTrip } from "@/lib/api";
 import type { Trip } from "@/types/trip";
 import CheckoutAuthorizePage from "./checkout/CheckoutAuthorizePage";
+import CheckoutVaultPage from "./checkout/CheckoutVaultPage";
 
 export default function CheckoutPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -39,12 +40,7 @@ export default function CheckoutPage() {
     case "authorize":
       return <CheckoutAuthorizePage trip={trip} />;
     case "vault":
-      // Will be built in Section 5
-      return (
-        <div className="text-center py-20 text-2xl text-muted-foreground">
-          Vault Checkout — Coming Soon
-        </div>
-      );
+      return <CheckoutVaultPage trip={trip} />;
     case "invoice":
       return <Navigate to={`/trips/${trip.slug}`} replace />;
     default:
