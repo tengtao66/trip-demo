@@ -1,11 +1,27 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { fetchTrips } from "@/lib/api";
 import TripCard from "@/components/trips/TripCard";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { Trip } from "@/types/trip";
+
+const TAB_CONFIG: { value: Trip["category"]; label: string }[] = [
+  { value: "tour", label: "Tours" },
+  { value: "car_rental", label: "Car Rentals" },
+  { value: "cruise", label: "Cruises" },
+];
 
 export default function HomePage() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const tabParam = searchParams.get("tab");
+  const activeTab: Trip["category"] = TAB_CONFIG.find(
+    (t) => t.value === tabParam
+  )
+    ? (tabParam as Trip["category"])
+    : "tour";
 
   useEffect(() => {
     fetchTrips()
@@ -13,14 +29,20 @@ export default function HomePage() {
       .finally(() => setLoading(false));
   }, []);
 
+  function handleTabChange(value: unknown) {
+    const tab = value as string;
+    setSearchParams({ tab }, { replace: true });
+  }
+
   return (
     <div>
-      {/* Hero Section — split: text left, image right */}
+      {/* Hero Section */}
       <section className="bg-primary text-primary-foreground relative overflow-hidden">
         <div className="max-w-6xl mx-auto px-6 py-16 relative z-10">
-          <h1 className="text-4xl font-semibold">Guided Tour Packages</h1>
+          <h1 className="text-4xl font-semibold">Explore Our Services</h1>
           <p className="mt-2 text-primary-foreground/80 text-lg">
-            Book curated trips with flexible payment options
+            Tours, car rentals, and cruises &mdash; with flexible payment
+            options
           </p>
         </div>
         {/* Right-half background image */}
@@ -30,28 +52,51 @@ export default function HomePage() {
             alt="Guided tours"
             className="w-full h-full object-cover"
             style={{
-              maskImage: "linear-gradient(to right, transparent 0%, black 30%)",
-              WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 30%)",
+              maskImage:
+                "linear-gradient(to right, transparent 0%, black 30%)",
+              WebkitMaskImage:
+                "linear-gradient(to right, transparent 0%, black 30%)",
             }}
           />
         </div>
       </section>
 
-      {/* Trip Card Grid */}
+      {/* Tabbed Trip Grid */}
       <section className="max-w-6xl mx-auto px-6 py-12">
-        <h2 className="text-2xl font-semibold text-primary mb-6">
-          Featured Journeys
-        </h2>
-
-        {loading ? (
-          <p className="text-muted-foreground">Loading trips...</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {trips.map((trip) => (
-              <TripCard key={trip.id} trip={trip} />
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
+          <TabsList className="mb-6">
+            {TAB_CONFIG.map((tab) => (
+              <TabsTrigger key={tab.value} value={tab.value}>
+                {tab.label}
+              </TabsTrigger>
             ))}
-          </div>
-        )}
+          </TabsList>
+
+          {loading ? (
+            <p className="text-muted-foreground">Loading trips...</p>
+          ) : (
+            TAB_CONFIG.map((tab) => {
+              const filtered = trips.filter(
+                (trip) => trip.category === tab.value
+              );
+              return (
+                <TabsContent key={tab.value} value={tab.value}>
+                  {filtered.length === 0 ? (
+                    <p className="text-muted-foreground">
+                      No {tab.label.toLowerCase()} available yet.
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      {filtered.map((trip) => (
+                        <TripCard key={trip.id} trip={trip} />
+                      ))}
+                    </div>
+                  )}
+                </TabsContent>
+              );
+            })
+          )}
+        </Tabs>
       </section>
     </div>
   );
