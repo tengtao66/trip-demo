@@ -14,6 +14,25 @@ import type { Trip } from "../types/trip.js";
 
 const { CheckoutPaymentIntent } = PayPalSDK;
 
+function validateRentalDates(pickupDate: unknown, dropoffDate: unknown): { days: number } {
+  if (typeof pickupDate !== "string" || typeof dropoffDate !== "string") {
+    throw Object.assign(new Error("pickupDate and dropoffDate are required"), { status: 400 });
+  }
+  const pickup = new Date(pickupDate);
+  const dropoff = new Date(dropoffDate);
+  if (isNaN(pickup.getTime()) || isNaN(dropoff.getTime())) {
+    throw Object.assign(new Error("Invalid date format"), { status: 400 });
+  }
+  if (dropoff <= pickup) {
+    throw Object.assign(new Error("dropoffDate must be after pickupDate"), { status: 400 });
+  }
+  const days = Math.ceil((dropoff.getTime() - pickup.getTime()) / (1000 * 60 * 60 * 24));
+  if (days > 90) {
+    throw Object.assign(new Error("Rental period cannot exceed 90 days"), { status: 400 });
+  }
+  return { days };
+}
+
 const router = Router();
 
 // POST /api/orders/create — Create PayPal order (authorize or vault flow)
@@ -108,6 +127,30 @@ router.post("/orders/create", requireRole("customer"), async (req, res) => {
 
       const ppData = await ppRes.json();
       res.json({ id: ppData.id });
+    } else if (trip.payment_flow === "instant") {
+      const { pickupDate, dropoffDate } = req.body;
+      let days: number;
+      try {
+        ({ days } = validateRentalDates(pickupDate, dropoffDate));
+      } catch (err: any) {
+        res.status(err.status ?? 400).json({ error: err.message });
+        return;
+      }
+      const dailyRate = trip.daily_rate ?? trip.base_price;
+      const totalAmount = parseFloat((dailyRate * days).toFixed(2));
+
+      const { result } = await ordersController.createOrder({
+        body: {
+          intent: CheckoutPaymentIntent.Capture,
+          purchaseUnits: [{
+            amount: { currencyCode: "USD", value: totalAmount.toFixed(2) },
+            description: `${trip.name} — ${days} day rental`,
+            referenceId: trip.id,
+            customId: JSON.stringify({ pickupDate, dropoffDate, days }),
+          }],
+        },
+      });
+      res.json({ id: result.id });
     } else {
       // Authorize flow (default)
       const { result } = await ordersController.createOrder({
@@ -277,6 +320,59 @@ router.post(
         return;
       }
 
+      // Check if this is an instant capture (car rental)
+      const { result: orderDetails } = await ordersController.getOrder({ id: orderId });
+      const refId = orderDetails.purchaseUnits?.[0]?.referenceId;
+      const tripForCapture = db.prepare("SELECT * FROM trips WHERE id = ?").get(refId) as Trip | undefined;
+
+      if (tripForCapture?.payment_flow === "instant") {
+        const { result: instantCaptureResult } = await ordersController.captureOrder({
+          id: orderId,
+          body: {},
+        });
+
+        if (instantCaptureResult.status !== "COMPLETED") {
+          res.status(400).json({ error: `Capture not completed: ${instantCaptureResult.status}` });
+          return;
+        }
+
+        const instantCaptureId = instantCaptureResult.purchaseUnits?.[0]?.payments?.captures?.[0]?.id ?? null;
+        const capturedValue = instantCaptureResult.purchaseUnits?.[0]?.payments?.captures?.[0]?.amount?.value ?? "0";
+        const capturedAmount = parseFloat(capturedValue);
+
+        // Parse rental dates from customId
+        let pickupDate: string | null = null;
+        let dropoffDate: string | null = null;
+        try {
+          const customId = orderDetails.purchaseUnits?.[0]?.customId ?? null;
+          if (customId) {
+            const parsed = JSON.parse(customId);
+            pickupDate = parsed.pickupDate ?? null;
+            dropoffDate = parsed.dropoffDate ?? null;
+          }
+        } catch { /* customId parse failure is non-fatal */ }
+
+        const instantBookingId = randomUUID();
+        const instantBookingRef = generateBookingReference();
+
+        db.prepare(
+          `INSERT INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow,
+           total_amount, paid_amount, paypal_order_id, pickup_date, dropoff_date, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`
+        ).run(instantBookingId, instantBookingRef, user.id, tripForCapture.id, "CONFIRMED", "instant",
+          capturedAmount, capturedAmount, orderId, pickupDate, dropoffDate);
+
+        const instantChargeId = randomUUID();
+        db.prepare(
+          `INSERT INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))`
+        ).run(instantChargeId, instantBookingId, "full_payment", `Full payment for ${tripForCapture.name}`,
+          capturedAmount, instantCaptureId, "completed");
+
+        res.json({ bookingId: instantBookingId, bookingReference: instantBookingRef });
+        return;
+      }
+
       // Capture via direct REST (vault orders use payment_source, SDK may differ)
       const accessToken = await getPayPalAccessToken();
       const captureRes = await fetch(
@@ -315,10 +411,10 @@ router.post(
         captureData.purchase_units?.[0]?.payments?.captures?.[0]?.id ?? null;
 
       // Look up the trip from reference_id
-      const refId = captureData.purchase_units?.[0]?.reference_id;
+      const vaultRefId = captureData.purchase_units?.[0]?.reference_id;
       const trip = db
         .prepare("SELECT * FROM trips WHERE id = ?")
-        .get(refId) as Trip | undefined;
+        .get(vaultRefId) as Trip | undefined;
       if (!trip) {
         res.status(404).json({ error: "Trip not found in order" });
         return;
