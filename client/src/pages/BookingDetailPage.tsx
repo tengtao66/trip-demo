@@ -11,28 +11,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { authFetch } from "@/lib/auth-fetch";
+import { tripImages, STATUS_LABELS } from "@/lib/constants";
 import type { BookingDetail } from "@/types/booking";
-
-const tripImages: Record<string, string> = {
-  "tokyo-cherry-blossom": "/tokyo.webp",
-  "bali-adventure": "/bali2.webp",
-  "custom-european-tour": "/euro2.jpg",
-};
-
-const STATUS_LABELS: Record<string, { label: string; className: string }> = {
-  DEPOSIT_CAPTURED: {
-    label: "Deposit Paid",
-    className: "bg-amber-100 text-amber-800",
-  },
-  FULLY_CAPTURED: {
-    label: "Fully Paid",
-    className: "bg-green-100 text-green-800",
-  },
-  VOIDED: {
-    label: "Cancelled",
-    className: "bg-red-100 text-red-800",
-  },
-};
 
 export default function BookingDetailPage() {
   const { id } = useParams<{ id: string }>();

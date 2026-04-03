@@ -2,34 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Calendar, ChevronRight, User } from "lucide-react";
 import { authFetch } from "@/lib/auth-fetch";
+import { STATUS_LABELS } from "@/lib/constants";
 import type { Booking } from "@/types/booking";
-
-const STATUS_LABELS: Record<string, { label: string; className: string }> = {
-  DEPOSIT_CAPTURED: {
-    label: "Deposit Paid",
-    className: "bg-amber-100 text-amber-800",
-  },
-  FULLY_CAPTURED: {
-    label: "Fully Paid",
-    className: "bg-green-100 text-green-800",
-  },
-  VOIDED: {
-    label: "Cancelled",
-    className: "bg-red-100 text-red-800",
-  },
-  SETUP_FEE_PAID: {
-    label: "Active",
-    className: "bg-blue-100 text-blue-800",
-  },
-  INVOICE_SENT: {
-    label: "Invoice Sent",
-    className: "bg-purple-100 text-purple-800",
-  },
-  INVOICE_PAID: {
-    label: "Invoice Paid",
-    className: "bg-green-100 text-green-800",
-  },
-};
 
 export default function MerchantBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);

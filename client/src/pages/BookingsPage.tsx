@@ -2,64 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Calendar, ChevronRight } from "lucide-react";
 import { authFetch } from "@/lib/auth-fetch";
+import { tripImages, STATUS_LABELS } from "@/lib/constants";
 import type { Booking } from "@/types/booking";
-
-const tripImages: Record<string, string> = {
-  "tokyo-cherry-blossom": "/tokyo.webp",
-  "bali-adventure": "/bali2.webp",
-  "custom-european-tour": "/euro2.jpg",
-};
-
-const STATUS_LABELS: Record<string, { label: string; className: string }> = {
-  REQUEST_SUBMITTED: {
-    label: "Request Submitted",
-    className: "bg-purple-100 text-purple-800",
-  },
-  INVOICE_CREATED: {
-    label: "Invoice Created",
-    className: "bg-blue-100 text-blue-800",
-  },
-  AWAITING_DEPOSIT: {
-    label: "Awaiting Deposit",
-    className: "bg-amber-100 text-amber-800",
-  },
-  DEPOSIT_RECEIVED: {
-    label: "Deposit Received",
-    className: "bg-blue-100 text-blue-800",
-  },
-  FULLY_PAID: {
-    label: "Fully Paid",
-    className: "bg-green-100 text-green-800",
-  },
-  DEPOSIT_AUTHORIZED: {
-    label: "Authorized",
-    className: "bg-amber-100 text-amber-800",
-  },
-  DEPOSIT_CAPTURED: {
-    label: "Deposit Paid",
-    className: "bg-amber-100 text-amber-800",
-  },
-  FULLY_CAPTURED: {
-    label: "Fully Paid",
-    className: "bg-green-100 text-green-800",
-  },
-  ACTIVE: {
-    label: "Active",
-    className: "bg-blue-100 text-blue-800",
-  },
-  IN_PROGRESS: {
-    label: "In Progress",
-    className: "bg-blue-100 text-blue-800",
-  },
-  COMPLETED: {
-    label: "Completed",
-    className: "bg-green-100 text-green-800",
-  },
-  VOIDED: {
-    label: "Cancelled",
-    className: "bg-red-100 text-red-800",
-  },
-};
 
 function StatusBadge({ status }: { status: string }) {
   const config = STATUS_LABELS[status] || {

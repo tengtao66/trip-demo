@@ -1,14 +1,8 @@
 import { Link } from "react-router-dom";
 import { Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { tripImages } from "@/lib/constants";
 import type { Trip } from "@/types/trip";
-
-// Map slugs to real images (fallback to gradient)
-const tripImages: Record<string, string> = {
-  "tokyo-cherry-blossom": "/tokyo.webp",
-  "bali-adventure": "/bali2.webp",
-  "custom-european-tour": "/euro2.jpg",
-};
 
 const flowBadge: Record<
   Trip["payment_flow"],

@@ -2,14 +2,9 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Clock } from "lucide-react";
 import { fetchTrip } from "@/lib/api";
+import { tripImages } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import type { Trip } from "@/types/trip";
-
-const tripImages: Record<string, string> = {
-  "tokyo-cherry-blossom": "/tokyo.webp",
-  "bali-adventure": "/bali2.webp",
-  "custom-european-tour": "/euro2.jpg",
-};
 
 function PricingSidebar({ trip }: { trip: Trip }) {
   return (

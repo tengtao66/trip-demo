@@ -6,13 +6,8 @@ import {
 } from "@paypal/react-paypal-js";
 import { Clock, AlertCircle, ShieldCheck, Repeat } from "lucide-react";
 import { authFetch } from "@/lib/auth-fetch";
+import { tripImages } from "@/lib/constants";
 import type { Trip } from "@/types/trip";
-
-const tripImages: Record<string, string> = {
-  "tokyo-cherry-blossom": "/tokyo.webp",
-  "bali-adventure": "/bali2.webp",
-  "custom-european-tour": "/euro2.jpg",
-};
 
 interface Props {
   trip: Trip;
