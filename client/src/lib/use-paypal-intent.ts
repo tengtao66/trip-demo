@@ -2,20 +2,24 @@ import { useEffect, useRef } from "react";
 import { usePayPalScriptReducer } from "@paypal/react-paypal-js";
 
 /**
- * Hook to load/reload the PayPal SDK with the correct intent for this checkout flow.
- * Only dispatches resetOptions when the intent actually changes from the
- * currently loaded value, preventing unnecessary SDK reloads (and zoid errors)
- * during Vite HMR or re-renders.
+ * Hook to ensure the PayPal SDK is loaded with the correct intent.
+ *
+ * The App-level provider loads the SDK with intent=capture (default).
+ * - Capture flows (vault, instant): no-op, SDK already has correct intent.
+ * - Authorize flow: dispatches resetOptions to reload SDK with intent=authorize.
+ *   This triggers a one-time zoid console warning (cosmetic, non-blocking).
  */
 export function usePayPalIntent(intent: "capture" | "authorize") {
-  const [{ options, isInitial }, dispatch] = usePayPalScriptReducer();
-  const loadedIntent = useRef<string | undefined>(undefined);
+  const [{ options }, dispatch] = usePayPalScriptReducer();
+  const appliedRef = useRef(false);
 
   useEffect(() => {
-    // Skip if the SDK is already loaded with this intent
-    if (loadedIntent.current === intent && !isInitial) return;
+    // SDK already loaded with intent=capture by default.
+    // Only resetOptions if we need a DIFFERENT intent (authorize).
+    if (intent === "capture") return;
+    if (appliedRef.current) return;
 
-    loadedIntent.current = intent;
+    appliedRef.current = true;
     dispatch({
       type: "resetOptions",
       value: {

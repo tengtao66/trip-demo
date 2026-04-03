@@ -31,18 +31,14 @@ function MerchantRoute({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * Single PayPalScriptProvider for the entire app with deferLoading.
- * SDK does NOT load until a checkout page dispatches resetOptions
- * with the correct intent for its payment flow. This avoids:
- * 1. Loading the SDK on non-checkout pages (wasted bandwidth)
- * 2. Intent mismatch errors between authorize and capture flows
- *
- * Each checkout page calls usePayPalScriptReducer to resetOptions
- * with its specific intent before rendering buttons.
+ * Single PayPalScriptProvider for the entire app.
+ * Loads immediately with intent=capture (most common: vault + instant flows).
+ * The authorize flow checkout page calls resetOptions to switch intent.
  */
 const paypalInitialOptions = {
   clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID,
   currency: "USD",
+  intent: "capture" as const,
   components: "buttons,messages",
   "enable-funding": "paylater",
   "buyer-country": "US",
@@ -51,7 +47,7 @@ const paypalInitialOptions = {
 
 function App() {
   return (
-    <PayPalScriptProvider deferLoading={true} options={paypalInitialOptions}>
+    <PayPalScriptProvider options={paypalInitialOptions}>
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
