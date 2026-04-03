@@ -67,7 +67,10 @@ export default function BookingDetailPage() {
           <div>
             <p className="font-medium text-green-800">Booking Confirmed!</p>
             <p className="text-sm text-green-700 mt-0.5">
-              Your deposit has been captured. Reference:{" "}
+              {booking.status === "CONFIRMED"
+                ? "Payment complete. "
+                : "Your deposit has been captured. "}
+              Reference:{" "}
               <span className="font-mono font-semibold">
                 {booking.booking_reference}
               </span>

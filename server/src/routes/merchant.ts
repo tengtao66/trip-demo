@@ -7,6 +7,7 @@ const router = Router();
 // Terminal statuses — bookings in these states are "done"
 const TERMINAL_STATUSES = [
   "COMPLETED",
+  "CONFIRMED",
   "FULLY_CAPTURED",
   "FULLY_PAID",
   "VOIDED",
