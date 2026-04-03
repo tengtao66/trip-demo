@@ -26,7 +26,7 @@ router.post(
   requireRole("merchant"),
   async (req, res) => {
     try {
-      const { vaultId } = req.params;
+      const vaultId = req.params.vaultId as string;
       const { description, type = "addon" } = req.body;
       const amount = Number(req.body.amount);
 
@@ -48,51 +48,58 @@ router.post(
         return;
       }
 
-      // Create order with vault_id (auto-captures since payment_source is provided)
-      const accessToken = await getPayPalAccessToken();
-      const orderBody = {
-        intent: "CAPTURE",
-        purchase_units: [
-          {
-            amount: {
-              currency_code: "USD",
-              value: amount.toFixed(2),
+      let captureId: string | null = null;
+
+      // Simulation mode: skip PayPal for sim_ vault tokens
+      if (vaultId.startsWith("sim_")) {
+        captureId = `sim_cap_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      } else {
+        // Create order with vault_id (auto-captures since payment_source is provided)
+        const accessToken = await getPayPalAccessToken();
+        const orderBody = {
+          intent: "CAPTURE",
+          purchase_units: [
+            {
+              amount: {
+                currency_code: "USD",
+                value: amount.toFixed(2),
+              },
+              description,
             },
-            description,
+          ],
+          payment_source: {
+            paypal: { vault_id: vaultId },
           },
-        ],
-        payment_source: {
-          paypal: { vault_id: vaultId },
-        },
-      };
+        };
 
-      const ppRes = await fetch(`${PAYPAL_BASE_URL}/v2/checkout/orders`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(orderBody),
-      });
+        const ppRes = await fetch(`${PAYPAL_BASE_URL}/v2/checkout/orders`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(orderBody),
+        });
 
-      if (!ppRes.ok) {
-        const errBody = await ppRes.text();
-        console.error("Vault charge error:", errBody);
-        res.status(500).json({ error: "Failed to charge vault token" });
-        return;
+        if (!ppRes.ok) {
+          const errBody = await ppRes.text();
+          console.error("Vault charge error:", errBody);
+          res.status(500).json({ error: "Failed to charge vault token" });
+          return;
+        }
+
+        const ppData = await ppRes.json();
+
+        // Verify the order was completed before recording
+        if (ppData.status !== "COMPLETED") {
+          console.error("Vault charge not completed:", ppData.status, ppData);
+          res.status(400).json({ error: `Charge not completed: ${ppData.status}` });
+          return;
+        }
+
+        captureId =
+          ppData.purchase_units?.[0]?.payments?.captures?.[0]?.id ?? null;
       }
-
-      const ppData = await ppRes.json();
-
-      // Verify the order was completed before recording
-      if (ppData.status !== "COMPLETED") {
-        console.error("Vault charge not completed:", ppData.status, ppData);
-        res.status(400).json({ error: `Charge not completed: ${ppData.status}` });
-        return;
-      }
-
-      const captureId =
-        ppData.purchase_units?.[0]?.payments?.captures?.[0]?.id ?? null;
 
       // Insert booking_charge
       const chargeId = randomUUID();
@@ -132,27 +139,30 @@ router.delete(
   requireRole("merchant"),
   async (req, res) => {
     try {
-      const { vaultId } = req.params;
+      const vaultId = req.params.vaultId as string;
 
-      const accessToken = await getPayPalAccessToken();
+      // Simulation mode: skip PayPal for sim_ vault tokens
+      if (!vaultId.startsWith("sim_")) {
+        const accessToken = await getPayPalAccessToken();
 
-      const ppRes = await fetch(
-        `${PAYPAL_BASE_URL}/v3/vault/payment-tokens/${vaultId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json",
-          },
+        const ppRes = await fetch(
+          `${PAYPAL_BASE_URL}/v3/vault/payment-tokens/${vaultId}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        // 204 = success, 404 = already deleted
+        if (!ppRes.ok && ppRes.status !== 204 && ppRes.status !== 404) {
+          const errBody = await ppRes.text();
+          console.error("Delete vault token error:", errBody);
+          res.status(500).json({ error: "Failed to delete vault token" });
+          return;
         }
-      );
-
-      // 204 = success, 404 = already deleted
-      if (!ppRes.ok && ppRes.status !== 204 && ppRes.status !== 404) {
-        const errBody = await ppRes.text();
-        console.error("Delete vault token error:", errBody);
-        res.status(500).json({ error: "Failed to delete vault token" });
-        return;
       }
 
       // Clear vault_token_id on the booking

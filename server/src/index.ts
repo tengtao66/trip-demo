@@ -8,6 +8,8 @@ import bookingsRouter from "./routes/bookings.js";
 import vaultRouter from "./routes/vault.js";
 import tripRequestsRouter from "./routes/trip-requests.js";
 import invoicesRouter from "./routes/invoices.js";
+import merchantRouter from "./routes/merchant.js";
+import simulationRouter from "./routes/simulation.js";
 
 const app = express();
 app.use(cors());
@@ -24,6 +26,8 @@ app.use("/api", bookingsRouter);
 app.use("/api", vaultRouter);
 app.use("/api", tripRequestsRouter);
 app.use("/api", invoicesRouter);
+app.use("/api", merchantRouter);
+app.use("/api", simulationRouter);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`TERRA server running on :${PORT}`));
