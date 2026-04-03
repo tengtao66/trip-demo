@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { useAuthStore } from "@/stores/auth-store";
 import Layout from "@/components/layout/Layout";
 import LoginPage from "@/pages/LoginPage";
@@ -29,8 +30,28 @@ function MerchantRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+/**
+ * Single PayPalScriptProvider for the entire app.
+ * Unified options that work for ALL payment flows:
+ * - intent=capture is the default (authorize flow overrides server-side)
+ * - components=buttons,messages loads both button and messaging modules
+ * - enable-funding=paylater enables the Pay Later button
+ * - buyer-country=US required for Pay Later eligibility in sandbox
+ * - vault=true enables vault module (needed for Flow 2, harmless for others)
+ */
+const paypalOptions = {
+  clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID,
+  currency: "USD",
+  intent: "capture" as const,
+  components: "buttons,messages",
+  "enable-funding": "paylater",
+  "buyer-country": "US",
+  vault: true,
+};
+
 function App() {
   return (
+    <PayPalScriptProvider options={paypalOptions}>
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
@@ -72,6 +93,7 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
+    </PayPalScriptProvider>
   );
 }
 
