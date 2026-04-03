@@ -137,7 +137,11 @@ function PricingSidebar({ trip }: { trip: Trip }) {
       {trip.payment_flow !== "instant" && (
         <Link to={`/checkout/${trip.slug}`} className="block w-full">
           <Button className="w-full cursor-pointer">
-            {trip.payment_flow === "invoice" ? "Design Your Trip" : "Book Now"}
+            {trip.payment_flow === "invoice"
+              ? "Design Your Trip"
+              : trip.payment_flow === "authorize"
+                ? "Reserve Now"
+                : "Book Now"}
           </Button>
         </Link>
       )}
@@ -172,7 +176,7 @@ export default function TripDetailPage() {
       <div className="max-w-6xl mx-auto px-6 py-20 text-center">
         <p className="text-xl text-muted-foreground mb-4">Trip not found</p>
         <Link to="/" className="text-primary underline">
-          Back to tours
+          Back to all trips
         </Link>
       </div>
     );
@@ -187,7 +191,7 @@ export default function TripDetailPage() {
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to tours
+          Back to all trips
         </Link>
       </div>
 

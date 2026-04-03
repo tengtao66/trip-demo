@@ -14,7 +14,7 @@
   --color-terra-card: #FFFDF9;
   --color-terra-border: #E8DFD4;
   --color-terra-text: #3D2B1F;
-  --color-terra-text-muted: #8B7355;
+  --color-terra-text-muted: #5e5549;
   --color-terra-text-light: #C4956A;
   --color-terra-warning: #B8860B;
   --color-terra-destructive: #DC2626;
@@ -80,7 +80,7 @@
   --secondary: #86A873;
   --secondary-foreground: #FFFDF9;
   --muted: #F0EBE3;
-  --muted-foreground: #8B7355;
+  --muted-foreground: #5e5549;
   --accent: #A0522D;
   --accent-foreground: #FFFDF9;
   --destructive: #DC2626;
@@ -101,6 +101,11 @@
   --sidebar-accent-foreground: #3D2B1F;
   --sidebar-border: #E8DFD4;
   --sidebar-ring: #5C3D2E;
+}
+
+:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
 }
 
 @layer base {

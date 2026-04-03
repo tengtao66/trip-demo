@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TERRA - Car Rental Checkout</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #FAF6F1; color: #1a1a1a; }
+  :root {
+    --mocha: #5C3D2E;
+    --terracotta: #A0522D;
+    --sage: #86A873;
+    --alpine-oat: #FAF6F1;
+    --border: #e5ddd5;
+    --muted: #5e5549;
+    --blue-paypal: #0070ba;
+    --blue-paylater: #003087;
+  }
+  .header {
+    background: var(--mocha);
+    color: white;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header .brand { font-size: 20px; font-weight: 700; letter-spacing: 2px; }
+  .header .brand span { color: var(--terracotta); font-weight: 400; font-size: 12px; letter-spacing: 1px; margin-left: 8px; }
+
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px;
+  }
+  .main h1 { font-size: 24px; font-weight: 600; color: var(--mocha); margin-bottom: 4px; }
+  .main .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 36px;
+  }
+
+  /* Left: Order Summary */
+  .summary-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .summary-image {
+    height: 180px;
+    background: linear-gradient(135deg, #94a3b8 0%, #475569 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    opacity: 0.7;
+  }
+  .summary-body { padding: 24px; }
+  .summary-body h2 { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+  .summary-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+  .summary-row .icon { font-size: 16px; color: var(--muted); width: 20px; text-align: center; }
+  .summary-row .label { color: var(--muted); }
+  .summary-row .value { color: var(--mocha); font-weight: 500; }
+  .rate-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f7f3ee;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-top: 16px;
+    font-size: 14px;
+  }
+  .rate-box .icon { font-size: 16px; color: var(--terracotta); }
+  .rate-box .text { color: var(--muted); }
+  .rate-box .amount { margin-left: auto; font-weight: 700; color: var(--mocha); font-size: 16px; }
+
+  /* Right: Payment */
+  .payment-section { display: flex; flex-direction: column; gap: 20px; }
+
+  .payment-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .payment-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+  .payment-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  .payment-row .label { color: var(--muted); }
+  .payment-row .value { color: var(--mocha); }
+  .payment-divider { height: 1px; background: var(--border); margin: 10px 0; }
+  .payment-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .payment-total .label { font-weight: 600; font-size: 14px; }
+  .payment-total .amount { font-size: 22px; font-weight: 700; color: var(--terracotta); }
+
+  /* PayPal Buttons */
+  .buttons-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .buttons-card .hint { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+
+  .paypal-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: opacity 0.2s;
+  }
+  .paypal-btn:hover { filter: brightness(0.95); }
+  .paypal-btn:focus-visible { outline: 2px solid var(--terracotta); outline-offset: 2px; }
+
+  .paypal-btn-yellow {
+    background: #ffc439;
+    color: #111;
+    margin-bottom: 10px;
+  }
+  .paypal-btn-blue {
+    background: var(--blue-paylater);
+    color: white;
+    margin-bottom: 12px;
+  }
+
+  .pp-logo-text { font-style: italic; font-weight: 800; letter-spacing: -0.5px; }
+  .pp-logo-text .pay { color: #003087; }
+  .pp-logo-text .pal { color: #009cde; }
+  .pp-logo-white .pay { color: #fff; }
+  .pp-logo-white .pal { color: #9ad4f6; }
+
+  /* Pay Later Message */
+  .paylater-msg {
+    background: #f0f7ff;
+    border: 1px solid #d0e3f7;
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #333;
+  }
+  .paylater-msg .pp-logo-sm {
+    font-weight: 700;
+    color: var(--blue-paypal);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .paylater-msg a {
+    color: var(--blue-paypal);
+    text-decoration: underline;
+    font-weight: 500;
+  }
+
+  .or-divider {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin: 4px 0;
+    position: relative;
+  }
+
+  .annotation {
+    background: #fffbeb;
+    border: 2px dashed #f59e0b;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #92400e;
+    line-height: 1.5;
+  }
+  .annotation strong { color: #78350f; }
+  .annotation code { background: #fef3c7; padding: 1px 4px; border-radius: 3px; font-size: 11px; }
+
+  /* Cancellation policy */
+  .cancel-policy {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #166534;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-top: 12px;
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 768px) {
+    .grid { grid-template-columns: 1fr; }
+    .summary-image { height: 140px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">TERRA <span>Guided Tours</span></div>
+</div>
+
+<div class="main">
+  <h1>Checkout</h1>
+  <p class="subtitle">Complete your rental for Economy Sedan</p>
+
+  <div class="grid">
+    <!-- Left: Order Summary -->
+    <div>
+      <div class="summary-card">
+        <div class="summary-image">car-rental-car.webp</div>
+        <div class="summary-body">
+          <h2>Economy Sedan</h2>
+          <div class="summary-row">
+            <span class="icon">&#128197;</span>
+            <div>
+              <div class="label">Pickup</div>
+              <div class="value">April 10, 2026</div>
+            </div>
+          </div>
+          <div class="summary-row">
+            <span class="icon">&#128197;</span>
+            <div>
+              <div class="label">Drop-off</div>
+              <div class="value">April 13, 2026</div>
+            </div>
+          </div>
+          <div class="rate-box">
+            <span class="icon">&#128663;</span>
+            <span class="text">$50/day x 3 days</span>
+            <span class="amount">$150</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="annotation" style="margin-top: 16px;">
+        <strong>Left Column:</strong> Shows the car photo (via <code>tripImages</code>), rental dates (from React Router state), and calculated total. Same card pattern as existing checkout pages.
+      </div>
+    </div>
+
+    <!-- Right: Payment -->
+    <div class="payment-section">
+      <!-- Price Summary -->
+      <div class="payment-card">
+        <h3>Payment Summary</h3>
+        <div class="payment-row">
+          <span class="label">Daily rate</span>
+          <span class="value">$50/day</span>
+        </div>
+        <div class="payment-row">
+          <span class="label">Rental duration</span>
+          <span class="value">3 days</span>
+        </div>
+        <div class="payment-divider"></div>
+        <div class="payment-total">
+          <span class="label">Total</span>
+          <span class="amount">$150</span>
+        </div>
+      </div>
+
+      <!-- PayPal Buttons -->
+      <div class="buttons-card">
+        <p class="hint">Pay securely with PayPal</p>
+
+        <!-- Yellow PayPal Button -->
+        <button class="paypal-btn paypal-btn-yellow">
+          <span class="pp-logo-text"><span class="pay">Pay</span><span class="pal">Pal</span></span>
+        </button>
+
+        <div class="or-divider">or</div>
+
+        <!-- Blue Pay Later Button -->
+        <button class="paypal-btn paypal-btn-blue">
+          <span class="pp-logo-white"><span class="pay">Pay</span><span class="pal">Pal</span></span>
+          <span style="font-weight:400;font-size:13px;opacity:0.9">Pay Later</span>
+        </button>
+
+        <!-- PayPal Messages Component -->
+        <div class="paylater-msg">
+          <span class="pp-logo-sm">PayPal</span>
+          <span>Pay in 4 interest-free payments of <strong>$37.50</strong>. <a href="#">Learn more</a></span>
+        </div>
+
+        <!-- Cancellation policy (trust signal) -->
+        <div class="cancel-policy">
+          &#10003; Free cancellation up to 24 hours before pickup
+        </div>
+      </div>
+
+      <div class="annotation">
+        <strong>Payment Section:</strong><br>
+        1. <code>PayPalButtons fundingSource={FUNDING.PAYPAL}</code> - Yellow button<br>
+        2. <code>PayPalButtons fundingSource={FUNDING.PAYLATER}</code> - Blue button<br>
+        3. <code>PayPalMessages placement="payment"</code> - Financing info<br><br>
+        All share the same <code>createOrder</code> / <code>onApprove</code> callbacks.<br>
+        Wrapped in <code>PayPalScriptProvider</code> with <code>buyer-country: "US"</code>, <code>enable-funding: "paylater"</code>.
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

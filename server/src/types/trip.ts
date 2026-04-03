@@ -6,7 +6,8 @@ export interface Trip {
   duration_days: number;
   base_price: number;
   deposit_amount: number;
-  payment_flow: "authorize" | "vault" | "invoice";
+  payment_flow: "authorize" | "vault" | "invoice" | "instant";
+  daily_rate?: number;
   itinerary: ItineraryDay[];
   image_gradient: string;
 }

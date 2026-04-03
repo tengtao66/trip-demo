@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TERRA - Car Rental Booking Detail</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #FAF6F1; color: #1a1a1a; }
+  :root {
+    --mocha: #5C3D2E;
+    --terracotta: #A0522D;
+    --sage: #86A873;
+    --alpine-oat: #FAF6F1;
+    --border: #e5ddd5;
+    --muted: #5e5549;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --green-border: #bbf7d0;
+  }
+  .header {
+    background: var(--mocha);
+    color: white;
+    padding: 14px 24px;
+  }
+  .header .brand { font-size: 20px; font-weight: 700; letter-spacing: 2px; }
+  .header .brand span { color: var(--terracotta); font-weight: 400; font-size: 12px; letter-spacing: 1px; margin-left: 8px; }
+
+  .main { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+    margin-bottom: 20px;
+  }
+  .back-link:hover { color: var(--mocha); }
+
+  /* Confirmation banner */
+  .confirm-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--green-bg);
+    border: 1px solid var(--green-border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+  .confirm-icon {
+    width: 24px;
+    height: 24px;
+    background: var(--green);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .confirm-banner h3 { font-size: 15px; font-weight: 600; color: #166534; }
+  .confirm-banner p { font-size: 13px; color: #15803d; margin-top: 2px; }
+  .confirm-banner .ref { font-family: monospace; font-weight: 700; }
+
+  .grid { display: grid; grid-template-columns: 1fr 340px; gap: 32px; }
+
+  /* Trip card */
+  .trip-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .trip-image {
+    height: 160px;
+    background: linear-gradient(135deg, #94a3b8 0%, #475569 100%);
+    position: relative;
+  }
+  .trip-image .fade { position: absolute; inset: 0; background: linear-gradient(to top, white 0%, transparent 40%); }
+  .trip-image-label {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    color: white;
+    font-size: 13px;
+    opacity: 0.6;
+  }
+  .trip-body { padding: 20px; }
+  .trip-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .trip-header h1 { font-size: 20px; font-weight: 600; }
+  .badge-confirmed {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #dcfce7;
+    color: #166534;
+  }
+  .trip-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .trip-meta .ref { font-family: monospace; }
+
+  /* Rental dates */
+  .rental-dates {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 16px;
+  }
+  .rental-dates h2 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--mocha);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .date-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0ebe5;
+  }
+  .date-row:last-child { border-bottom: none; }
+  .date-icon {
+    width: 36px;
+    height: 36px;
+    background: #f7f3ee;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .date-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .date-value { font-size: 14px; font-weight: 500; color: var(--mocha); }
+  .duration-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #f0ebe5;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--mocha);
+    font-weight: 500;
+    margin-top: 10px;
+  }
+
+  /* Payment History */
+  .payments {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 16px;
+  }
+  .payments h2 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--mocha);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .charge-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0ebe5;
+  }
+  .charge-row:last-child { border-bottom: none; }
+  .charge-desc { font-size: 14px; font-weight: 500; color: var(--mocha); }
+  .charge-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .charge-meta .status-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  .charge-amount { font-size: 15px; font-weight: 600; color: var(--mocha); }
+
+  /* Right sidebar */
+  .sidebar { display: flex; flex-direction: column; gap: 16px; }
+  .summary-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+  }
+  .summary-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  .summary-row .label { color: var(--muted); }
+  .summary-row .value { font-weight: 500; }
+  .summary-row .value.green { color: var(--green); }
+  .summary-divider { height: 1px; background: var(--border); margin: 10px 0; }
+
+  /* Complete badge */
+  .complete-box {
+    background: var(--green-bg);
+    border: 1px solid var(--green-border);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+  .complete-box .icon { font-size: 24px; margin-bottom: 6px; }
+  .complete-box .text { font-size: 13px; font-weight: 600; color: #166534; }
+  .complete-box .subtext { font-size: 11px; color: #15803d; margin-top: 2px; }
+
+  .annotation {
+    background: #fffbeb;
+    border: 2px dashed #f59e0b;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #92400e;
+    line-height: 1.5;
+  }
+  .annotation strong { color: #78350f; }
+  .annotation code { background: #fef3c7; padding: 1px 4px; border-radius: 3px; font-size: 11px; }
+  .back-link:focus-visible, a:focus-visible { outline: 2px solid var(--terracotta); outline-offset: 2px; }
+  @media (max-width: 768px) {
+    .grid { grid-template-columns: 1fr; }
+    .trip-image { height: 120px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">TERRA <span>Guided Tours</span></div>
+</div>
+
+<div class="main">
+  <a href="#" class="back-link">&larr; Back to bookings</a>
+
+  <!-- Confirmation Banner -->
+  <div class="confirm-banner">
+    <div class="confirm-icon">&#10003;</div>
+    <div>
+      <h3>Booking Confirmed!</h3>
+      <p>Payment complete. Reference: <span class="ref">TERRA-4821</span></p>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- Left Column -->
+    <div>
+      <!-- Trip Card -->
+      <div class="trip-card">
+        <div class="trip-image">
+          <div class="fade"></div>
+          <span class="trip-image-label">car-rental-car.webp</span>
+        </div>
+        <div class="trip-body">
+          <div class="trip-header">
+            <h1>Economy Sedan</h1>
+            <span class="badge-confirmed">Confirmed</span>
+          </div>
+          <div class="trip-meta">
+            <span class="ref">TERRA-4821</span>
+            <span>&#128197; Booked Apr 3, 2026</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rental Dates Section (NEW for car rentals) -->
+      <div class="rental-dates">
+        <h2>&#128663; Rental Details</h2>
+        <div class="date-row">
+          <div class="date-icon">&#128205;</div>
+          <div>
+            <div class="date-label">Pickup</div>
+            <div class="date-value">April 10, 2026</div>
+          </div>
+        </div>
+        <div class="date-row">
+          <div class="date-icon">&#128205;</div>
+          <div>
+            <div class="date-label">Drop-off</div>
+            <div class="date-value">April 13, 2026</div>
+          </div>
+        </div>
+        <div class="duration-pill">&#128339; 3-day rental &bull; $50/day</div>
+      </div>
+
+      <!-- Payment History -->
+      <div class="payments">
+        <h2>&#128179; Payment History</h2>
+        <div class="charge-row">
+          <div>
+            <div class="charge-desc">Full payment for Economy Sedan</div>
+            <div class="charge-meta">
+              <span class="status-dot"></span>Completed &bull; Apr 3, 2026
+            </div>
+          </div>
+          <div class="charge-amount">$150</div>
+        </div>
+      </div>
+
+      <div class="annotation" style="margin-top:16px">
+        <strong>Key differences from existing booking detail:</strong><br>
+        1. <strong>Rental Details section</strong> (new) — shows pickup/dropoff dates and daily rate. Only rendered when <code>payment_flow === "instant"</code> and <code>pickup_date</code> exists.<br>
+        2. <strong>No authorization expiry</strong> — instant capture has no auth window.<br>
+        3. <strong>No "Remaining" balance</strong> — paid = total, balance is always $0.<br>
+        4. <strong>Single charge</strong> — type <code>full_payment</code> instead of deposit/balance.<br>
+        5. <strong>Confirmation banner</strong> says "Payment complete" (not "Your deposit has been captured").
+      </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="sidebar">
+      <div class="summary-card">
+        <h3>Payment Summary</h3>
+        <div class="summary-row">
+          <span class="label">Daily rate</span>
+          <span class="value">$50/day</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Duration</span>
+          <span class="value">3 days</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-row">
+          <span class="label">Total</span>
+          <span class="value">$150</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Paid</span>
+          <span class="value green">$150</span>
+        </div>
+      </div>
+
+      <div class="complete-box">
+        <div class="icon">&#9989;</div>
+        <div class="text">Payment Complete</div>
+        <div class="subtext">No further action required</div>
+      </div>
+
+      <div class="annotation">
+        <strong>Sidebar is simpler for instant capture:</strong><br>
+        - No "Remaining" line (balance = $0)<br>
+        - No authorization expiry info<br>
+        - Green "Payment Complete" box replaces any pending action prompts<br>
+        - Shows daily rate + duration breakdown
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

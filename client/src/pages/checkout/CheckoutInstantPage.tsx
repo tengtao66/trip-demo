@@ -5,7 +5,7 @@ import {
   PayPalButtons,
   PayPalMessages,
 } from "@paypal/react-paypal-js";
-import { Car, AlertCircle, CalendarDays } from "lucide-react";
+import { Car, AlertCircle, CalendarDays, CheckCircle2 } from "lucide-react";
 import { authFetch } from "@/lib/auth-fetch";
 import { tripImages } from "@/lib/constants";
 import type { Trip } from "@/types/trip";
@@ -266,6 +266,11 @@ export default function CheckoutInstantPage({ trip }: Props) {
                 amount={totalPrice}
                 style={{ layout: "text" }}
               />
+
+              <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg p-3 mt-3">
+                <CheckCircle2 className="h-4 w-4 shrink-0" />
+                Free cancellation up to 24 hours before pickup
+              </div>
             </div>
           </div>
         </div>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TERRA - Cruise Checkout (Authorize)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #FAF6F1; color: #1a1a1a; }
+  :root {
+    --mocha: #5C3D2E;
+    --terracotta: #A0522D;
+    --sage: #86A873;
+    --alpine-oat: #FAF6F1;
+    --border: #e5ddd5;
+    --muted: #5e5549;
+  }
+  .header {
+    background: var(--mocha);
+    color: white;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+  }
+  .header .brand { font-size: 20px; font-weight: 700; letter-spacing: 2px; }
+  .header .brand span { color: var(--terracotta); font-weight: 400; font-size: 12px; letter-spacing: 1px; margin-left: 8px; }
+
+  .main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px;
+  }
+  .main h1 { font-size: 24px; font-weight: 600; color: var(--mocha); margin-bottom: 4px; }
+  .main .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
+
+  .grid { display: grid; grid-template-columns: 1fr 420px; gap: 36px; }
+
+  /* Left */
+  .trip-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .trip-image {
+    height: 200px;
+    background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    opacity: 0.7;
+  }
+  .trip-body { padding: 24px; }
+  .trip-body h2 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+  .trip-body .meta { font-size: 13px; color: var(--muted); margin-bottom: 16px; display: flex; align-items: center; gap: 6px; }
+  .trip-body p { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 16px; }
+
+  /* Itinerary preview */
+  .itin-preview {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .itin-header {
+    background: #f7f3ee;
+    padding: 10px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--mocha);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .itin-list { padding: 0; }
+  .itin-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    font-size: 13px;
+    border-bottom: 1px solid #f5f0ea;
+  }
+  .itin-item:last-child { border-bottom: none; }
+  .itin-day {
+    width: 44px;
+    height: 26px;
+    background: var(--terracotta);
+    color: white;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .itin-title { font-weight: 500; color: var(--mocha); }
+
+  /* Right */
+  .payment-section { display: flex; flex-direction: column; gap: 20px; }
+  .payment-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .payment-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+  .row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
+  .row .label { color: var(--muted); }
+  .row .value { color: var(--mocha); }
+  .divider { height: 1px; background: var(--border); margin: 10px 0; }
+
+  .deposit-highlight {
+    background: #fef7ee;
+    border: 1px solid #f5e6d3;
+    border-radius: 10px;
+    padding: 14px;
+    margin: 16px 0;
+  }
+  .deposit-highlight .label-lg { font-size: 12px; font-weight: 600; color: var(--terracotta); text-transform: uppercase; letter-spacing: 0.5px; }
+  .deposit-highlight .amount-lg { font-size: 28px; font-weight: 700; color: var(--terracotta); margin: 4px 0; }
+  .deposit-highlight .note { font-size: 12px; color: var(--muted); }
+
+  /* PayPal button mockup */
+  .paypal-area {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .paypal-area .hint { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+  .paypal-btn-mock {
+    width: 100%;
+    padding: 14px;
+    background: #ffc439;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .pp-text { font-style: italic; font-weight: 800; letter-spacing: -0.5px; }
+  .pp-text .pay { color: #003087; }
+  .pp-text .pal { color: #009cde; }
+  .auth-note {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+    padding: 10px;
+    background: #f7f3ee;
+    border-radius: 8px;
+  }
+  .auth-note strong { color: var(--mocha); }
+
+  .annotation {
+    background: #fffbeb;
+    border: 2px dashed #f59e0b;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #92400e;
+    line-height: 1.5;
+  }
+  .annotation strong { color: #78350f; }
+  .annotation code { background: #fef3c7; padding: 1px 4px; border-radius: 3px; font-size: 11px; }
+  .paypal-btn-mock:focus-visible { outline: 2px solid var(--terracotta); outline-offset: 2px; }
+  .paylater-note {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+    font-style: italic;
+  }
+  @media (max-width: 768px) {
+    .grid { grid-template-columns: 1fr; }
+    .trip-image { height: 160px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">TERRA <span>Guided Tours</span></div>
+</div>
+
+<div class="main">
+  <h1>Checkout</h1>
+  <p class="subtitle">Reserve your cruise: Caribbean Island Hopper</p>
+
+  <div class="grid">
+    <!-- Left -->
+    <div>
+      <div class="trip-card">
+        <div class="trip-image">cruises-caribbean.webp</div>
+        <div class="trip-body">
+          <h2>Caribbean Island Hopper</h2>
+          <div class="meta">&#128339; 7 Days &bull; Departs Miami</div>
+          <p>7-day cruise through the Caribbean -- Cozumel, Grand Cayman, and Jamaica with all-inclusive dining and entertainment.</p>
+
+          <div class="itin-preview">
+            <div class="itin-header">&#128205; Itinerary Preview</div>
+            <div class="itin-list">
+              <div class="itin-item"><span class="itin-day">DAY 1</span><span class="itin-title">Miami Departure</span></div>
+              <div class="itin-item"><span class="itin-day">DAY 2</span><span class="itin-title">At Sea</span></div>
+              <div class="itin-item"><span class="itin-day">DAY 3</span><span class="itin-title">Cozumel, Mexico</span></div>
+              <div class="itin-item"><span class="itin-day">DAY 4</span><span class="itin-title">Grand Cayman</span></div>
+              <div class="itin-item"><span class="itin-day">DAY 5</span><span class="itin-title">Jamaica</span></div>
+              <div class="itin-item"><span class="itin-day">DAY 6</span><span class="itin-title">At Sea</span></div>
+              <div class="itin-item"><span class="itin-day">DAY 7</span><span class="itin-title">Return to Miami</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="annotation" style="margin-top:16px">
+        <strong>Reuses <code>CheckoutAuthorizePage</code>:</strong> This is the exact same checkout component as the Tokyo Cherry Blossom trip. No new code needed -- just different seed data. The itinerary preview is an optional enhancement.
+      </div>
+    </div>
+
+    <!-- Right -->
+    <div class="payment-section">
+      <div class="payment-card">
+        <h3>Payment Summary</h3>
+        <div class="row">
+          <span class="label">Cruise package</span>
+          <span class="value" style="font-weight:600;font-size:14px">$2,800</span>
+        </div>
+        <div class="row">
+          <span class="label">Duration</span>
+          <span class="value">7 days</span>
+        </div>
+        <div class="divider"></div>
+
+        <div class="deposit-highlight">
+          <div class="label-lg">Deposit due today</div>
+          <div class="amount-lg">$700</div>
+          <div class="note">25% of total -- balance of $2,100 captured before departure</div>
+        </div>
+
+        <div class="row">
+          <span class="label">Remaining balance</span>
+          <span class="value">$2,100</span>
+        </div>
+      </div>
+
+      <div class="paypal-area">
+        <p class="hint">Authorize payment with PayPal</p>
+        <button class="paypal-btn-mock">
+          <span class="pp-text"><span class="pay">Pay</span><span class="pal">Pal</span></span>
+        </button>
+        <div class="auth-note">
+          <strong>How it works:</strong> PayPal authorizes the full $2,800. We capture only the $700 deposit now. The remaining $2,100 balance will be charged before your departure date. You can cancel anytime before the balance is captured.
+        </div>
+        <p class="paylater-note">Pay Later is not available for deposit-based bookings.</p>
+      </div>
+
+      <div class="annotation">
+        <strong>Same as Flow 1 (Tokyo):</strong><br>
+        - <code>intent: "AUTHORIZE"</code> -- PayPal authorizes full amount<br>
+        - Merchant partial-captures deposit ($700) with <code>finalCapture: false</code><br>
+        - Later captures balance ($2,100) with <code>finalCapture: true</code><br>
+        - Or voids if customer cancels<br><br>
+        No standalone buttons, no Pay Later -- just the standard PayPal button.
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

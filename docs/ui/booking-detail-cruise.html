@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TERRA - Cruise Booking Detail</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #FAF6F1; color: #1a1a1a; }
+  :root {
+    --mocha: #5C3D2E;
+    --terracotta: #A0522D;
+    --sage: #86A873;
+    --alpine-oat: #FAF6F1;
+    --border: #e5ddd5;
+    --muted: #5e5549;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --green-border: #bbf7d0;
+    --amber: #d97706;
+    --amber-bg: #fffbeb;
+    --amber-border: #fde68a;
+  }
+  .header {
+    background: var(--mocha);
+    color: white;
+    padding: 14px 24px;
+  }
+  .header .brand { font-size: 20px; font-weight: 700; letter-spacing: 2px; }
+  .header .brand span { color: var(--terracotta); font-weight: 400; font-size: 12px; letter-spacing: 1px; margin-left: 8px; }
+
+  .main { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+    margin-bottom: 20px;
+  }
+
+  /* Confirmation banner */
+  .confirm-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--green-bg);
+    border: 1px solid var(--green-border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+  .confirm-icon {
+    width: 24px; height: 24px;
+    background: var(--green); color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0; margin-top: 2px;
+  }
+  .confirm-banner h3 { font-size: 15px; font-weight: 600; color: #166534; }
+  .confirm-banner p { font-size: 13px; color: #15803d; margin-top: 2px; }
+  .confirm-banner .ref { font-family: monospace; font-weight: 700; }
+
+  .grid { display: grid; grid-template-columns: 1fr 340px; gap: 32px; }
+
+  /* Trip card */
+  .trip-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .trip-image {
+    height: 180px;
+    background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+    position: relative;
+  }
+  .trip-image .fade { position: absolute; inset: 0; background: linear-gradient(to top, white 0%, transparent 40%); }
+  .trip-image-label {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    color: white; font-size: 13px; opacity: 0.6;
+  }
+  .trip-body { padding: 20px; }
+  .trip-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .trip-header h1 { font-size: 20px; font-weight: 600; }
+  .badge-deposit {
+    display: inline-flex; align-items: center;
+    padding: 3px 10px; border-radius: 999px;
+    font-size: 11px; font-weight: 600;
+    background: #fef3c7; color: #92400e;
+  }
+  .trip-meta {
+    display: flex; align-items: center; gap: 16px;
+    font-size: 13px; color: var(--muted);
+  }
+  .trip-meta .ref { font-family: monospace; }
+
+  /* Authorization Progress Bar (NEW) */
+  .auth-progress {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 16px;
+  }
+  .auth-progress h2 {
+    font-size: 15px; font-weight: 600; color: var(--mocha);
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .progress-bar-bg {
+    width: 100%;
+    height: 8px;
+    background: #f0ebe5;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--terracotta);
+    border-radius: 4px;
+    width: 17%; /* 5 of 29 days elapsed */
+    transition: width 0.3s;
+  }
+  .progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .progress-labels .current { color: var(--terracotta); font-weight: 600; }
+  .auth-detail {
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--amber-bg);
+    border: 1px solid var(--amber-border);
+    border-radius: 8px;
+    font-size: 12px;
+    color: #92400e;
+    line-height: 1.5;
+  }
+  .auth-detail strong { color: #78350f; }
+
+  /* Payment Timeline */
+  .payment-timeline {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 16px;
+  }
+  .payment-timeline h2 {
+    font-size: 15px; font-weight: 600; color: var(--mocha);
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before {
+    content: '';
+    position: absolute; left: 9px; top: 8px; bottom: 8px;
+    width: 2px; background: var(--border);
+  }
+  .tl-item { position: relative; margin-bottom: 16px; }
+  .tl-item:last-child { margin-bottom: 0; }
+  .tl-dot {
+    position: absolute; left: -23px; top: 4px;
+    width: 12px; height: 12px; border-radius: 50%;
+    border: 2px solid var(--alpine-oat);
+  }
+  .tl-dot.done {
+    background: var(--green); box-shadow: 0 0 0 2px var(--green);
+    color: white; font-size: 8px; display: flex; align-items: center; justify-content: center;
+  }
+  .tl-dot.pending { background: var(--border); box-shadow: 0 0 0 2px var(--border); }
+  .tl-dot.current {
+    background: var(--terracotta); box-shadow: 0 0 0 2px var(--terracotta);
+    animation: pulse-dot 2s infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { box-shadow: 0 0 0 2px var(--terracotta); }
+    50% { box-shadow: 0 0 0 4px rgba(160, 82, 45, 0.3); }
+  }
+  .tl-label { font-size: 13px; font-weight: 500; color: var(--mocha); }
+  .tl-label.pending-text { color: var(--muted); }
+  .tl-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .tl-amount { font-size: 13px; font-weight: 600; color: var(--mocha); margin-top: 2px; }
+
+  /* Right sidebar */
+  .sidebar { display: flex; flex-direction: column; gap: 16px; }
+  .summary-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+  }
+  .summary-card h3 { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
+  .summary-row {
+    display: flex; justify-content: space-between;
+    font-size: 13px; margin-bottom: 8px;
+  }
+  .summary-row .label { color: var(--muted); }
+  .summary-row .value { font-weight: 500; }
+  .summary-row .value.green { color: var(--green); }
+  .summary-row .value.amber { color: var(--amber); }
+  .summary-divider { height: 1px; background: var(--border); margin: 10px 0; }
+
+  /* Authorization info box */
+  .auth-box {
+    background: #f7f3ee;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* What happens next */
+  .next-steps {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+  }
+  .next-steps h3 { font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--mocha); }
+  .step-item {
+    display: flex; gap: 10px; margin-bottom: 10px;
+    font-size: 13px; color: var(--muted); line-height: 1.5;
+  }
+  .step-item:last-child { margin-bottom: 0; }
+  .step-num {
+    width: 22px; height: 22px;
+    background: #f0ebe5; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: var(--mocha);
+    flex-shrink: 0;
+  }
+
+  .annotation {
+    background: #fffbeb;
+    border: 2px dashed #f59e0b;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #92400e;
+    line-height: 1.5;
+  }
+  .annotation strong { color: #78350f; }
+  .annotation code { background: #fef3c7; padding: 1px 4px; border-radius: 3px; font-size: 11px; }
+  a:focus-visible { outline: 2px solid var(--terracotta); outline-offset: 2px; }
+  @media (max-width: 768px) {
+    .grid { grid-template-columns: 1fr; }
+    .trip-image { height: 140px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">TERRA <span>Guided Tours</span></div>
+</div>
+
+<div class="main">
+  <a href="#" class="back-link">&larr; Back to bookings</a>
+
+  <!-- Confirmation Banner -->
+  <div class="confirm-banner">
+    <div class="confirm-icon">&#10003;</div>
+    <div>
+      <h3>Booking Confirmed!</h3>
+      <p>Your deposit has been captured. Reference: <span class="ref">TERRA-7293</span></p>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- Left Column -->
+    <div>
+      <!-- Trip Card -->
+      <div class="trip-card">
+        <div class="trip-image">
+          <div class="fade"></div>
+          <span class="trip-image-label">cruises-caribbean.webp</span>
+        </div>
+        <div class="trip-body">
+          <div class="trip-header">
+            <h1>Caribbean Island Hopper</h1>
+            <span class="badge-deposit">Deposit Paid</span>
+          </div>
+          <div class="trip-meta">
+            <span class="ref">TERRA-7293</span>
+            <span>&#128197; Booked Apr 3, 2026</span>
+            <span>&#128339; 7 Days</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Authorization Progress Bar -->
+      <div class="auth-progress">
+        <h2>&#128274; Authorization Window</h2>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill"></div>
+        </div>
+        <div class="progress-labels">
+          <span class="current">Day 5 of 29</span>
+          <span>Expires May 2, 2026</span>
+        </div>
+        <div class="auth-detail">
+          <strong>Balance of $2,100 must be captured before expiration.</strong>
+          The merchant will capture your remaining balance before the cruise departure date. If the authorization expires, a new payment will be needed.
+        </div>
+      </div>
+
+      <!-- Payment Timeline -->
+      <div class="payment-timeline">
+        <h2>&#128179; Payment Timeline</h2>
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot done">&#10003;</div>
+            <div class="tl-label">Deposit captured</div>
+            <div class="tl-meta">Apr 3, 2026 &bull; Completed</div>
+            <div class="tl-amount">$700</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot current"></div>
+            <div class="tl-label">Balance capture</div>
+            <div class="tl-meta">Pending &bull; Captured by merchant before departure</div>
+            <div class="tl-amount" style="color:var(--amber)">$2,100</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot pending"></div>
+            <div class="tl-label pending-text">Fully paid</div>
+            <div class="tl-meta">Awaiting balance capture</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="annotation" style="margin-top:16px">
+        <strong>Same as existing Tokyo authorize booking detail, with these additions:</strong><br>
+        1. <strong>Authorization Progress Bar</strong> — shows position in 29-day window (horizontal bar). Already planned in Section 8 todos.<br>
+        2. <strong>Payment Timeline</strong> — same as existing authorize flow (deposit captured &rarr; balance pending &rarr; fully paid).<br>
+        3. <strong>Duration badge</strong> shows "7 Days" (unlike car rentals which hide it).<br>
+        4. No rental dates section (only for <code>payment_flow === "instant"</code>).<br>
+        5. Reuses existing <code>BookingDetailPage.tsx</code> — no new component needed for cruises.
+      </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="sidebar">
+      <div class="summary-card">
+        <h3>Payment Summary</h3>
+        <div class="summary-row">
+          <span class="label">Cruise package</span>
+          <span class="value">$2,800</span>
+        </div>
+        <div class="summary-divider"></div>
+        <div class="summary-row">
+          <span class="label">Deposit paid</span>
+          <span class="value green">$700</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">Remaining balance</span>
+          <span class="value amber">$2,100</span>
+        </div>
+      </div>
+
+      <div class="auth-box">
+        &#128274; Authorization expires: <strong>May 2, 2026</strong><br>
+        Balance will be captured by the merchant before your departure.
+      </div>
+
+      <!-- What happens next -->
+      <div class="next-steps">
+        <h3>What Happens Next</h3>
+        <div class="step-item">
+          <span class="step-num">1</span>
+          <span>Your deposit of $700 has been captured successfully</span>
+        </div>
+        <div class="step-item">
+          <span class="step-num">2</span>
+          <span>The merchant will capture the $2,100 balance before your departure</span>
+        </div>
+        <div class="step-item">
+          <span class="step-num">3</span>
+          <span>You'll receive a confirmation email once fully paid</span>
+        </div>
+      </div>
+
+      <div class="annotation">
+        <strong>Sidebar matches existing authorize flow:</strong><br>
+        - Shows deposit/balance split with remaining amount in amber<br>
+        - Authorization expiry date (same as Tokyo booking detail)<br>
+        - "What Happens Next" section helps customer understand the two-phase flow<br>
+        - No action buttons for customer — merchant captures balance
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

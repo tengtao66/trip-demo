@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TERRA - Cruise Detail Page</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #FAF6F1; color: #1a1a1a; }
+  :root {
+    --mocha: #5C3D2E;
+    --terracotta: #A0522D;
+    --sage: #86A873;
+    --alpine-oat: #FAF6F1;
+    --border: #e5ddd5;
+    --muted: #5e5549;
+  }
+  .header {
+    background: var(--mocha);
+    color: white;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header .brand { font-size: 20px; font-weight: 700; letter-spacing: 2px; }
+  .header .brand span { color: var(--terracotta); font-weight: 400; font-size: 12px; letter-spacing: 1px; margin-left: 8px; }
+  .header nav { display: flex; gap: 24px; }
+  .header nav a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 14px; }
+
+  /* Hero */
+  .hero {
+    background: var(--mocha);
+    color: white;
+    position: relative;
+    overflow: hidden;
+    min-height: 340px;
+  }
+  .hero-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    position: relative;
+    z-index: 2;
+  }
+  .hero-text .badge {
+    display: inline-block;
+    background: var(--terracotta);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 16px;
+  }
+  .hero-text h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+  .hero-text .duration { font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .hero-text p { color: rgba(255,255,255,0.8); line-height: 1.6; font-size: 15px; }
+  .hero-image {
+    border-radius: 12px;
+    overflow: hidden;
+    height: 300px;
+  }
+  .hero-image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 14px;
+    opacity: 0.7;
+    mask-image: linear-gradient(to right, transparent 0%, black 25%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 25%);
+  }
+
+  .main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 24px;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 40px;
+  }
+
+  /* Itinerary */
+  .itinerary h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--mocha);
+    margin-bottom: 20px;
+  }
+  .timeline { position: relative; padding-left: 32px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: var(--border);
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f0ebe5;
+  }
+  .timeline-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .timeline-dot {
+    position: absolute;
+    left: -27px;
+    top: 4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--terracotta);
+    border: 3px solid var(--alpine-oat);
+    box-shadow: 0 0 0 2px var(--terracotta);
+  }
+  .timeline-day {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--terracotta);
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .timeline-title { font-size: 15px; font-weight: 600; color: var(--mocha); margin-bottom: 4px; }
+  .timeline-details { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  /* Highlights */
+  .highlights {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .highlight-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .highlight-icon {
+    width: 36px;
+    height: 36px;
+    background: #f0ebe5;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .highlight-card h4 { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .highlight-card p { font-size: 12px; color: var(--muted); }
+
+  /* Sidebar */
+  .sidebar { position: sticky; top: 24px; height: fit-content; }
+  .pricing-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+  .price-main {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--terracotta);
+    margin-bottom: 4px;
+  }
+  .price-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+
+  .deposit-box {
+    background: #f7f3ee;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+  .deposit-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  .deposit-row .label { color: var(--muted); }
+  .deposit-row .value { color: var(--mocha); font-weight: 500; }
+  .deposit-row.highlight .label { color: var(--terracotta); font-weight: 600; }
+  .deposit-row.highlight .value { color: var(--terracotta); font-weight: 700; }
+  .deposit-divider { height: 1px; background: var(--border); margin: 8px 0; }
+  .deposit-note {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+    line-height: 1.5;
+  }
+
+  .btn-reserve {
+    width: 100%;
+    padding: 14px;
+    background: var(--terracotta);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-reserve:hover { background: #8B4513; }
+  .btn-reserve:focus-visible { outline: 2px solid var(--terracotta); outline-offset: 2px; }
+
+  .trust-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  @media (max-width: 768px) {
+    .hero-content { grid-template-columns: 1fr; gap: 24px; }
+    .main { grid-template-columns: 1fr; }
+    .highlights { grid-template-columns: 1fr; }
+    .header nav { display: none; }
+  }
+
+  .annotation {
+    background: #fffbeb;
+    border: 2px dashed #f59e0b;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #92400e;
+    margin-top: 16px;
+    line-height: 1.5;
+  }
+  .annotation strong { color: #78350f; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand">TERRA <span>Guided Tours</span></div>
+  <nav>
+    <a href="#">Tours</a>
+    <a href="#">Car Rentals</a>
+    <a href="#" style="color:white;font-weight:600">Cruises</a>
+    <a href="#">My Bookings</a>
+  </nav>
+</div>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-content">
+    <div class="hero-text">
+      <span class="badge">RESERVE NOW</span>
+      <h1>Caribbean Island Hopper</h1>
+      <div class="duration">&#128339; 7 Days</div>
+      <p>7-day cruise through the Caribbean -- Cozumel, Grand Cayman, and Jamaica. Includes all meals, entertainment, and port excursions.</p>
+    </div>
+    <div class="hero-image">
+      <div class="hero-image-placeholder">cruises-caribbean.webp</div>
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div>
+    <!-- Cruise Highlights -->
+    <h2 style="font-size:20px;font-weight:600;color:var(--mocha);margin-bottom:16px;">Cruise Highlights</h2>
+    <div class="highlights">
+      <div class="highlight-card">
+        <div class="highlight-icon">&#127758;</div>
+        <div>
+          <h4>3 Island Ports</h4>
+          <p>Cozumel, Grand Cayman, Jamaica</p>
+        </div>
+      </div>
+      <div class="highlight-card">
+        <div class="highlight-icon">&#127860;</div>
+        <div>
+          <h4>All-Inclusive Dining</h4>
+          <p>Breakfast, lunch, dinner included</p>
+        </div>
+      </div>
+      <div class="highlight-card">
+        <div class="highlight-icon">&#127926;</div>
+        <div>
+          <h4>Live Entertainment</h4>
+          <p>Nightly shows and deck parties</p>
+        </div>
+      </div>
+      <div class="highlight-card">
+        <div class="highlight-icon">&#127754;</div>
+        <div>
+          <h4>Shore Excursions</h4>
+          <p>Snorkeling, waterfalls, beaches</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Itinerary -->
+    <div class="itinerary">
+      <h2>7-Day Itinerary</h2>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-day">Day 1</div>
+          <div class="timeline-title">Miami Departure</div>
+          <div class="timeline-details">Board the ship, welcome dinner, safety briefing</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-day">Day 2</div>
+          <div class="timeline-title">At Sea</div>
+          <div class="timeline-details">Pool deck, spa, entertainment shows</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-day">Day 3</div>
+          <div class="timeline-title">Cozumel, Mexico</div>
+          <div class="timeline-details">Snorkeling at Palancar Reef, downtown shopping</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-day">Day 4</div>
+          <div class="timeline-title">Grand Cayman</div>
+          <div class="timeline-details">Seven Mile Beach, stingray sandbar excursion</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-day">Day 5</div>
+          <div class="timeline-title">Jamaica</div>
+          <div class="timeline-details">Dunn's River Falls, jerk chicken tasting</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-day">Day 6</div>
+          <div class="timeline-title">At Sea</div>
+          <div class="timeline-details">Captain's gala dinner, sunset deck party</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-day">Day 7</div>
+          <div class="timeline-title">Return to Miami</div>
+          <div class="timeline-details">Disembark, farewell brunch</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="pricing-card">
+      <div class="price-main">$2,800</div>
+      <div class="price-sub">per person, 7-day cruise</div>
+
+      <div class="deposit-box">
+        <div class="deposit-row highlight">
+          <span class="label">Deposit (25%)</span>
+          <span class="value">$700</span>
+        </div>
+        <div class="deposit-divider"></div>
+        <div class="deposit-row">
+          <span class="label">Balance due later</span>
+          <span class="value">$2,100</span>
+        </div>
+        <div class="deposit-note">
+          &#128274; Deposit is captured immediately. The remaining balance will be charged before your departure date.
+        </div>
+      </div>
+
+      <button class="btn-reserve">Reserve Now</button>
+
+      <div class="trust-row">
+        <span>&#128274; Secure Payment</span>
+        <span>&#10003; Free Cancellation</span>
+      </div>
+    </div>
+
+    <div class="annotation">
+      <strong>Authorize & Capture Flow (same as Tokyo trip):</strong><br>
+      No date picker, no Pay Later -- this uses the same <code>CheckoutAuthorizePage</code> as Flow 1. Customer authorizes full $2,800, merchant partial-captures $700 deposit, then captures $2,100 balance later. Sidebar shows the deposit/balance split clearly.
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
