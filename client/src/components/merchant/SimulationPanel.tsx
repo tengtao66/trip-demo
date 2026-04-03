@@ -16,7 +16,7 @@ const SIM_STEPS: SimStep[] = [
   { label: "Diving Session", description: "Scuba diving session add-on", chargeType: "addon", amount: 200 },
   { label: "City Walk Tour", description: "Guided city walk add-on", chargeType: "addon", amount: 80 },
   { label: "Cultural Event", description: "Traditional dance event add-on", chargeType: "addon", amount: 120 },
-  { label: "Final Settlement", description: "Final trip settlement charge", chargeType: "final", amount: 450 },
+  { label: "Final Settlement", description: "Final trip settlement charge", chargeType: "final", amount: 1450 },
 ];
 
 type SimState = "idle" | "seeding" | "running" | "complete";
@@ -90,6 +90,12 @@ export default function SimulationPanel() {
         setTotalCharged((prev) => prev + step.amount);
         const nextStep = stepIdx + 1;
         if (nextStep >= SIM_STEPS.length) {
+          // Final step — also delete the vault token to complete the lifecycle
+          try {
+            await authFetch(`/api/vault/${vaultTokenId}`, { method: "DELETE" });
+          } catch {
+            // Non-critical — vault cleanup is best-effort in simulation
+          }
           setCurrentStep(nextStep);
           setSimState("complete");
         } else {
@@ -110,8 +116,16 @@ export default function SimulationPanel() {
     }
   }, [simState, autoAdvance, currentStep, runStep, cleanup]);
 
-  const reset = () => {
+  const reset = async () => {
     cleanup();
+    // Clean up simulation booking from DB
+    if (bookingId) {
+      try {
+        await authFetch(`/api/simulation/${bookingId}`, { method: "DELETE" });
+      } catch {
+        // Best-effort cleanup
+      }
+    }
     setSimState("idle");
     setCurrentStep(0);
     setVaultTokenId(null);

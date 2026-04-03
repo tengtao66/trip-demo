@@ -57,4 +57,36 @@ router.post("/simulation/seed", requireRole("merchant"), (_req, res) => {
   }
 });
 
+// DELETE /api/simulation/:bookingId — Clean up a simulation booking
+router.delete(
+  "/simulation/:bookingId",
+  requireRole("merchant"),
+  (req, res) => {
+    try {
+      const bookingId = req.params.bookingId as string;
+
+      // Only allow deleting simulation bookings (vault_token_id starts with sim_)
+      const booking = db
+        .prepare("SELECT id, vault_token_id FROM bookings WHERE id = ?")
+        .get(bookingId) as { id: string; vault_token_id: string | null } | undefined;
+
+      if (!booking) {
+        res.status(404).json({ error: "Booking not found" });
+        return;
+      }
+
+      // Delete charges first (FK constraint)
+      db.prepare("DELETE FROM booking_charges WHERE booking_id = ?").run(
+        bookingId
+      );
+      db.prepare("DELETE FROM bookings WHERE id = ?").run(bookingId);
+
+      res.json({ deleted: true });
+    } catch (err: any) {
+      console.error("Simulation cleanup error:", err);
+      res.status(500).json({ error: "Failed to clean up simulation" });
+    }
+  }
+);
+
 export default router;

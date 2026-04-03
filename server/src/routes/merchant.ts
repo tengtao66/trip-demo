@@ -8,7 +8,9 @@ const router = Router();
 const TERMINAL_STATUSES = [
   "COMPLETED",
   "FULLY_CAPTURED",
+  "FULLY_PAID",
   "VOIDED",
+  "EXPIRED",
   "CANCELLED",
   "REFUNDED",
 ];
