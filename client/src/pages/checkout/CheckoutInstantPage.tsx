@@ -5,7 +5,19 @@ import {
   PayPalMessages,
   usePayPalScriptReducer,
 } from "@paypal/react-paypal-js";
-import { Car, AlertCircle, CalendarDays, CheckCircle2 } from "lucide-react";
+import {
+  Car,
+  AlertCircle,
+  CalendarDays,
+  CheckCircle2,
+  Fuel,
+  Users,
+  Luggage,
+  Navigation,
+  Wrench,
+  CircleCheck,
+  Infinity,
+} from "lucide-react";
 import { authFetch } from "@/lib/auth-fetch";
 import { usePayPalIntent } from "@/lib/use-paypal-intent";
 import { tripImages } from "@/lib/constants";
@@ -178,21 +190,71 @@ export default function CheckoutInstantPage({ trip }: Props) {
                 </div>
               </div>
             </div>
+
+            {/* Vehicle Specs */}
+            <div className="rounded-xl border border-border p-5">
+              <h3 className="font-semibold text-foreground mb-3">Vehicle Specifications</h3>
+              <div className="grid grid-cols-4 gap-2">
+                {[
+                  { icon: Car, value: "Auto", label: "Trans." },
+                  { icon: Fuel, value: trip.slug === "suv-rental" ? "25 MPG" : trip.slug === "luxury-convertible" ? "20 MPG" : "35 MPG", label: "Economy" },
+                  { icon: Users, value: trip.slug === "suv-rental" ? "7" : "5", label: "Seats" },
+                  { icon: Luggage, value: trip.slug === "suv-rental" ? "4 Lrg" : trip.slug === "luxury-convertible" ? "1 Lrg" : "2 Lrg", label: "Bags" },
+                ].map((spec) => (
+                  <div key={spec.label} className="text-center py-2">
+                    <spec.icon className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
+                    <p className="text-xs font-semibold text-foreground">{spec.value}</p>
+                    <p className="text-[10px] text-muted-foreground">{spec.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* What's Included */}
+            <div className="rounded-xl border border-border p-5">
+              <h3 className="font-semibold text-foreground mb-3">What's Included</h3>
+              <div className="space-y-2">
+                {[
+                  { icon: Infinity, text: "Unlimited Mileage" },
+                  { icon: Navigation, text: "GPS Navigation" },
+                  { icon: Wrench, text: "Roadside Assistance (24/7)" },
+                  { icon: CircleCheck, text: "Free Cancellation (24h before)" },
+                ].map((item) => (
+                  <div key={item.text} className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <item.icon className="h-4 w-4 text-primary shrink-0" />
+                    <span>{item.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Right column: Payment */}
           <div className="space-y-6">
             <div className="rounded-xl border border-border p-6 space-y-5">
-              <h3 className="font-semibold text-foreground">Payment Summary</h3>
+              <h3 className="font-semibold text-foreground">Rental Summary</h3>
 
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    Daily rate x {rentalDays}{" "}
-                    {rentalDays === 1 ? "day" : "days"}
-                  </span>
-                  <span className="font-medium text-foreground">
-                    ${totalPrice.toLocaleString()}
+              <div className="space-y-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Vehicle</span>
+                  <span className="text-foreground font-medium">{trip.name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Pickup</span>
+                  <span className="text-foreground">{formatDate(pickup)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Drop-off</span>
+                  <span className="text-foreground">{formatDate(dropoff)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Daily rate</span>
+                  <span className="text-foreground">${dailyRate}/day</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Duration</span>
+                  <span className="text-foreground">
+                    {rentalDays} {rentalDays === 1 ? "day" : "days"}
                   </span>
                 </div>
               </div>
