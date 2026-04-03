@@ -159,8 +159,10 @@ router.post(
 
       // PayPal returns the invoice href in the Location header or the response body
       const invoiceData = await createRes.json();
+      // PayPal Invoicing API returns { rel, href, method } — extract ID from href
       const paypalInvoiceId =
         invoiceData.id ||
+        invoiceData.href?.split("/").pop() ||
         invoiceData.links?.find((l: any) => l.rel === "self")?.href?.split("/").pop();
 
       if (!paypalInvoiceId) {

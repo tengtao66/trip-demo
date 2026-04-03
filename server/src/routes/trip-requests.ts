@@ -147,8 +147,12 @@ router.post(
 
         if (createRes.ok) {
           const invoiceData = await createRes.json();
+          // PayPal Invoicing API returns { rel, href, method } — extract ID from href
           paypalInvoiceId = invoiceData.id ||
+            invoiceData.href?.split("/").pop() ||
             invoiceData.links?.find((l: any) => l.rel === "self")?.href?.split("/").pop();
+
+          console.log("PayPal invoice created:", paypalInvoiceId, "raw response:", JSON.stringify(invoiceData));
 
           if (paypalInvoiceId) {
             // 2. Send invoice immediately
