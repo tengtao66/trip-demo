@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Navigate } from "react-router-dom";
 import { authFetch } from "@/lib/auth-fetch";
 import type { BookingDetail } from "@/types/booking";
 import AuthorizeBookingDetailPage from "./AuthorizeBookingDetailPage";
@@ -50,10 +50,11 @@ export default function MerchantBookingDetailPage() {
         <VaultBookingDetailPage booking={booking} onRefresh={loadBooking} />
       );
     case "invoice":
-      return (
-        <div className="text-center py-20 text-2xl text-muted-foreground">
-          Invoice Booking Detail — Coming Soon
-        </div>
+      // Redirect to the invoice detail page which handles this flow
+      return booking.invoice_id ? (
+        <Navigate to={`/merchant/invoices/${booking.invoice_id}`} replace />
+      ) : (
+        <Navigate to={`/merchant/trip-requests`} replace />
       );
     default:
       return null;

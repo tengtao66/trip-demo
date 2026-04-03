@@ -30,6 +30,7 @@ export default function CustomTripRequestPage() {
   const [submitted, setSubmitted] = useState(false);
   const [requestId, setRequestId] = useState<string | null>(null);
   const [bookingRef, setBookingRef] = useState<string | null>(null);
+  const [invoiceUrl, setInvoiceUrl] = useState<string | null>(null);
 
   const total = useMemo(() => {
     const destTotal = DESTINATIONS.filter((d) =>
@@ -88,6 +89,7 @@ export default function CustomTripRequestPage() {
       const data = await res.json();
       setRequestId(data.id);
       setBookingRef(data.bookingReference);
+      setInvoiceUrl(data.invoiceUrl || null);
       setSubmitted(true);
     } catch (err: any) {
       setError(err.message);
@@ -113,16 +115,50 @@ export default function CustomTripRequestPage() {
             <CheckCircle2 className="h-8 w-8 text-secondary" />
           </div>
           <h1 className="text-2xl font-semibold text-foreground">
-            Trip Request Submitted!
+            {invoiceUrl ? "Invoice Sent!" : "Trip Request Submitted!"}
           </h1>
           {bookingRef && (
             <p className="text-sm font-mono text-accent mt-1">{bookingRef}</p>
           )}
           <p className="text-muted-foreground mt-2 max-w-md mx-auto">
-            Our travel team will review your request and send a PayPal invoice to{" "}
-            <strong className="text-foreground">{email}</strong>
+            {invoiceUrl
+              ? <>A PayPal invoice has been sent to <strong className="text-foreground">{email}</strong>. Pay the deposit to confirm your booking.</>
+              : <>Our travel team will review your request and send a PayPal invoice to <strong className="text-foreground">{email}</strong></>
+            }
           </p>
         </div>
+
+        {/* Invoice link — shown when auto-created */}
+        {invoiceUrl && (
+          <div className="rounded-xl border border-blue-200 bg-blue-50 p-6 mb-6">
+            <div className="flex items-center gap-2 mb-2">
+              <Mail className="h-5 w-5 text-blue-600" />
+              <h3 className="font-semibold text-blue-900">PayPal Invoice</h3>
+            </div>
+            <p className="text-sm text-blue-700 mb-4">
+              Click below to view and pay your invoice. You can also find it in the email sent to {email}.
+            </p>
+            <div className="flex gap-3">
+              <a
+                href={invoiceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+              >
+                <FileText className="h-4 w-4" />
+                View & Pay Invoice
+              </a>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(invoiceUrl);
+                }}
+                className="inline-flex items-center gap-2 bg-white border border-blue-200 text-blue-700 px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-50 transition-colors cursor-pointer"
+              >
+                Copy Link
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Request summary */}
         <div className="rounded-xl border border-border bg-card p-6 space-y-5 mb-6">

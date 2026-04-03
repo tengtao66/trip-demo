@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import db from "../services/db.js";
 import { requireRole } from "../middleware/auth.js";
 import { generateBookingReference } from "../lib/pnr.js";
+import { getPayPalAccessToken, PAYPAL_BASE_URL } from "../services/paypal.js";
 
 // Destination/activity pricing — must match client/src/data/destinations.ts
 const DESTINATION_PRICES: Record<string, number> = {
@@ -86,42 +87,125 @@ router.post(
 
       const id = randomUUID();
 
-      // Create a booking record so it appears in My Bookings & merchant dashboard
+      // Create booking record
       const bookingId = randomUUID();
       const bookingRef = generateBookingReference();
       const euroTrip = db
         .prepare("SELECT id FROM trips WHERE payment_flow = 'invoice' LIMIT 1")
         .get() as { id: string } | undefined;
 
+      // --- Auto-create and send PayPal invoice ---
+      let paypalInvoiceId: string | null = null;
+      let invoiceUrl: string | null = null;
+      let bookingStatus = "REQUEST_SUBMITTED";
+
+      try {
+        const accessToken = await getPayPalAccessToken();
+
+        // Build destination/activity names for invoice line items
+        const DEST_NAMES: Record<string, string> = {
+          paris: "Paris, France", rome: "Rome, Italy", santorini: "Santorini, Greece",
+          barcelona: "Barcelona, Spain", "swiss-alps": "Swiss Alps", amsterdam: "Amsterdam, Netherlands",
+        };
+        const ACT_NAMES: Record<string, string> = {
+          museum: "Guided Museum Tour", wine: "Wine Tasting",
+          cooking: "Cooking Class", boat: "Boat Excursion",
+        };
+
+        const invoiceItems = [
+          {
+            name: "European Grand Tour — Deposit (40%)",
+            description: `Destinations: ${destinations.map((d: string) => DEST_NAMES[d] || d).join(", ")}`,
+            quantity: "1",
+            unit_amount: { currency_code: "USD", value: depositAmount.toFixed(2) },
+          },
+          {
+            name: "European Grand Tour — Balance (60%)",
+            description: activities?.length
+              ? `Activities: ${(activities as string[]).map((a: string) => ACT_NAMES[a] || a).join(", ")}`
+              : "Remaining balance",
+            quantity: "1",
+            unit_amount: { currency_code: "USD", value: balanceAmount.toFixed(2) },
+          },
+        ];
+
+        // 1. Create invoice draft
+        const createRes = await fetch(`${PAYPAL_BASE_URL}/v2/invoicing/invoices`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            detail: {
+              currency_code: "USD",
+              note: `Custom European Grand Tour — ${destinations.length} destinations`,
+              invoice_date: new Date().toISOString().split("T")[0],
+              payment_term: { term_type: "NET_30" },
+            },
+            primary_recipients: [{ billing_info: { email_address: email } }],
+            items: invoiceItems,
+          }),
+        });
+
+        if (createRes.ok) {
+          const invoiceData = await createRes.json();
+          paypalInvoiceId = invoiceData.id ||
+            invoiceData.links?.find((l: any) => l.rel === "self")?.href?.split("/").pop();
+
+          if (paypalInvoiceId) {
+            // 2. Send invoice immediately
+            const sendRes = await fetch(
+              `${PAYPAL_BASE_URL}/v2/invoicing/invoices/${paypalInvoiceId}/send`,
+              {
+                method: "POST",
+                headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ send_to_recipient: true }),
+              }
+            );
+
+            if (sendRes.ok) {
+              bookingStatus = "AWAITING_DEPOSIT";
+
+              // 3. Fetch invoice detail to get recipient_view_url
+              const detailRes = await fetch(
+                `${PAYPAL_BASE_URL}/v2/invoicing/invoices/${paypalInvoiceId}`,
+                { headers: { Authorization: `Bearer ${accessToken}` } }
+              );
+              if (detailRes.ok) {
+                const detailData = await detailRes.json();
+                invoiceUrl = detailData.detail?.metadata?.recipient_view_url || null;
+              }
+            }
+          }
+        }
+      } catch (invoiceErr: any) {
+        console.error("Auto-invoice creation failed (non-blocking):", invoiceErr);
+        // Non-blocking — booking still created, merchant can manually create invoice later
+      }
+
+      // Insert booking
       db.prepare(
         `INSERT INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow,
-         total_amount, paid_amount, created_at, updated_at)
-         VALUES (?, ?, ?, ?, 'REQUEST_SUBMITTED', 'invoice', ?, 0, datetime('now'), datetime('now'))`
+         total_amount, paid_amount, invoice_id, invoice_url, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, 'invoice', ?, 0, ?, ?, datetime('now'), datetime('now'))`
       ).run(
         bookingId,
         bookingRef,
         user.id,
         euroTrip?.id || "t-europe-01",
-        totalEstimate
+        bookingStatus,
+        totalEstimate,
+        paypalInvoiceId,
+        invoiceUrl
       );
 
-      // Create trip request linked to the booking
+      // Create trip request linked to booking
       db.prepare(
         `INSERT INTO trip_requests (id, user_id, email, start_date, end_date, destinations, activities, notes, total_estimate, deposit_amount, balance_amount, booking_id, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'REQUEST_SUBMITTED')`
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       ).run(
-        id,
-        user.id,
-        email,
-        startDate,
-        endDate,
-        JSON.stringify(destinations),
-        JSON.stringify(activities || []),
-        notes || null,
-        totalEstimate,
-        depositAmount,
-        balanceAmount,
-        bookingId
+        id, user.id, email, startDate, endDate,
+        JSON.stringify(destinations), JSON.stringify(activities || []),
+        notes || null, totalEstimate, depositAmount, balanceAmount,
+        bookingId, bookingStatus
       );
 
       res.status(201).json({
@@ -131,7 +215,8 @@ router.post(
         totalEstimate,
         depositAmount,
         balanceAmount,
-        status: "REQUEST_SUBMITTED",
+        invoiceUrl,
+        status: bookingStatus,
       });
     } catch (err: any) {
       console.error("Create trip request error:", err);
