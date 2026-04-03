@@ -1,6 +1,17 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Clock } from "lucide-react";
+import {
+  ArrowLeft,
+  Clock,
+  Car,
+  Fuel,
+  Users,
+  Luggage,
+  Navigation,
+  Wrench,
+  CircleCheck,
+  Infinity,
+} from "lucide-react";
 import { fetchTrip } from "@/lib/api";
 import { tripImages } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
@@ -107,14 +118,21 @@ function PricingSidebar({ trip }: { trip: Trip }) {
           </div>
 
           {rentalDays > 0 && (
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
-              <span>
-                ${trip.daily_rate.toLocaleString()}/day &times; {rentalDays}{" "}
-                {rentalDays === 1 ? "day" : "days"}
-              </span>
-              <span className="font-semibold text-foreground">
-                ${rentalTotal.toLocaleString()}
-              </span>
+            <div className="rounded-lg bg-muted/50 p-3 space-y-2">
+              <div className="flex items-center justify-between text-sm text-muted-foreground">
+                <span>
+                  ${trip.daily_rate.toLocaleString()}/day &times; {rentalDays}{" "}
+                  {rentalDays === 1 ? "day" : "days"}
+                </span>
+                <span>${rentalTotal.toLocaleString()}</span>
+              </div>
+              <div className="h-px bg-border" />
+              <div className="flex items-center justify-between text-sm">
+                <span className="font-semibold text-foreground">Total</span>
+                <span className="font-bold text-lg text-primary">
+                  ${rentalTotal.toLocaleString()}
+                </span>
+              </div>
             </div>
           )}
 
@@ -233,16 +251,78 @@ export default function TripDetailPage() {
 
       {/* Two-column layout */}
       <div className="max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-3 gap-10">
-        {/* Left: description + itinerary */}
+        {/* Left: description + itinerary (or vehicle specs for car rentals) */}
         <div className="lg:col-span-2 space-y-8">
-          <div>
-            <h2 className="text-xl font-semibold text-foreground mb-3">
-              About This Trip
-            </h2>
-            <p className="text-muted-foreground leading-relaxed">
-              {trip.description}
-            </p>
-          </div>
+          {trip.category === "car_rental" ? (
+            <>
+              {/* Vehicle Specifications */}
+              <div>
+                <h2 className="text-xl font-semibold text-foreground mb-4">
+                  Vehicle Specifications
+                </h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[
+                    { icon: Car, value: "Automatic", label: "Transmission" },
+                    { icon: Fuel, value: trip.slug === "suv-rental" ? "25 MPG" : trip.slug === "luxury-convertible" ? "20 MPG" : "35 MPG", label: "Fuel Economy" },
+                    { icon: Users, value: trip.slug === "suv-rental" ? "7 Seats" : "5 Seats", label: "Passengers" },
+                    { icon: Luggage, value: trip.slug === "suv-rental" ? "4 Large" : trip.slug === "luxury-convertible" ? "1 Large" : "2 Large", label: "Luggage" },
+                  ].map((spec) => (
+                    <div
+                      key={spec.label}
+                      className="rounded-xl border border-border bg-card p-4 text-center"
+                    >
+                      <spec.icon className="h-5 w-5 mx-auto mb-2 text-muted-foreground" />
+                      <p className="text-sm font-semibold text-foreground">
+                        {spec.value}
+                      </p>
+                      <p className="text-xs text-muted-foreground">{spec.label}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* What's Included */}
+              <div>
+                <h2 className="text-xl font-semibold text-foreground mb-4">
+                  What's Included
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {[
+                    { icon: Infinity, title: "Unlimited Mileage", desc: "Drive as far as you need" },
+                    { icon: Navigation, title: "GPS Navigation", desc: "Built-in nav system" },
+                    { icon: Wrench, title: "Roadside Assistance", desc: "24/7 emergency support" },
+                    { icon: CircleCheck, title: "Free Cancellation", desc: "Cancel up to 24h before" },
+                  ].map((feature) => (
+                    <div
+                      key={feature.title}
+                      className="flex items-start gap-3 rounded-xl border border-border bg-card p-4"
+                    >
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <feature.icon className="h-4 w-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">
+                          {feature.title}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {feature.desc}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          ) : (
+            <div>
+              <h2 className="text-xl font-semibold text-foreground mb-3">
+                About This Trip
+              </h2>
+              <p className="text-muted-foreground leading-relaxed">
+                {trip.description}
+              </p>
+            </div>
+          )}
 
           {trip.itinerary.length > 0 && (
             <div>
