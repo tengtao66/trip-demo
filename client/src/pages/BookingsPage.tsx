@@ -4,6 +4,12 @@ import { Calendar, ChevronRight } from "lucide-react";
 import { authFetch } from "@/lib/auth-fetch";
 import type { Booking } from "@/types/booking";
 
+const tripImages: Record<string, string> = {
+  "tokyo-cherry-blossom": "/tokyo.webp",
+  "bali-adventure": "/bali2.webp",
+  "custom-european-tour": "/euro2.jpg",
+};
+
 const STATUS_LABELS: Record<string, { label: string; className: string }> = {
   DEPOSIT_CAPTURED: {
     label: "Deposit Paid",
@@ -85,11 +91,17 @@ export default function BookingsPage() {
             to={`/bookings/${b.id}`}
             className="flex items-center gap-4 rounded-xl border border-border p-4 hover:bg-muted/50 transition-colors group"
           >
-            {/* Gradient swatch */}
+            {/* Trip image */}
             <div
-              className="h-14 w-14 rounded-lg shrink-0"
-              style={{ background: b.image_gradient || "#ccc" }}
-            />
+              className="h-14 w-20 rounded-lg shrink-0 bg-cover bg-center relative overflow-hidden"
+              style={
+                tripImages[b.trip_slug]
+                  ? { backgroundImage: `url(${tripImages[b.trip_slug]})` }
+                  : { background: b.image_gradient || "#ccc" }
+              }
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-card/40 to-transparent" />
+            </div>
             {/* Info */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">

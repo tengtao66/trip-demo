@@ -10,6 +10,12 @@ import {
 import { authFetch } from "@/lib/auth-fetch";
 import type { BookingDetail } from "@/types/booking";
 
+const tripImages: Record<string, string> = {
+  "tokyo-cherry-blossom": "/tokyo.webp",
+  "bali-adventure": "/bali2.webp",
+  "custom-european-tour": "/euro2.jpg",
+};
+
 const STATUS_LABELS: Record<string, { label: string; className: string }> = {
   DEPOSIT_CAPTURED: {
     label: "Deposit Paid",
@@ -93,9 +99,15 @@ export default function BookingDetailPage() {
           {/* Trip card */}
           <div className="rounded-xl overflow-hidden border border-border">
             <div
-              className="h-32 w-full"
-              style={{ background: booking.image_gradient || "#ccc" }}
-            />
+              className="h-40 w-full bg-cover bg-center relative"
+              style={
+                tripImages[booking.trip_slug]
+                  ? { backgroundImage: `url(${tripImages[booking.trip_slug]})` }
+                  : { background: booking.image_gradient || "#ccc" }
+              }
+            >
+              <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-card to-transparent" />
+            </div>
             <div className="p-5">
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-xl font-semibold text-foreground">
