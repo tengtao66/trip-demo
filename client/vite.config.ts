@@ -9,7 +9,7 @@ export default defineConfig({
   envDir: "..",
   server: {
     proxy: {
-      "/api": { target: "http://localhost:3001", changeOrigin: true },
+      "/api": { target: `http://localhost:${process.env.PORT || 3001}`, changeOrigin: true },
     },
   },
 });

@@ -37,7 +37,8 @@ router.post("/orders/create", requireRole("customer"), async (req, res) => {
       // Vault flow: use direct REST call because SDK types may not include
       // payment_source.paypal.attributes.vault
       const accessToken = await getPayPalAccessToken();
-      const origin = req.headers.referer || req.headers.origin || "";
+      const rawOrigin = req.headers.referer || req.headers.origin || "";
+      const origin = rawOrigin ? rawOrigin.replace(/\/[^/]*$/, "/") : "http://localhost:5173/";
       // For UNSCHEDULED_POSTPAID vault flow, billing_plan/billing_cycles
       // are not compatible. We use a simple order with vault attributes only.
       // The RBA checkout experience is driven by usage_pattern in the vault config.
