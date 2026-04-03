@@ -13,9 +13,11 @@ CREATE TABLE IF NOT EXISTS trips (
   duration_days INTEGER NOT NULL,
   base_price REAL NOT NULL,
   deposit_amount REAL NOT NULL,
-  payment_flow TEXT NOT NULL CHECK(payment_flow IN ('authorize','vault','invoice')),
+  payment_flow TEXT NOT NULL CHECK(payment_flow IN ('authorize','vault','invoice','instant')),
   itinerary TEXT NOT NULL,
-  image_gradient TEXT NOT NULL
+  image_gradient TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT 'tour',
+  daily_rate REAL
 );
 
 CREATE TABLE IF NOT EXISTS bookings (
@@ -33,6 +35,8 @@ CREATE TABLE IF NOT EXISTS bookings (
   vault_token_id TEXT,
   invoice_id TEXT,
   invoice_url TEXT,
+  pickup_date TEXT,
+  dropoff_date TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
@@ -40,7 +44,7 @@ CREATE TABLE IF NOT EXISTS bookings (
 CREATE TABLE IF NOT EXISTS booking_charges (
   id TEXT PRIMARY KEY,
   booking_id TEXT NOT NULL REFERENCES bookings(id),
-  type TEXT NOT NULL CHECK(type IN ('deposit','balance','addon','setup_fee','final')),
+  type TEXT NOT NULL CHECK(type IN ('deposit','balance','addon','setup_fee','final','full_payment')),
   description TEXT NOT NULL,
   amount REAL NOT NULL,
   paypal_capture_id TEXT,

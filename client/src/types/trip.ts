@@ -6,9 +6,11 @@ export interface Trip {
   duration_days: number;
   base_price: number;
   deposit_amount: number;
-  payment_flow: "authorize" | "vault" | "invoice";
+  payment_flow: "authorize" | "vault" | "invoice" | "instant";
   itinerary: ItineraryDay[];
   image_gradient: string;
+  category: "tour" | "car_rental" | "cruise";
+  daily_rate: number | null;
 }
 
 export interface ItineraryDay {
