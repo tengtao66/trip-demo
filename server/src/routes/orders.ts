@@ -38,6 +38,9 @@ router.post("/orders/create", requireRole("customer"), async (req, res) => {
       // payment_source.paypal.attributes.vault
       const accessToken = await getPayPalAccessToken();
       const origin = req.headers.referer || req.headers.origin || "";
+      // For UNSCHEDULED_POSTPAID vault flow, billing_plan/billing_cycles
+      // are not compatible. We use a simple order with vault attributes only.
+      // The RBA checkout experience is driven by usage_pattern in the vault config.
       const orderBody = {
         intent: "CAPTURE",
         purchase_units: [
@@ -55,38 +58,14 @@ router.post("/orders/create", requireRole("customer"), async (req, res) => {
             reference_id: trip.id,
             items: [
               {
-                name: "Billing Plan",
-                description: `${trip.name} - service plan`,
+                name: trip.name,
+                description: `${trip.duration_days}-day guided tour — Setup Fee`,
                 unit_amount: {
                   currency_code: "USD",
                   value: trip.deposit_amount.toFixed(2),
                 },
                 quantity: "1",
-                billing_plan: {
-                  name: trip.name,
-                  setup_fee: {
-                    value: trip.deposit_amount.toFixed(2),
-                    currency_code: "USD",
-                  },
-                  billing_cycles: [
-                    {
-                      tenure_type: "REGULAR",
-                      pricing_scheme: {
-                        price: {
-                          value: "200.00",
-                          currency_code: "USD",
-                        },
-                        pricing_model: "VARIABLE",
-                      },
-                      frequency: {
-                        interval_unit: "DAY",
-                        interval_count: 1,
-                      },
-                      total_cycles: trip.duration_days,
-                      sequence: 1,
-                    },
-                  ],
-                },
+                category: "DIGITAL_GOODS",
               },
             ],
           },

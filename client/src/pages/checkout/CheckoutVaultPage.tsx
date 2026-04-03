@@ -187,13 +187,26 @@ export default function CheckoutVaultPage({ trip }: Props) {
               </p>
             </div>
 
-            {/* PayPal Buttons */}
+            {/* Vault terms */}
+            <div className="rounded-xl border border-border bg-surface-highlight/50 p-5 text-sm text-muted-foreground space-y-2">
+              <p className="font-medium text-foreground">Payment Authorization Terms</p>
+              <p>By proceeding, you agree to save your PayPal payment method for this trip. The merchant will:</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Charge the setup fee of <strong className="text-foreground">${trip.deposit_amount.toLocaleString()}</strong> now</li>
+                <li>Charge additional service fees for activities you select during your trip</li>
+                <li>Charge the remaining balance after your trip is completed</li>
+                <li>Delete your saved payment token once the trip is fully settled</li>
+              </ul>
+            </div>
+
+            {/* PayPal Button — PayPal only, no card for vault flow */}
             <div className="rounded-xl border border-border p-6">
               <p className="text-sm text-muted-foreground mb-4">
-                Pay securely with PayPal
+                Save & pay with PayPal
               </p>
               <PayPalButtons
-                style={{ layout: "vertical", shape: "rect", label: "pay" }}
+                fundingSource="paypal"
+                style={{ layout: "vertical", shape: "rect", label: "pay", tagline: false }}
                 createOrder={async () => {
                   setError(null);
                   const res = await authFetch("/api/orders/create", {
