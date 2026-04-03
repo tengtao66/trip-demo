@@ -28,7 +28,7 @@ const router = Router();
 router.post(
   "/trip-requests",
   requireRole("customer"),
-  (req, res) => {
+  async (req, res) => {
     try {
       const userEmail = res.locals.userEmail as string;
       const { email, startDate, endDate, destinations, activities, notes } =
