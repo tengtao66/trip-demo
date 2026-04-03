@@ -29,6 +29,7 @@ export default function CustomTripRequestPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [requestId, setRequestId] = useState<string | null>(null);
+  const [bookingRef, setBookingRef] = useState<string | null>(null);
 
   const total = useMemo(() => {
     const destTotal = DESTINATIONS.filter((d) =>
@@ -86,6 +87,7 @@ export default function CustomTripRequestPage() {
       }
       const data = await res.json();
       setRequestId(data.id);
+      setBookingRef(data.bookingReference);
       setSubmitted(true);
     } catch (err: any) {
       setError(err.message);
@@ -113,6 +115,9 @@ export default function CustomTripRequestPage() {
           <h1 className="text-2xl font-semibold text-foreground">
             Trip Request Submitted!
           </h1>
+          {bookingRef && (
+            <p className="text-sm font-mono text-accent mt-1">{bookingRef}</p>
+          )}
           <p className="text-muted-foreground mt-2 max-w-md mx-auto">
             Our travel team will review your request and send a PayPal invoice to{" "}
             <strong className="text-foreground">{email}</strong>

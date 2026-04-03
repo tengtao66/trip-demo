@@ -2,6 +2,7 @@ import { Router } from "express";
 import { randomUUID } from "crypto";
 import db from "../services/db.js";
 import { requireRole } from "../middleware/auth.js";
+import { generateBookingReference } from "../lib/pnr.js";
 
 // Destination/activity pricing — must match client/src/data/destinations.ts
 const DESTINATION_PRICES: Record<string, number> = {
@@ -85,9 +86,29 @@ router.post(
 
       const id = randomUUID();
 
+      // Create a booking record so it appears in My Bookings & merchant dashboard
+      const bookingId = randomUUID();
+      const bookingRef = generateBookingReference();
+      const euroTrip = db
+        .prepare("SELECT id FROM trips WHERE payment_flow = 'invoice' LIMIT 1")
+        .get() as { id: string } | undefined;
+
       db.prepare(
-        `INSERT INTO trip_requests (id, user_id, email, start_date, end_date, destinations, activities, notes, total_estimate, deposit_amount, balance_amount, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'REQUEST_SUBMITTED')`
+        `INSERT INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow,
+         total_amount, paid_amount, created_at, updated_at)
+         VALUES (?, ?, ?, ?, 'REQUEST_SUBMITTED', 'invoice', ?, 0, datetime('now'), datetime('now'))`
+      ).run(
+        bookingId,
+        bookingRef,
+        user.id,
+        euroTrip?.id || "t-europe-01",
+        totalEstimate
+      );
+
+      // Create trip request linked to the booking
+      db.prepare(
+        `INSERT INTO trip_requests (id, user_id, email, start_date, end_date, destinations, activities, notes, total_estimate, deposit_amount, balance_amount, booking_id, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'REQUEST_SUBMITTED')`
       ).run(
         id,
         user.id,
@@ -99,11 +120,14 @@ router.post(
         notes || null,
         totalEstimate,
         depositAmount,
-        balanceAmount
+        balanceAmount,
+        bookingId
       );
 
       res.status(201).json({
         id,
+        bookingId,
+        bookingReference: bookingRef,
         totalEstimate,
         depositAmount,
         balanceAmount,
