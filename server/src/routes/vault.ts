@@ -27,10 +27,11 @@ router.post(
   async (req, res) => {
     try {
       const { vaultId } = req.params;
-      const { amount, description, type = "addon" } = req.body;
+      const { description, type = "addon" } = req.body;
+      const amount = Number(req.body.amount);
 
-      if (!amount || amount <= 0) {
-        res.status(400).json({ error: "Valid amount is required" });
+      if (!Number.isFinite(amount) || amount <= 0) {
+        res.status(400).json({ error: "Valid numeric amount is required" });
         return;
       }
       if (!description) {
@@ -82,6 +83,14 @@ router.post(
       }
 
       const ppData = await ppRes.json();
+
+      // Verify the order was completed before recording
+      if (ppData.status !== "COMPLETED") {
+        console.error("Vault charge not completed:", ppData.status, ppData);
+        res.status(400).json({ error: `Charge not completed: ${ppData.status}` });
+        return;
+      }
+
       const captureId =
         ppData.purchase_units?.[0]?.payments?.captures?.[0]?.id ?? null;
 
@@ -94,14 +103,7 @@ router.post(
 
       // Update booking paid_amount and status
       const newPaid = booking.paid_amount + amount;
-      const newStatus =
-        booking.status === "ACTIVE" && type === "addon"
-          ? "IN_PROGRESS"
-          : type === "final"
-            ? "COMPLETED"
-            : booking.status === "IN_PROGRESS"
-              ? "IN_PROGRESS"
-              : "IN_PROGRESS";
+      const newStatus = type === "final" ? "COMPLETED" : "IN_PROGRESS";
 
       db.prepare(
         `UPDATE bookings SET paid_amount = ?, status = ?, updated_at = datetime('now') WHERE id = ?`

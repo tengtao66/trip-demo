@@ -278,6 +278,13 @@ router.post(
 
       const captureData = await captureRes.json();
 
+      // Verify capture completed
+      if (captureData.status !== "COMPLETED") {
+        console.error("Vault capture not completed:", captureData.status);
+        res.status(400).json({ error: `Capture not completed: ${captureData.status}` });
+        return;
+      }
+
       // Extract vault_id from response
       const vaultId =
         captureData.payment_source?.paypal?.attributes?.vault?.id ?? null;
