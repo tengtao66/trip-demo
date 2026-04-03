@@ -27,8 +27,14 @@ export default function Layout() {
 
           {/* Center: Nav links */}
           <nav className="hidden md:flex items-center gap-6 text-sm">
-            <Link to="/" className="hover:text-primary-foreground/80 transition-colors">
-              Trips
+            <Link to="/?tab=tour" className="hover:text-primary-foreground/80 transition-colors">
+              Tours
+            </Link>
+            <Link to="/?tab=car_rental" className="hover:text-primary-foreground/80 transition-colors">
+              Car Rentals
+            </Link>
+            <Link to="/?tab=cruise" className="hover:text-primary-foreground/80 transition-colors">
+              Cruises
             </Link>
             <Link to="/bookings" className="hover:text-primary-foreground/80 transition-colors">
               My Bookings
