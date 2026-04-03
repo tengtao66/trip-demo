@@ -1,12 +1,35 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Clock } from "lucide-react";
 import { fetchTrip } from "@/lib/api";
 import { tripImages } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
+import PayLaterMessage from "@/components/PayLaterMessage";
 import type { Trip } from "@/types/trip";
 
 function PricingSidebar({ trip }: { trip: Trip }) {
+  const navigate = useNavigate();
+  const [pickupDate, setPickupDate] = useState("");
+  const [dropoffDate, setDropoffDate] = useState("");
+
+  const today = new Date().toISOString().split("T")[0];
+
+  const rentalDays =
+    pickupDate && dropoffDate
+      ? Math.max(
+          0,
+          Math.ceil(
+            (new Date(dropoffDate).getTime() -
+              new Date(pickupDate).getTime()) /
+              (1000 * 60 * 60 * 24),
+          ),
+        )
+      : 0;
+  const rentalTotal =
+    trip.category === "car_rental" && trip.daily_rate
+      ? rentalDays * trip.daily_rate
+      : 0;
+
   return (
     <div className="rounded-xl border border-border bg-card p-6 space-y-4 sticky top-24">
       {trip.payment_flow === "authorize" && (
@@ -42,11 +65,82 @@ function PricingSidebar({ trip }: { trip: Trip }) {
         </>
       )}
 
-      <Link to={`/checkout/${trip.slug}`} className="block w-full">
-        <Button className="w-full cursor-pointer">
-          {trip.payment_flow === "invoice" ? "Design Your Trip" : "Book Now"}
-        </Button>
-      </Link>
+      {trip.payment_flow === "instant" && trip.daily_rate && (
+        <>
+          <p className="text-2xl font-semibold text-foreground">
+            ${trip.daily_rate.toLocaleString()}/day
+          </p>
+
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">
+                Pickup Date
+              </label>
+              <input
+                type="date"
+                min={today}
+                value={pickupDate}
+                onChange={(e) => {
+                  setPickupDate(e.target.value);
+                  if (dropoffDate && e.target.value > dropoffDate) {
+                    setDropoffDate("");
+                  }
+                }}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">
+                Dropoff Date
+              </label>
+              <input
+                type="date"
+                min={pickupDate || today}
+                value={dropoffDate}
+                onChange={(e) => setDropoffDate(e.target.value)}
+                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Minimum 1-day rental
+            </p>
+          </div>
+
+          {rentalDays > 0 && (
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <span>
+                ${trip.daily_rate.toLocaleString()}/day &times; {rentalDays}{" "}
+                {rentalDays === 1 ? "day" : "days"}
+              </span>
+              <span className="font-semibold text-foreground">
+                ${rentalTotal.toLocaleString()}
+              </span>
+            </div>
+          )}
+
+          {rentalTotal > 0 && <PayLaterMessage amount={rentalTotal} />}
+
+          <Button
+            className="w-full cursor-pointer"
+            disabled={rentalDays <= 0}
+            onClick={() =>
+              navigate(`/checkout/${trip.slug}`, {
+                state: { pickupDate, dropoffDate },
+              })
+            }
+          >
+            Rent Now
+          </Button>
+        </>
+      )}
+
+      {trip.payment_flow !== "instant" && (
+        <Link to={`/checkout/${trip.slug}`} className="block w-full">
+          <Button className="w-full cursor-pointer">
+            {trip.payment_flow === "invoice" ? "Design Your Trip" : "Book Now"}
+          </Button>
+        </Link>
+      )}
     </div>
   );
 }
@@ -109,10 +203,12 @@ export default function TripDetailPage() {
             <p className="mt-3 text-white/80 text-sm leading-relaxed max-w-md">
               {trip.description}
             </p>
-            <p className="mt-4 text-white/70 text-sm flex items-center gap-1.5">
-              <Clock className="h-4 w-4" />
-              {trip.duration_days} {trip.duration_days === 1 ? "Day" : "Days"}
-            </p>
+            {trip.duration_days > 0 && (
+              <p className="mt-4 text-white/70 text-sm flex items-center gap-1.5">
+                <Clock className="h-4 w-4" />
+                {trip.duration_days} {trip.duration_days === 1 ? "Day" : "Days"}
+              </p>
+            )}
           </div>
           {/* Right: image (if available) */}
           {tripImages[trip.slug] && (
