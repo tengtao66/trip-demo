@@ -1,9 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  PayPalScriptProvider,
-  PayPalButtons,
-} from "@paypal/react-paypal-js";
+import { PayPalButtons } from "@paypal/react-paypal-js";
 import { Clock, AlertCircle, ShieldCheck } from "lucide-react";
 import { authFetch } from "@/lib/auth-fetch";
 import { tripImages } from "@/lib/constants";
@@ -20,13 +17,6 @@ export default function CheckoutAuthorizePage({ trip }: Props) {
   const balanceAmount = trip.base_price - trip.deposit_amount;
 
   return (
-    <PayPalScriptProvider
-      options={{
-        clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID,
-        intent: "authorize",
-        currency: "USD",
-      }}
-    >
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -203,6 +193,5 @@ export default function CheckoutAuthorizePage({ trip }: Props) {
           </div>
         </div>
       </div>
-    </PayPalScriptProvider>
   );
 }

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
-  PayPalScriptProvider,
   PayPalButtons,
   PayPalMessages,
   usePayPalScriptReducer,
@@ -111,16 +110,6 @@ export default function CheckoutInstantPage({ trip }: Props) {
   }
 
   return (
-    <PayPalScriptProvider
-      options={{
-        clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID,
-        intent: "capture",
-        currency: "USD",
-        components: "buttons,messages",
-        "enable-funding": "paylater",
-        "buyer-country": "US",
-      }}
-    >
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -253,6 +242,5 @@ export default function CheckoutInstantPage({ trip }: Props) {
           </div>
         </div>
       </div>
-    </PayPalScriptProvider>
   );
 }
