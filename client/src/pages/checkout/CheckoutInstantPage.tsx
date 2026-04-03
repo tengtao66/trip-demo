@@ -3,8 +3,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import {
   PayPalScriptProvider,
   PayPalButtons,
+  PayPalMessages,
+  usePayPalScriptReducer,
 } from "@paypal/react-paypal-js";
-import PayLaterMessage from "@/components/PayLaterMessage";
 import { Car, AlertCircle, CalendarDays, CheckCircle2 } from "lucide-react";
 import { authFetch } from "@/lib/auth-fetch";
 import { tripImages } from "@/lib/constants";
@@ -12,6 +13,26 @@ import type { Trip } from "@/types/trip";
 
 interface Props {
   trip: Trip;
+}
+
+/**
+ * PayPalMessages wrapper that waits for the SDK to finish loading.
+ * Must be rendered inside PayPalScriptProvider.
+ */
+function PayLaterMessages({ amount }: { amount: number }) {
+  const [{ isResolved }] = usePayPalScriptReducer();
+  if (!isResolved) return null;
+  return (
+    <PayPalMessages
+      placement="payment"
+      amount={amount}
+      style={{
+        layout: "text",
+        logo: { type: "inline" },
+        text: { color: "black", size: "12" },
+      }}
+    />
+  );
 }
 
 export default function CheckoutInstantPage({ trip }: Props) {
@@ -52,13 +73,50 @@ export default function CheckoutInstantPage({ trip }: Props) {
       year: "numeric",
     });
 
+  async function handleCreateOrder() {
+    setError(null);
+    const res = await authFetch("/api/orders/create", {
+      method: "POST",
+      body: JSON.stringify({ slug: trip.slug, pickupDate, dropoffDate }),
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || "Failed to create order");
+    }
+    const data = await res.json();
+    return data.id;
+  }
+
+  async function handleApprove(data: { orderID: string }) {
+    setError(null);
+    const res = await authFetch(`/api/orders/${data.orderID}/capture`, {
+      method: "POST",
+    });
+    if (!res.ok) {
+      const errData = await res.json();
+      setError(errData.error || "Capture failed");
+      return;
+    }
+    const result = await res.json();
+    navigate(`/bookings/${result.bookingReference}?confirmed=true`);
+  }
+
+  function handleError(err: Record<string, unknown>) {
+    console.error("PayPal error:", err);
+    setError("Something went wrong with PayPal. Please try again.");
+  }
+
+  function handleCancel() {
+    setError("Payment was cancelled. You can try again.");
+  }
+
   return (
     <PayPalScriptProvider
       options={{
         clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID,
         intent: "capture",
         currency: "USD",
-        components: "buttons",
+        components: "buttons,messages",
         "enable-funding": "paylater",
         "buyer-country": "US",
       }}
@@ -68,7 +126,7 @@ export default function CheckoutInstantPage({ trip }: Props) {
         <div className="mb-8">
           <h1 className="text-2xl font-semibold text-foreground">Checkout</h1>
           <p className="text-muted-foreground mt-1">
-            Complete your booking for {trip.name}
+            Complete your rental for {trip.name}
           </p>
         </div>
 
@@ -164,104 +222,28 @@ export default function CheckoutInstantPage({ trip }: Props) {
                 Pay securely with PayPal
               </p>
 
-              {/* PayPal button */}
+              {/* Yellow PayPal button */}
               <PayPalButtons
                 fundingSource="paypal"
                 style={{ layout: "vertical", shape: "rect", label: "pay" }}
-                createOrder={async () => {
-                  setError(null);
-                  const res = await authFetch("/api/orders/create", {
-                    method: "POST",
-                    body: JSON.stringify({
-                      slug: trip.slug,
-                      pickupDate,
-                      dropoffDate,
-                    }),
-                  });
-                  if (!res.ok) {
-                    const data = await res.json();
-                    throw new Error(data.error || "Failed to create order");
-                  }
-                  const data = await res.json();
-                  return data.id;
-                }}
-                onApprove={async (data) => {
-                  setError(null);
-                  const res = await authFetch(
-                    `/api/orders/${data.orderID}/capture`,
-                    { method: "POST" }
-                  );
-                  if (!res.ok) {
-                    const errData = await res.json();
-                    setError(errData.error || "Capture failed");
-                    return;
-                  }
-                  const result = await res.json();
-                  navigate(
-                    `/bookings/${result.bookingReference}?confirmed=true`
-                  );
-                }}
-                onError={(err) => {
-                  console.error("PayPal error:", err);
-                  setError(
-                    "Something went wrong with PayPal. Please try again."
-                  );
-                }}
-                onCancel={() => {
-                  setError("Payment was cancelled. You can try again.");
-                }}
+                createOrder={handleCreateOrder}
+                onApprove={handleApprove}
+                onError={handleError}
+                onCancel={handleCancel}
               />
 
-              {/* Pay Later button */}
+              {/* Blue Pay Later button */}
               <PayPalButtons
                 fundingSource="paylater"
                 style={{ layout: "vertical", shape: "rect", label: "pay" }}
-                createOrder={async () => {
-                  setError(null);
-                  const res = await authFetch("/api/orders/create", {
-                    method: "POST",
-                    body: JSON.stringify({
-                      slug: trip.slug,
-                      pickupDate,
-                      dropoffDate,
-                    }),
-                  });
-                  if (!res.ok) {
-                    const data = await res.json();
-                    throw new Error(data.error || "Failed to create order");
-                  }
-                  const data = await res.json();
-                  return data.id;
-                }}
-                onApprove={async (data) => {
-                  setError(null);
-                  const res = await authFetch(
-                    `/api/orders/${data.orderID}/capture`,
-                    { method: "POST" }
-                  );
-                  if (!res.ok) {
-                    const errData = await res.json();
-                    setError(errData.error || "Capture failed");
-                    return;
-                  }
-                  const result = await res.json();
-                  navigate(
-                    `/bookings/${result.bookingReference}?confirmed=true`
-                  );
-                }}
-                onError={(err) => {
-                  console.error("PayPal error:", err);
-                  setError(
-                    "Something went wrong with PayPal. Please try again."
-                  );
-                }}
-                onCancel={() => {
-                  setError("Payment was cancelled. You can try again.");
-                }}
+                createOrder={handleCreateOrder}
+                onApprove={handleApprove}
+                onError={handleError}
+                onCancel={handleCancel}
               />
 
-              {/* Pay Later messaging */}
-              <PayLaterMessage amount={totalPrice} />
+              {/* Official PayPal Pay Later messaging — waits for SDK to load */}
+              <PayLaterMessages amount={totalPrice} />
 
               <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg p-3 mt-3">
                 <CheckCircle2 className="h-4 w-4 shrink-0" />
