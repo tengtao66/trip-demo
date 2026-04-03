@@ -34,3 +34,106 @@ INSERT OR IGNORE INTO trips (id, slug, name, description, duration_days, base_pr
   ('t-cruise-03', 'alaska-cruise', 'Alaska Glacier Discovery', 'Cruise through Alaska''s Inside Passage with glacier viewing and wildlife spotting.', 5, 1900, 475, 'authorize',
    '[{"day":1,"title":"Seattle Departure","details":"Board the ship, welcome dinner, Inside Passage briefing"},{"day":2,"title":"At Sea (Inside Passage)","details":"Whale watching from deck, glacier documentary, hot cocoa bar"},{"day":3,"title":"Juneau, Alaska","details":"Mendenhall Glacier hike, whale watching excursion, salmon bake"},{"day":4,"title":"Glacier Bay","details":"Full-day glacier cruising, ranger talks, wildlife spotting (bears, eagles)"},{"day":5,"title":"Return to Seattle","details":"Disembark, farewell brunch, Pike Place Market visit"}]',
    'linear-gradient(135deg, #0891b2 0%, #155e75 100%)', 'cruise', NULL);
+
+-- ============================================
+-- MOCK BOOKINGS FOR DASHBOARD
+-- ============================================
+
+INSERT OR IGNORE INTO users (id, email, name, role) VALUES
+  ('u-customer-02', 'sarah@example.com', 'Sarah Chen', 'customer'),
+  ('u-customer-03', 'mike@example.com', 'Mike Johnson', 'customer'),
+  ('u-customer-04', 'emma@example.com', 'Emma Wilson', 'customer'),
+  ('u-customer-05', 'james@example.com', 'James Park', 'customer');
+
+-- Authorize: Tokyo fully captured (20 days ago)
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, paypal_order_id, authorization_id, created_at, updated_at)
+VALUES ('mock-auth-01', 'TERRA-1001', 'u-customer-02', 't-tokyo-01', 'FULLY_CAPTURED', 'authorize', 800, 800, 'mock_order_1', 'mock_auth_1', datetime('now', '-20 days'), datetime('now', '-18 days'));
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-auth-01a', 'mock-auth-01', 'deposit', 'Deposit for Tokyo Cherry Blossom Express', 200, 'mock_cap_1a', 'completed', datetime('now', '-20 days')),
+  ('mc-auth-01b', 'mock-auth-01', 'balance', 'Balance for Tokyo Cherry Blossom Express', 600, 'mock_cap_1b', 'completed', datetime('now', '-18 days'));
+
+-- Authorize: Tokyo deposit only (5 days ago)
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, paypal_order_id, authorization_id, authorization_expires_at, created_at, updated_at)
+VALUES ('mock-auth-02', 'TERRA-1042', 'u-customer-03', 't-tokyo-01', 'DEPOSIT_CAPTURED', 'authorize', 800, 200, 'mock_order_2', 'mock_auth_2', datetime('now', '+24 days'), datetime('now', '-5 days'), datetime('now', '-5 days'));
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-auth-02a', 'mock-auth-02', 'deposit', 'Deposit for Tokyo Cherry Blossom Express', 200, 'mock_cap_2a', 'completed', datetime('now', '-5 days'));
+
+-- Authorize: Caribbean cruise fully captured (15 days ago)
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, paypal_order_id, authorization_id, created_at, updated_at)
+VALUES ('mock-auth-03', 'TERRA-2010', 'u-customer-04', 't-cruise-01', 'FULLY_CAPTURED', 'authorize', 2800, 2800, 'mock_order_3', 'mock_auth_3', datetime('now', '-15 days'), datetime('now', '-10 days'));
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-auth-03a', 'mock-auth-03', 'deposit', 'Deposit for Caribbean Island Hopper', 700, 'mock_cap_3a', 'completed', datetime('now', '-15 days')),
+  ('mc-auth-03b', 'mock-auth-03', 'balance', 'Balance for Caribbean Island Hopper', 2100, 'mock_cap_3b', 'completed', datetime('now', '-10 days'));
+
+-- Authorize: Mediterranean deposit only (7 days ago)
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, paypal_order_id, authorization_id, authorization_expires_at, created_at, updated_at)
+VALUES ('mock-auth-04', 'TERRA-2055', 'u-customer-05', 't-cruise-02', 'DEPOSIT_CAPTURED', 'authorize', 4500, 1125, 'mock_order_4', 'mock_auth_4', datetime('now', '+22 days'), datetime('now', '-7 days'), datetime('now', '-7 days'));
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-auth-04a', 'mock-auth-04', 'deposit', 'Deposit for Mediterranean Explorer', 1125, 'mock_cap_4a', 'completed', datetime('now', '-7 days'));
+
+-- Authorize: Alaska cruise fully captured (25 days ago)
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, paypal_order_id, authorization_id, created_at, updated_at)
+VALUES ('mock-auth-05', 'TERRA-2078', 'u-customer-02', 't-cruise-03', 'FULLY_CAPTURED', 'authorize', 1900, 1900, 'mock_order_5', 'mock_auth_5', datetime('now', '-25 days'), datetime('now', '-20 days'));
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-auth-05a', 'mock-auth-05', 'deposit', 'Deposit for Alaska Glacier Discovery', 475, 'mock_cap_5a', 'completed', datetime('now', '-25 days')),
+  ('mc-auth-05b', 'mock-auth-05', 'balance', 'Balance for Alaska Glacier Discovery', 1425, 'mock_cap_5b', 'completed', datetime('now', '-20 days'));
+
+-- Vault: Bali completed (12 days ago, full lifecycle)
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, vault_token_id, created_at, updated_at)
+VALUES ('mock-vault-01', 'TERRA-3001', 'u-customer-03', 't-bali-01', 'COMPLETED', 'vault', 2500, 2500, NULL, datetime('now', '-12 days'), datetime('now', '-5 days'));
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-vault-01a', 'mock-vault-01', 'setup_fee', 'Setup Fee for Bali Adventure Retreat', 500, 'mock_cap_v1a', 'completed', datetime('now', '-12 days')),
+  ('mc-vault-01b', 'mock-vault-01', 'addon', 'Balinese Spa Treatment', 150, 'mock_cap_v1b', 'completed', datetime('now', '-10 days')),
+  ('mc-vault-01c', 'mock-vault-01', 'addon', 'Scuba Diving Session', 200, 'mock_cap_v1c', 'completed', datetime('now', '-9 days')),
+  ('mc-vault-01d', 'mock-vault-01', 'addon', 'Ubud City Walk Guidance', 80, 'mock_cap_v1d', 'completed', datetime('now', '-8 days')),
+  ('mc-vault-01e', 'mock-vault-01', 'addon', 'Kecak Fire Dance Event', 120, 'mock_cap_v1e', 'completed', datetime('now', '-7 days')),
+  ('mc-vault-01f', 'mock-vault-01', 'final', 'Final Settlement', 1450, 'mock_cap_v1f', 'completed', datetime('now', '-5 days'));
+
+-- Vault: Bali in progress (3 days ago)
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, vault_token_id, created_at, updated_at)
+VALUES ('mock-vault-02', 'TERRA-3025', 'u-customer-05', 't-bali-01', 'IN_PROGRESS', 'vault', 2500, 850, 'sim_vault_mock_02', datetime('now', '-3 days'), datetime('now', '-1 days'));
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-vault-02a', 'mock-vault-02', 'setup_fee', 'Setup Fee for Bali Adventure Retreat', 500, 'mock_cap_v2a', 'completed', datetime('now', '-3 days')),
+  ('mc-vault-02b', 'mock-vault-02', 'addon', 'Balinese Spa Treatment', 150, 'mock_cap_v2b', 'completed', datetime('now', '-2 days')),
+  ('mc-vault-02c', 'mock-vault-02', 'addon', 'Scuba Diving Session', 200, 'mock_cap_v2c', 'completed', datetime('now', '-1 days'));
+
+-- Invoice: European tour awaiting deposit (8 days ago)
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, invoice_id, invoice_url, created_at, updated_at)
+VALUES ('mock-inv-01', 'TERRA-4001', 'u-customer-04', 't-europe-01', 'AWAITING_DEPOSIT', 'invoice', 8500, 0, 'INV2-MOCK-001', 'https://www.sandbox.paypal.com/invoice/p/#INV2-MOCK-001', datetime('now', '-8 days'), datetime('now', '-8 days'));
+
+-- Invoice: European tour fully paid (22 days ago)
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, invoice_id, created_at, updated_at)
+VALUES ('mock-inv-02', 'TERRA-4015', 'u-customer-02', 't-europe-01', 'FULLY_PAID', 'invoice', 12000, 12000, 'INV2-MOCK-002', datetime('now', '-22 days'), datetime('now', '-18 days'));
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-inv-02a', 'mock-inv-02', 'deposit', 'Deposit for Custom European Grand Tour', 4800, 'mock_cap_i2a', 'completed', datetime('now', '-20 days')),
+  ('mc-inv-02b', 'mock-inv-02', 'balance', 'Balance for Custom European Grand Tour', 7200, 'mock_cap_i2b', 'completed', datetime('now', '-18 days'));
+
+-- Instant: Economy sedan 3-day (10 days ago)
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, pickup_date, dropoff_date, created_at, updated_at)
+VALUES ('mock-car-01', 'TERRA-5001', 'u-customer-03', 't-car-01', 'CONFIRMED', 'instant', 150, 150, date('now', '-7 days'), date('now', '-4 days'), datetime('now', '-10 days'), datetime('now', '-10 days'));
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-car-01a', 'mock-car-01', 'full_payment', 'Full payment for Economy Sedan (3 days)', 150, 'mock_cap_c1a', 'completed', datetime('now', '-10 days'));
+
+-- Instant: SUV 5-day (6 days ago)
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, pickup_date, dropoff_date, created_at, updated_at)
+VALUES ('mock-car-02', 'TERRA-5018', 'u-customer-04', 't-car-02', 'CONFIRMED', 'instant', 500, 500, date('now', '-3 days'), date('now', '+2 days'), datetime('now', '-6 days'), datetime('now', '-6 days'));
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-car-02a', 'mock-car-02', 'full_payment', 'Full payment for SUV (5 days)', 500, 'mock_cap_c2a', 'completed', datetime('now', '-6 days'));
+
+-- Instant: Luxury 2-day (2 days ago)
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, pickup_date, dropoff_date, created_at, updated_at)
+VALUES ('mock-car-03', 'TERRA-5030', 'u-customer-05', 't-car-03', 'CONFIRMED', 'instant', 300, 300, date('now', '+1 days'), date('now', '+3 days'), datetime('now', '-2 days'), datetime('now', '-2 days'));
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-car-03a', 'mock-car-03', 'full_payment', 'Full payment for Luxury Convertible (2 days)', 300, 'mock_cap_c3a', 'completed', datetime('now', '-2 days'));
+
+-- Instant: Economy 7-day (18 days ago)
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, pickup_date, dropoff_date, created_at, updated_at)
+VALUES ('mock-car-04', 'TERRA-5045', 'u-customer-02', 't-car-01', 'CONFIRMED', 'instant', 350, 350, date('now', '-15 days'), date('now', '-8 days'), datetime('now', '-18 days'), datetime('now', '-18 days'));
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-car-04a', 'mock-car-04', 'full_payment', 'Full payment for Economy Sedan (7 days)', 350, 'mock_cap_c4a', 'completed', datetime('now', '-18 days'));
+
+-- Voided: Tokyo cancelled (14 days ago)
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, paypal_order_id, authorization_id, created_at, updated_at)
+VALUES ('mock-void-01', 'TERRA-6001', 'u-customer-04', 't-tokyo-01', 'VOIDED', 'authorize', 800, 200, 'mock_order_void', 'mock_auth_void', datetime('now', '-14 days'), datetime('now', '-12 days'));
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-void-01a', 'mock-void-01', 'deposit', 'Deposit for Tokyo Cherry Blossom Express', 200, 'mock_cap_void', 'completed', datetime('now', '-14 days'));
