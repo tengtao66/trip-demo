@@ -3,8 +3,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import {
   PayPalScriptProvider,
   PayPalButtons,
-  PayPalMessages,
 } from "@paypal/react-paypal-js";
+import PayLaterMessage from "@/components/PayLaterMessage";
 import { Car, AlertCircle, CalendarDays, CheckCircle2 } from "lucide-react";
 import { authFetch } from "@/lib/auth-fetch";
 import { tripImages } from "@/lib/constants";
@@ -58,7 +58,7 @@ export default function CheckoutInstantPage({ trip }: Props) {
         clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID,
         intent: "capture",
         currency: "USD",
-        components: "buttons,messages",
+        components: "buttons",
         "enable-funding": "paylater",
         "buyer-country": "US",
       }}
@@ -261,11 +261,7 @@ export default function CheckoutInstantPage({ trip }: Props) {
               />
 
               {/* Pay Later messaging */}
-              <PayPalMessages
-                placement="payment"
-                amount={totalPrice}
-                style={{ layout: "text" }}
-              />
+              <PayLaterMessage amount={totalPrice} />
 
               <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg p-3 mt-3">
                 <CheckCircle2 className="h-4 w-4 shrink-0" />
