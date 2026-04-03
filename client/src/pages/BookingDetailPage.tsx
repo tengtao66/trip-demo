@@ -6,6 +6,9 @@ import {
   Clock,
   CreditCard,
   Calendar,
+  Mail,
+  FileText,
+  ExternalLink,
 } from "lucide-react";
 import { authFetch } from "@/lib/auth-fetch";
 import type { BookingDetail } from "@/types/booking";
@@ -135,13 +138,96 @@ export default function BookingDetailPage() {
             </div>
           </div>
 
+          {/* Invoice flow status — only for invoice bookings */}
+          {booking.payment_flow === "invoice" && (
+            <div className="rounded-xl border border-border p-5 space-y-4">
+              <h2 className="font-semibold text-foreground flex items-center gap-2">
+                <FileText className="h-4 w-4 text-accent" />
+                Invoice Status
+              </h2>
+
+              {/* Invoice link — shown when available */}
+              {booking.invoice_url ? (
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 space-y-2">
+                  <p className="text-sm font-medium text-blue-900">PayPal Invoice Link</p>
+                  <p className="text-xs text-blue-700">Click to view and pay your invoice</p>
+                  <a
+                    href={booking.invoice_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Open Invoice
+                  </a>
+                </div>
+              ) : null}
+
+              {/* Invoice flow timeline */}
+              <div className="space-y-3">
+                {[
+                  { status: "REQUEST_SUBMITTED", label: "Trip request submitted", icon: FileText },
+                  { status: "INVOICE_CREATED", label: "Invoice created by merchant", icon: FileText },
+                  { status: "AWAITING_DEPOSIT", label: "Invoice sent — check your email", icon: Mail },
+                  { status: "DEPOSIT_RECEIVED", label: "Deposit payment received", icon: CheckCircle2 },
+                  { status: "FULLY_PAID", label: "Fully paid — trip confirmed!", icon: CheckCircle2 },
+                ].map((step, i) => {
+                  const statusOrder = ["REQUEST_SUBMITTED", "INVOICE_CREATED", "AWAITING_DEPOSIT", "DEPOSIT_RECEIVED", "FULLY_PAID"];
+                  const currentIdx = statusOrder.indexOf(booking.status);
+                  const stepIdx = statusOrder.indexOf(step.status);
+                  const isDone = stepIdx <= currentIdx;
+                  const isCurrent = stepIdx === currentIdx;
+                  const StepIcon = step.icon;
+
+                  return (
+                    <div key={step.status} className="flex items-start gap-3">
+                      <div className={`mt-0.5 flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center ${
+                        isDone ? "bg-secondary text-white" : "bg-muted text-muted-foreground"
+                      }`}>
+                        {isDone ? (
+                          <CheckCircle2 className="h-3.5 w-3.5" />
+                        ) : (
+                          <span className="text-xs font-medium">{i + 1}</span>
+                        )}
+                      </div>
+                      <div>
+                        <p className={`text-sm ${isCurrent ? "font-semibold text-foreground" : isDone ? "text-foreground" : "text-muted-foreground"}`}>
+                          {step.label}
+                        </p>
+                        {isCurrent && step.status === "REQUEST_SUBMITTED" && (
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Our team is reviewing your request and will send an invoice to your email
+                          </p>
+                        )}
+                        {isCurrent && step.status === "AWAITING_DEPOSIT" && (
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            A PayPal invoice has been sent to your email — pay the deposit to confirm
+                          </p>
+                        )}
+                        {isCurrent && step.status === "DEPOSIT_RECEIVED" && (
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Please pay the remaining balance before your trip starts
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Charge history */}
           <div className="rounded-xl border border-border p-5">
             <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
               <CreditCard className="h-4 w-4" />
               Payment History
             </h2>
-            {booking.charges.length === 0 ? (
+            {booking.charges.length === 0 && booking.payment_flow === "invoice" ? (
+              <p className="text-sm text-muted-foreground">
+                Payments will appear here once you pay the invoice sent to your email.
+              </p>
+            ) : booking.charges.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 No charges recorded yet.
               </p>
