@@ -45,9 +45,50 @@ router.post("/orders/create", requireRole("customer"), async (req, res) => {
             amount: {
               currency_code: "USD",
               value: trip.deposit_amount.toFixed(2),
+              breakdown: {
+                item_total: {
+                  currency_code: "USD",
+                  value: trip.deposit_amount.toFixed(2),
+                },
+              },
             },
-            description: `${trip.name} - Setup Fee`,
             reference_id: trip.id,
+            items: [
+              {
+                name: "Billing Plan",
+                description: `${trip.name} - service plan`,
+                unit_amount: {
+                  currency_code: "USD",
+                  value: trip.deposit_amount.toFixed(2),
+                },
+                quantity: "1",
+                billing_plan: {
+                  name: trip.name,
+                  setup_fee: {
+                    value: trip.deposit_amount.toFixed(2),
+                    currency_code: "USD",
+                  },
+                  billing_cycles: [
+                    {
+                      tenure_type: "REGULAR",
+                      pricing_scheme: {
+                        price: {
+                          value: "200.00",
+                          currency_code: "USD",
+                        },
+                        pricing_model: "VARIABLE",
+                      },
+                      frequency: {
+                        interval_unit: "DAY",
+                        interval_count: 1,
+                      },
+                      total_cycles: trip.duration_days,
+                      sequence: 1,
+                    },
+                  ],
+                },
+              },
+            ],
           },
         ],
         payment_source: {
