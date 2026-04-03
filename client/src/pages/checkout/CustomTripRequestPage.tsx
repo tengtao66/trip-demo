@@ -27,6 +27,8 @@ export default function CustomTripRequestPage() {
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
+  const [requestId, setRequestId] = useState<string | null>(null);
 
   const total = useMemo(() => {
     const destTotal = DESTINATIONS.filter((d) =>
@@ -82,12 +84,186 @@ export default function CustomTripRequestPage() {
         const data = await res.json();
         throw new Error(data.error || "Failed to submit request");
       }
-      navigate("/bookings");
+      const data = await res.json();
+      setRequestId(data.id);
+      setSubmitted(true);
     } catch (err: any) {
       setError(err.message);
     } finally {
       setSubmitting(false);
     }
+  }
+
+  // Confirmation view — shown after successful submission
+  if (submitted) {
+    const selectedDests = DESTINATIONS.filter((d) =>
+      selectedDestinations.includes(d.id)
+    );
+    const selectedActs = ACTIVITIES.filter((a) =>
+      selectedActivities.includes(a.id)
+    );
+
+    return (
+      <div className="max-w-3xl mx-auto py-8">
+        {/* Success header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-secondary/15 mb-4">
+            <CheckCircle2 className="h-8 w-8 text-secondary" />
+          </div>
+          <h1 className="text-2xl font-semibold text-foreground">
+            Trip Request Submitted!
+          </h1>
+          <p className="text-muted-foreground mt-2 max-w-md mx-auto">
+            Our travel team will review your request and send a PayPal invoice to{" "}
+            <strong className="text-foreground">{email}</strong>
+          </p>
+        </div>
+
+        {/* Request summary */}
+        <div className="rounded-xl border border-border bg-card p-6 space-y-5 mb-6">
+          <h2 className="font-semibold text-foreground">Your Trip Summary</h2>
+
+          {/* Dates */}
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Calendar className="h-4 w-4" />
+            <span>
+              {startDate} — {endDate}
+            </span>
+          </div>
+
+          {/* Destinations */}
+          <div>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+              Destinations
+            </p>
+            <div className="space-y-1.5">
+              {selectedDests.map((d) => (
+                <div
+                  key={d.id}
+                  className="flex justify-between text-sm border-b border-border/50 pb-1.5"
+                >
+                  <span className="flex items-center gap-2">
+                    <MapPin className="h-3.5 w-3.5 text-accent" />
+                    {d.name}
+                  </span>
+                  <span className="font-medium">${d.price.toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Activities */}
+          {selectedActs.length > 0 && (
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+                Activities
+              </p>
+              <div className="space-y-1.5">
+                {selectedActs.map((a) => (
+                  <div
+                    key={a.id}
+                    className="flex justify-between text-sm border-b border-border/50 pb-1.5"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Compass className="h-3.5 w-3.5 text-secondary" />
+                      {a.name}
+                    </span>
+                    <span className="font-medium">${a.price.toLocaleString()}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Notes */}
+          {notes && (
+            <div>
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">
+                Special Requests
+              </p>
+              <p className="text-sm text-muted-foreground bg-muted/50 rounded-lg p-3">
+                {notes}
+              </p>
+            </div>
+          )}
+
+          {/* Totals */}
+          <div className="border-t border-border pt-4 space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Subtotal</span>
+              <span className="font-medium">${total.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">
+                Deposit (40%) — invoice item 1
+              </span>
+              <span className="font-medium">${deposit.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">
+                Balance (60%) — invoice item 2
+              </span>
+              <span className="font-medium">${balance.toLocaleString()}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* What happens next */}
+        <div className="rounded-xl border border-border bg-muted/30 p-6 space-y-4 mb-6">
+          <h3 className="font-semibold text-foreground flex items-center gap-2">
+            <Mail className="h-4 w-4 text-accent" />
+            What Happens Next
+          </h3>
+          <div className="space-y-3 text-sm text-muted-foreground">
+            <div className="flex gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/15 text-accent text-xs font-semibold flex items-center justify-center">
+                1
+              </span>
+              <span>
+                Our travel team reviews your request and prepares your custom
+                itinerary
+              </span>
+            </div>
+            <div className="flex gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/15 text-accent text-xs font-semibold flex items-center justify-center">
+                2
+              </span>
+              <span>
+                A PayPal invoice will be sent to{" "}
+                <strong className="text-foreground">{email}</strong> with your
+                deposit and balance amounts
+              </span>
+            </div>
+            <div className="flex gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/15 text-accent text-xs font-semibold flex items-center justify-center">
+                3
+              </span>
+              <span>
+                Pay the deposit through the invoice link to confirm your
+                booking, then pay the balance before your trip starts
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-4">
+          <Button
+            variant="outline"
+            onClick={() => navigate("/")}
+            className="cursor-pointer"
+          >
+            Back to Trips
+          </Button>
+          <Button
+            onClick={() => navigate("/bookings")}
+            className="cursor-pointer"
+          >
+            View My Bookings
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
