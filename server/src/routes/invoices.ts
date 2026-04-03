@@ -161,7 +161,13 @@ router.post(
       const invoiceData = await createRes.json();
       const paypalInvoiceId =
         invoiceData.id ||
-        invoiceData.rel?.find((l: any) => l.rel === "self")?.href?.split("/").pop();
+        invoiceData.links?.find((l: any) => l.rel === "self")?.href?.split("/").pop();
+
+      if (!paypalInvoiceId) {
+        console.error("No invoice ID returned from PayPal:", invoiceData);
+        res.status(500).json({ error: "No invoice ID returned" });
+        return;
+      }
 
       // Fetch the full invoice to get recipient_view_url
       const detailRes = await fetch(
@@ -251,7 +257,7 @@ router.post(
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            send_to_invoicer: true,
+            send_to_recipient: true,
           }),
         }
       );
@@ -265,6 +271,27 @@ router.post(
         return;
       }
 
+      // After sending, fetch updated invoice detail to get recipient_view_url
+      let invoiceUrl = booking.invoice_url || "";
+      try {
+        const detailRes = await fetch(
+          `${PAYPAL_BASE_URL}/v2/invoicing/invoices/${invoiceId}`,
+          { headers: { Authorization: `Bearer ${accessToken}` } }
+        );
+        if (detailRes.ok) {
+          const detailData = await detailRes.json();
+          const url = detailData.detail?.metadata?.recipient_view_url;
+          if (url) {
+            invoiceUrl = url;
+            db.prepare(
+              `UPDATE bookings SET invoice_url = ? WHERE id = ?`
+            ).run(invoiceUrl, booking.id);
+          }
+        }
+      } catch {
+        // Non-critical — invoice_url will be populated on next status poll
+      }
+
       // Update booking status
       db.prepare(
         `UPDATE bookings SET status = 'AWAITING_DEPOSIT', updated_at = datetime('now') WHERE id = ?`
@@ -275,7 +302,7 @@ router.post(
         `UPDATE trip_requests SET status = 'AWAITING_DEPOSIT' WHERE booking_id = ?`
       ).run(booking.id);
 
-      res.json({ status: "AWAITING_DEPOSIT", message: "Invoice sent" });
+      res.json({ status: "AWAITING_DEPOSIT", message: "Invoice sent", invoiceUrl });
     } catch (err: any) {
       console.error("Send invoice error:", err);
       res.status(500).json({ error: "Failed to send invoice" });
