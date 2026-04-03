@@ -18,9 +18,20 @@ interface Props {
   trip: Trip;
 }
 
+// Fee schedule breakdown for the 7-day trip
+const feeSchedule = [
+  { day: "Booking", label: "Setup Fee (Deposit)", amount: 500, type: "setup_fee" },
+  { day: "Day 2", label: "Balinese Spa Treatment", amount: 150, type: "addon" },
+  { day: "Day 3", label: "Scuba Diving Session", amount: 200, type: "addon" },
+  { day: "Day 4", label: "Ubud City Walk Guidance", amount: 80, type: "addon" },
+  { day: "Day 5", label: "Kecak Fire Dance Event", amount: 120, type: "addon" },
+  { day: "Day 7", label: "Final Settlement (Remaining)", amount: 1450, type: "final" },
+];
+
 export default function CheckoutVaultPage({ trip }: Props) {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const setupFee = trip.deposit_amount;
 
@@ -134,61 +145,53 @@ export default function CheckoutVaultPage({ trip }: Props) {
                 Payment Summary
               </h3>
 
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    Total base price
-                  </span>
-                  <span className="font-medium text-foreground">
-                    ${trip.base_price.toLocaleString()}
-                  </span>
-                </div>
-                <div className="h-px bg-border" />
-                <div className="flex justify-between text-sm">
-                  <span className="text-foreground font-medium">
-                    Setup fee (charged now)
-                  </span>
-                  <span className="text-foreground font-semibold">
-                    ${setupFee.toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    Add-ons during trip
-                  </span>
-                  <span className="text-muted-foreground italic">
-                    Varies
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    Final settlement
-                  </span>
-                  <span className="text-muted-foreground italic">
-                    At trip end
-                  </span>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Total trip cost</span>
+                <span className="font-semibold text-foreground">${trip.base_price.toLocaleString()}</span>
+              </div>
+
+              <div className="h-px bg-border" />
+
+              {/* Fee schedule timeline */}
+              <div>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Payment Schedule</p>
+                <div className="space-y-0">
+                  {feeSchedule.map((item, i) => (
+                    <div key={i} className="flex items-start gap-3 py-2.5 border-b border-border/50 last:border-0">
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded min-w-[60px] text-center ${
+                        item.type === "setup_fee"
+                          ? "bg-primary/10 text-primary"
+                          : item.type === "final"
+                            ? "bg-accent/10 text-accent"
+                            : "bg-secondary/10 text-secondary"
+                      }`}>
+                        {item.day}
+                      </span>
+                      <span className="text-sm text-foreground flex-1">{item.label}</span>
+                      <span className={`text-sm font-medium ${
+                        i === 0 ? "text-primary font-semibold" : "text-foreground"
+                      }`}>
+                        ${item.amount.toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
               <div className="h-px bg-border" />
 
               <div className="flex justify-between items-center">
-                <span className="text-foreground font-semibold">
-                  Due today
-                </span>
-                <span className="text-xl font-bold text-primary">
-                  ${setupFee.toLocaleString()}
-                </span>
+                <span className="text-foreground font-semibold">Due today</span>
+                <span className="text-xl font-bold text-primary">${setupFee.toLocaleString()}</span>
               </div>
 
               <p className="text-xs text-muted-foreground">
-                Additional charges for add-on activities will be billed to your
-                saved payment method during your trip.
+                Remaining charges will be billed to your saved payment method during and after your trip.
               </p>
             </div>
 
-            {/* Vault terms */}
-            <div className="rounded-xl border border-border bg-surface-highlight/50 p-5 text-sm text-muted-foreground space-y-2">
+            {/* Vault terms + checkbox */}
+            <div className="rounded-xl border border-border bg-surface-highlight/50 p-5 text-sm text-muted-foreground space-y-3">
               <p className="font-medium text-foreground">Payment Authorization Terms</p>
               <p>By proceeding, you agree to save your PayPal payment method for this trip. The merchant will:</p>
               <ul className="list-disc pl-5 space-y-1">
@@ -197,15 +200,30 @@ export default function CheckoutVaultPage({ trip }: Props) {
                 <li>Charge the remaining balance after your trip is completed</li>
                 <li>Delete your saved payment token once the trip is fully settled</li>
               </ul>
+              <label className="flex items-start gap-2 pt-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={termsAccepted}
+                  onChange={(e) => setTermsAccepted(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-border accent-primary cursor-pointer"
+                />
+                <span className="text-foreground text-sm">
+                  I agree to the payment authorization terms and understand that my payment method will be saved and charged during the trip.
+                </span>
+              </label>
             </div>
 
-            {/* PayPal Button — PayPal only, no card for vault flow */}
-            <div className="rounded-xl border border-border p-6">
+            {/* PayPal Button — PayPal only, gated by terms checkbox */}
+            <div className={`rounded-xl border border-border p-6 ${!termsAccepted ? "opacity-50 pointer-events-none" : ""}`}>
               <p className="text-sm text-muted-foreground mb-4">
                 Save & pay with PayPal
               </p>
+              {!termsAccepted && (
+                <p className="text-xs text-accent mb-3">Please accept the terms above to proceed</p>
+              )}
               <PayPalButtons
                 fundingSource="paypal"
+                disabled={!termsAccepted}
                 style={{ layout: "vertical", shape: "rect", label: "pay", tagline: false }}
                 createOrder={async () => {
                   setError(null);
