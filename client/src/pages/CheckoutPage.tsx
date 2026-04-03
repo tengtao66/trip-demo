@@ -4,6 +4,7 @@ import { fetchTrip } from "@/lib/api";
 import type { Trip } from "@/types/trip";
 import CheckoutAuthorizePage from "./checkout/CheckoutAuthorizePage";
 import CheckoutVaultPage from "./checkout/CheckoutVaultPage";
+import CheckoutInstantPage from "./checkout/CheckoutInstantPage";
 import CustomTripRequestPage from "./checkout/CustomTripRequestPage";
 
 export default function CheckoutPage() {
@@ -42,6 +43,8 @@ export default function CheckoutPage() {
       return <CheckoutAuthorizePage trip={trip} />;
     case "vault":
       return <CheckoutVaultPage trip={trip} />;
+    case "instant":
+      return <CheckoutInstantPage trip={trip} />;
     case "invoice":
       return <CustomTripRequestPage />;
     default:
