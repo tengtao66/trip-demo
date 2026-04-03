@@ -11,6 +11,11 @@ import {
   Wrench,
   CircleCheck,
   Infinity,
+  Globe,
+  UtensilsCrossed,
+  Music,
+  Waves,
+  Lock,
 } from "lucide-react";
 import { fetchTrip } from "@/lib/api";
 import { tripImages } from "@/lib/constants";
@@ -46,13 +51,32 @@ function PricingSidebar({ trip }: { trip: Trip }) {
       {trip.payment_flow === "authorize" && (
         <>
           <p className="text-2xl font-semibold text-foreground">
-            Total ${trip.base_price.toLocaleString()}
+            ${trip.base_price.toLocaleString()}
           </p>
-          <div className="space-y-1 text-sm text-muted-foreground">
-            <p>Deposit now: ${trip.deposit_amount.toLocaleString()}</p>
-            <p>
-              Balance: $
-              {(trip.base_price - trip.deposit_amount).toLocaleString()}
+          {trip.category === "cruise" && (
+            <p className="text-sm text-muted-foreground">
+              per person, {trip.duration_days}-day cruise
+            </p>
+          )}
+
+          <div className="rounded-lg bg-muted/50 p-3 space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="font-medium text-primary">
+                Deposit ({Math.round((trip.deposit_amount / trip.base_price) * 100)}%)
+              </span>
+              <span className="font-semibold text-primary">
+                ${trip.deposit_amount.toLocaleString()}
+              </span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Balance due</span>
+              <span className="text-foreground">
+                ${(trip.base_price - trip.deposit_amount).toLocaleString()}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground pt-1 border-t border-border flex items-start gap-1.5">
+              <Lock className="h-3 w-3 mt-0.5 shrink-0" />
+              Deposit is captured immediately. Balance is captured by the merchant before your departure date.
             </p>
           </div>
         </>
@@ -314,14 +338,52 @@ export default function TripDetailPage() {
               </div>
             </>
           ) : (
-            <div>
-              <h2 className="text-xl font-semibold text-foreground mb-3">
-                About This Trip
-              </h2>
-              <p className="text-muted-foreground leading-relaxed">
-                {trip.description}
-              </p>
-            </div>
+            <>
+              {/* Cruise Highlights — only for cruise category */}
+              {trip.category === "cruise" && (
+                <div>
+                  <h2 className="text-xl font-semibold text-foreground mb-4">
+                    Cruise Highlights
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {[
+                      { icon: Globe, title: trip.slug === "caribbean-cruise" ? "3 Island Ports" : trip.slug === "mediterranean-cruise" ? "5 Country Stops" : "2 Alaska Ports", desc: trip.slug === "caribbean-cruise" ? "Cozumel, Grand Cayman, Jamaica" : trip.slug === "mediterranean-cruise" ? "France, Italy, Greece & more" : "Juneau, Glacier Bay" },
+                      { icon: UtensilsCrossed, title: "All-Inclusive Dining", desc: "Breakfast, lunch, dinner included" },
+                      { icon: Music, title: "Live Entertainment", desc: "Nightly shows and deck parties" },
+                      { icon: Waves, title: "Shore Excursions", desc: "Snorkeling, waterfalls, beaches" },
+                    ].map((highlight) => (
+                      <div
+                        key={highlight.title}
+                        className="flex items-start gap-3 rounded-xl border border-border bg-card p-4"
+                      >
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+                          <highlight.icon className="h-4 w-4 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">
+                            {highlight.title}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {highlight.desc}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <h2 className="text-xl font-semibold text-foreground mb-3">
+                  {trip.category === "cruise" ? `${trip.duration_days}-Day Itinerary` : "About This Trip"}
+                </h2>
+                {trip.category !== "cruise" && (
+                  <p className="text-muted-foreground leading-relaxed">
+                    {trip.description}
+                  </p>
+                )}
+              </div>
+            </>
           )}
 
           {trip.itinerary.length > 0 && (
