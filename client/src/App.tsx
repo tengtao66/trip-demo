@@ -42,7 +42,6 @@ const paypalInitialOptions = {
   components: "buttons,messages",
   "enable-funding": "paylater",
   "buyer-country": "US",
-  vault: true,
 };
 
 function App() {
