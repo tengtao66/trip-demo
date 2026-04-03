@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { useParams, Navigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { fetchTrip } from "@/lib/api";
 import type { Trip } from "@/types/trip";
 import CheckoutAuthorizePage from "./checkout/CheckoutAuthorizePage";
 import CheckoutVaultPage from "./checkout/CheckoutVaultPage";
+import CustomTripRequestPage from "./checkout/CustomTripRequestPage";
 
 export default function CheckoutPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -42,7 +43,7 @@ export default function CheckoutPage() {
     case "vault":
       return <CheckoutVaultPage trip={trip} />;
     case "invoice":
-      return <Navigate to={`/trips/${trip.slug}`} replace />;
+      return <CustomTripRequestPage />;
     default:
       return null;
   }
