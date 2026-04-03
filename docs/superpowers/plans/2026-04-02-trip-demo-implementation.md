@@ -897,12 +897,20 @@ Render `PayPalScriptProvider` with vault-specific options and the checkout UI.
 ```
 
 **UI elements:**
-- Trip summary card (Bali Adventure Retreat, 7 days)
-- Pricing breakdown: Setup Fee $500 (charged now), Base Price $2,500 (total), add-on info text explaining merchant-initiated charges during trip
-- PayPal Buttons rendered below the breakdown
-- On approve: call `POST /api/orders/:orderId/capture`, redirect to `/bookings/:id`
+- Trip summary card (Bali Adventure Retreat, 7 days) with bali2.webp image + gradient fade
+- **Fee schedule timeline** — Detailed breakdown of $2,500 across trip days:
+  - Booking: Setup Fee $500 (setup_fee, mocha badge)
+  - Day 2: Balinese Spa Treatment $150 (addon, sage badge)
+  - Day 3: Scuba Diving Session $200 (addon, sage badge)
+  - Day 4: Ubud City Walk Guidance $80 (addon, sage badge)
+  - Day 5: Kecak Fire Dance Event $120 (addon, sage badge)
+  - Day 7: Final Settlement $1,450 (final, terracotta badge)
+- **Payment Authorization Terms** — Explains vault token lifecycle with 4 bullet points
+- **Terms checkbox** — `termsAccepted` state. PayPal button disabled (`opacity-50 pointer-events-none`) until checked. Hint text "Please accept the terms above to proceed" shown when unchecked.
+- **PayPal button only** — `fundingSource="paypal"` (no Debit/Credit card for vault flow), `disabled={!termsAccepted}`
+- On approve: call `POST /api/orders/:orderId/capture`, redirect to `/bookings/${bookingReference}?confirmed=true`
 
-**Route:** Register `/checkout/bali-adventure` in `App.tsx` pointing to this page.
+**Route:** Dispatched from `CheckoutPage.tsx` when `payment_flow === "vault"`.
 
 ---
 

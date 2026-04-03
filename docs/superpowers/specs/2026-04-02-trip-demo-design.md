@@ -157,6 +157,19 @@ Mock authentication with pre-seeded users. No real auth flow.
 | Description | Multi-day adventure in Bali. Surfing, temples, rice terraces, spa. |
 | Itinerary | Day 1: Arrival, Seminyak beach. Day 2: Ubud rice terraces. Day 3: Temple tour. Day 4-5: Optional activities. Day 6: Beach day. Day 7: Departure. |
 
+**Fee Schedule Breakdown ($2,500 total):**
+
+| Day | Charge | Amount | Type |
+|-----|--------|--------|------|
+| Booking | Setup Fee (Deposit) | $500 | setup_fee |
+| Day 2 | Balinese Spa Treatment | $150 | addon |
+| Day 3 | Scuba Diving Session | $200 | addon |
+| Day 4 | Ubud City Walk Guidance | $80 | addon |
+| Day 5 | Kecak Fire Dance Event | $120 | addon |
+| Day 7 | Final Settlement (Remaining) | $1,450 | final |
+
+This fee schedule is displayed on the vault checkout page so buyers can see exactly how the $2,500 is distributed across the trip timeline.
+
 ### Trip 3: Custom European Grand Tour
 
 | Field | Value |
@@ -290,8 +303,12 @@ The booking detail page for authorize bookings is split into two columns:
 **Initial Purchase (Vault with Purchase):**
 
 1. Customer clicks "Book Now" on Bali trip detail page
-2. Checkout page shows: $500 setup fee now, add-ons available during trip
-3. Customer clicks PayPal button → approves & saves payment method
+2. Checkout page shows:
+   - **Fee schedule timeline** — Lists every charge across the trip with day indicators: Booking ($500 setup), Day 2 (Spa $150), Day 3 (Diving $200), Day 4 (City Walk $80), Day 5 (Event $120), Day 7 (Final $1,450). Color-coded badges per charge type.
+   - **Payment Authorization Terms** — Explains vault token lifecycle (charge now, charge during trip, charge at end, delete token after settlement)
+   - **Terms checkbox** — Buyer must check "I agree to the payment authorization terms" before the PayPal button becomes active. Button is disabled with opacity + hint text until accepted.
+   - **PayPal button only** — Uses `fundingSource="paypal"` (no Debit/Credit card option for vault flow)
+3. Customer checks terms checkbox, clicks PayPal button → approves & saves payment method
 4. **Server creates order** with vault instructions:
 
 ```json
