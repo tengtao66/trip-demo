@@ -31,6 +31,7 @@ export default function CustomTripRequestPage() {
   const [requestId, setRequestId] = useState<string | null>(null);
   const [bookingRef, setBookingRef] = useState<string | null>(null);
   const [invoiceUrl, setInvoiceUrl] = useState<string | null>(null);
+  const [invoiceQrCode, setInvoiceQrCode] = useState<string | null>(null);
 
   const total = useMemo(() => {
     const destTotal = DESTINATIONS.filter((d) =>
@@ -90,6 +91,7 @@ export default function CustomTripRequestPage() {
       setRequestId(data.id);
       setBookingRef(data.bookingReference);
       setInvoiceUrl(data.invoiceUrl || null);
+      setInvoiceQrCode(data.invoiceQrCode || null);
       setSubmitted(true);
     } catch (err: any) {
       setError(err.message);
@@ -128,34 +130,51 @@ export default function CustomTripRequestPage() {
           </p>
         </div>
 
-        {/* Invoice link — shown when auto-created */}
+        {/* Invoice link + QR code — shown when auto-created */}
         {invoiceUrl && (
           <div className="rounded-xl border border-blue-200 bg-blue-50 p-6 mb-6">
-            <div className="flex items-center gap-2 mb-2">
-              <Mail className="h-5 w-5 text-blue-600" />
-              <h3 className="font-semibold text-blue-900">PayPal Invoice</h3>
-            </div>
-            <p className="text-sm text-blue-700 mb-4">
-              Click below to view and pay your invoice. You can also find it in the email sent to {email}.
-            </p>
-            <div className="flex gap-3">
-              <a
-                href={invoiceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-              >
-                <FileText className="h-4 w-4" />
-                View & Pay Invoice
-              </a>
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(invoiceUrl);
-                }}
-                className="inline-flex items-center gap-2 bg-white border border-blue-200 text-blue-700 px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-50 transition-colors cursor-pointer"
-              >
-                Copy Link
-              </button>
+            <div className="flex gap-6">
+              {/* Left: info + buttons */}
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Mail className="h-5 w-5 text-blue-600" />
+                  <h3 className="font-semibold text-blue-900">PayPal Invoice</h3>
+                </div>
+                <p className="text-sm text-blue-700 mb-4">
+                  View and pay your invoice online, or scan the QR code with your phone. An email has also been sent to {email}.
+                </p>
+                <div className="flex gap-3">
+                  <a
+                    href={invoiceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                  >
+                    <FileText className="h-4 w-4" />
+                    View & Pay Invoice
+                  </a>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(invoiceUrl);
+                    }}
+                    className="inline-flex items-center gap-2 bg-white border border-blue-200 text-blue-700 px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-50 transition-colors cursor-pointer"
+                  >
+                    Copy Link
+                  </button>
+                </div>
+              </div>
+
+              {/* Right: QR code */}
+              {invoiceQrCode && (
+                <div className="shrink-0 flex flex-col items-center">
+                  <img
+                    src={invoiceQrCode}
+                    alt="Scan to pay invoice"
+                    className="w-36 h-36 rounded-lg border border-blue-200 bg-white p-1"
+                  />
+                  <p className="text-xs text-blue-600 mt-1.5">Scan to pay</p>
+                </div>
+              )}
             </div>
           </div>
         )}

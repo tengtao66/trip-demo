@@ -97,6 +97,7 @@ router.post(
       // --- Auto-create and send PayPal invoice ---
       let paypalInvoiceId: string | null = null;
       let invoiceUrl: string | null = null;
+      let invoiceQrCode: string | null = null;
       let bookingStatus = "REQUEST_SUBMITTED";
 
       try {
@@ -177,6 +178,25 @@ router.post(
                 const detailData = await detailRes.json();
                 invoiceUrl = detailData.detail?.metadata?.recipient_view_url || null;
               }
+
+              // 4. Generate QR code for the invoice
+              try {
+                const qrRes = await fetch(
+                  `${PAYPAL_BASE_URL}/v2/invoicing/invoices/${paypalInvoiceId}/generate-qr-code`,
+                  {
+                    method: "POST",
+                    headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+                    body: JSON.stringify({ width: 300, height: 300, action: "pay" }),
+                  }
+                );
+                if (qrRes.ok) {
+                  // Response is a base64-encoded PNG image
+                  const qrBuffer = await qrRes.arrayBuffer();
+                  invoiceQrCode = `data:image/png;base64,${Buffer.from(qrBuffer).toString("base64")}`;
+                }
+              } catch (qrErr) {
+                console.error("QR code generation failed (non-blocking):", qrErr);
+              }
             }
           }
         }
@@ -220,6 +240,7 @@ router.post(
         depositAmount,
         balanceAmount,
         invoiceUrl,
+        invoiceQrCode,
         status: bookingStatus,
       });
     } catch (err: any) {
