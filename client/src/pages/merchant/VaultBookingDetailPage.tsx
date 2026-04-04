@@ -16,8 +16,10 @@ import {
   Info,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { authFetch } from "@/lib/auth-fetch";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import type { BookingDetail, BookingCharge } from "@/types/booking";
 import ChargeAddonDialog from "@/components/merchant/ChargeAddonDialog";
 import FinalSettlementButton from "@/components/merchant/FinalSettlementButton";
@@ -81,6 +83,7 @@ export default function VaultBookingDetailPage({ booking, onRefresh }: Props) {
   const [success, setSuccess] = useState<string | null>(null);
   const [addonOpen, setAddonOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   const isVaultActive = !!booking.vault_token_id;
   const isCompleted = booking.status === "COMPLETED";
@@ -102,12 +105,6 @@ export default function VaultBookingDetailPage({ booking, onRefresh }: Props) {
 
   const handleDeleteVault = useCallback(async () => {
     if (!booking.vault_token_id) return;
-    if (
-      !confirm(
-        "Are you sure you want to delete this vault token? This cannot be undone."
-      )
-    )
-      return;
 
     setDeleteLoading(true);
     setError(null);
@@ -118,13 +115,17 @@ export default function VaultBookingDetailPage({ booking, onRefresh }: Props) {
       });
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || "Failed to delete vault token");
+        const msg = data.error || "Failed to delete vault token";
+        setError(msg);
+        toast.error(msg);
         return;
       }
       setSuccess("Vault token deleted successfully.");
+      toast.success("Vault token deleted successfully.");
       onRefresh();
     } catch {
       setError("Network error deleting vault token");
+      toast.error("Network error deleting vault token");
     } finally {
       setDeleteLoading(false);
     }
@@ -289,16 +290,21 @@ export default function VaultBookingDetailPage({ booking, onRefresh }: Props) {
                     booking={booking}
                     onSuccess={() => {
                       setSuccess("Final settlement completed. Booking closed.");
+                      toast.success("Final settlement completed. Booking closed.");
                       onRefresh();
                     }}
-                    onError={(msg) => setError(msg)}
+                    onError={(msg) => {
+                      setError(msg);
+                      toast.error(msg);
+                    }}
                   />
                   <Button
                     variant="destructive"
                     size="icon"
-                    onClick={handleDeleteVault}
+                    onClick={() => setDeleteConfirmOpen(true)}
                     disabled={deleteLoading}
                     title="Delete Vault Token"
+                    className="cursor-pointer"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -475,11 +481,26 @@ export default function VaultBookingDetailPage({ booking, onRefresh }: Props) {
           vaultId={booking.vault_token_id}
           onSuccess={() => {
             setSuccess("Add-on charge processed successfully.");
+            toast.success("Add-on charge processed successfully.");
             onRefresh();
           }}
-          onError={(msg) => setError(msg)}
+          onError={(msg) => {
+            setError(msg);
+            toast.error(msg);
+          }}
         />
       )}
+
+      {/* Delete Vault Confirmation */}
+      <ConfirmDialog
+        open={deleteConfirmOpen}
+        onOpenChange={setDeleteConfirmOpen}
+        title="Delete Vault Token"
+        description="Are you sure you want to delete this vault token? This cannot be undone. No further charges can be made."
+        confirmLabel="Delete Vault"
+        variant="destructive"
+        onConfirm={handleDeleteVault}
+      />
     </div>
   );
 }

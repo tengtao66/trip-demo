@@ -151,7 +151,7 @@ export default function SimulationPanel() {
   const completedSteps = Math.min(currentStep, SIM_STEPS.length);
   const addonTotal = SIM_STEPS.filter((s, i) => s.chargeType === "addon" && i < currentStep).reduce((a, s) => a + s.amount, 0);
   const remaining = TOTAL_AMOUNT - totalCharged;
-  const progressPct = simState === "complete" ? 100 : Math.round((totalCharged / TOTAL_AMOUNT) * 100);
+  const progressPct = simState === "complete" ? 100 : Math.round((completedSteps / SIM_STEPS.length) * 100);
 
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden">

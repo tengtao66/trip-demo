@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { fetchTrip } from "@/lib/api";
 import { tripImages } from "@/lib/constants";
+import { usePayPalIntent } from "@/lib/use-paypal-intent";
 import { Button } from "@/components/ui/button";
 import PayLaterMessage from "@/components/PayLaterMessage";
 import type { Trip } from "@/types/trip";
@@ -27,6 +28,9 @@ function PricingSidebar({ trip }: { trip: Trip }) {
   const navigate = useNavigate();
   const [pickupDate, setPickupDate] = useState("");
   const [dropoffDate, setDropoffDate] = useState("");
+
+  // Pre-load the correct PayPal SDK intent so checkout buttons render instantly
+  usePayPalIntent(trip.payment_flow === "authorize" ? "authorize" : "capture");
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -244,8 +248,8 @@ export default function TripDetailPage() {
           style={{ background: trip.image_gradient, minHeight: "280px" }}
         >
           {/* Left: text content */}
-          <div className="flex-1 flex flex-col justify-center p-10 text-white">
-            <h1 className="text-3xl font-bold leading-tight">{trip.name}</h1>
+          <div className="flex-1 flex flex-col justify-center p-6 md:p-10 text-white">
+            <h1 className="text-2xl md:text-3xl font-bold leading-tight">{trip.name}</h1>
             <p className="mt-3 text-white/80 text-sm leading-relaxed max-w-md">
               {trip.description}
             </p>
@@ -258,7 +262,7 @@ export default function TripDetailPage() {
           </div>
           {/* Right: image (if available) */}
           {tripImages[trip.slug] && (
-            <div className="w-2/5 relative">
+            <div className="w-2/5 relative hidden md:block">
               <img
                 src={tripImages[trip.slug]}
                 alt={trip.name}
@@ -284,7 +288,7 @@ export default function TripDetailPage() {
                 <h2 className="text-xl font-semibold text-foreground mb-4">
                   Vehicle Specifications
                 </h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {[
                     { icon: Car, value: "Automatic", label: "Transmission" },
                     { icon: Fuel, value: trip.slug === "suv-rental" ? "25 MPG" : trip.slug === "luxury-convertible" ? "20 MPG" : "35 MPG", label: "Fuel Economy" },

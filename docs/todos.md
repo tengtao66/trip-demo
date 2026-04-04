@@ -29,3 +29,14 @@
 - [x] Section 5: Flow 2 — Vaulting
 - [x] Section 6: Flow 3 — Invoice
 - [x] Section 7: Merchant Dashboard
+
+## New Services (2026-04-03)
+- [x] Extract shared constants (tripImages, STATUS_LABELS)
+- [x] Schema & seed data (category, daily_rate, 6 new products)
+- [x] Homepage tabbed layout (Tours / Car Rentals / Cruises)
+- [x] Car rental detail page (date picker, live total, Pay Later message)
+- [x] CheckoutInstantPage (standalone PayPal + Pay Later buttons)
+- [x] Server-side instant capture flow
+- [x] Cruise integration verification
+- [x] Booking detail & merchant dashboard updates (CONFIRMED status)
+- [x] UX polish (contrast, focus styles, cancellation policy, responsive)

@@ -161,8 +161,13 @@ export default function CheckoutAuthorizePage({ trip }: Props) {
                     body: JSON.stringify({ slug: trip.slug }),
                   });
                   if (!res.ok) {
-                    const data = await res.json();
-                    throw new Error(data.error || "Failed to create order");
+                    const data = await res.json().catch(() => ({}));
+                    const msg =
+                      res.status === 403
+                        ? "Please switch to Customer role to complete checkout. Use the role switcher in the header."
+                        : data.error || "Failed to create order";
+                    setError(msg);
+                    throw new Error(msg);
                   }
                   const data = await res.json();
                   return data.id;
@@ -183,8 +188,8 @@ export default function CheckoutAuthorizePage({ trip }: Props) {
                 }}
                 onError={(err) => {
                   console.error("PayPal error:", err);
-                  setError(
-                    "Something went wrong with PayPal. Please try again."
+                  setError((prev) =>
+                    prev || "Something went wrong with PayPal. Please try again."
                   );
                 }}
                 onCancel={() => {

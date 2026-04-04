@@ -190,9 +190,13 @@ router.post(
                   }
                 );
                 if (qrRes.ok) {
-                  // Response is a base64-encoded PNG image
-                  const qrBuffer = await qrRes.arrayBuffer();
-                  invoiceQrCode = `data:image/png;base64,${Buffer.from(qrBuffer).toString("base64")}`;
+                  // PayPal returns multipart form-data with a base64-encoded PNG inside
+                  const qrText = await qrRes.text();
+                  // Extract the base64 image data between the multipart boundaries
+                  const match = qrText.match(/\r\n\r\n([\s\S]+?)\r\n--/);
+                  if (match) {
+                    invoiceQrCode = `data:image/png;base64,${match[1]}`;
+                  }
                 }
               } catch (qrErr) {
                 console.error("QR code generation failed (non-blocking):", qrErr);

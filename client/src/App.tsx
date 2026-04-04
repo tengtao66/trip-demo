@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
+import { Toaster } from "sonner";
 import { useAuthStore } from "@/stores/auth-store";
 import Layout from "@/components/layout/Layout";
 import LoginPage from "@/pages/LoginPage";
@@ -88,6 +89,7 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
+    <Toaster position="top-right" richColors closeButton />
     </PayPalScriptProvider>
   );
 }

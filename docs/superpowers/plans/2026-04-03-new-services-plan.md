@@ -489,6 +489,59 @@ No new files — verification and edge case fixes only.
 
 ---
 
+## Section 8.6: PayPal SDK Intent Pre-loading (Optimization)
+
+**Files:**
+- Create: `client/src/lib/use-paypal-intent.ts`
+- Modify: `client/src/App.tsx`, `client/src/pages/HomePage.tsx`, `client/src/pages/TripDetailPage.tsx`
+- Modify: `client/src/pages/checkout/CheckoutInstantPage.tsx`, `client/src/pages/checkout/CheckoutAuthorizePage.tsx`, `client/src/pages/checkout/CheckoutVaultPage.tsx`
+
+**Problem:** With per-page `PayPalScriptProvider` instances, multiple SDK loads caused `zoid destroyed all components` errors. With a single global provider, checkout pages need to switch `intent` (capture vs authorize) via `resetOptions`, which triggers a re-render and button flash/remount on the checkout page.
+
+**Solution:** Pre-load the correct SDK intent **before** the user reaches checkout, so buttons render instantly.
+
+### Task 8.6.1: Single global PayPalScriptProvider
+
+- [x] Move `PayPalScriptProvider` to `App.tsx` with default `intent: "capture"`
+- [x] Remove per-page providers from all checkout pages
+- [x] Commit
+
+### Task 8.6.2: Create `usePayPalIntent` hook
+
+- [x] Create `client/src/lib/use-paypal-intent.ts`:
+  - Compares current `options.intent` against requested intent
+  - Only calls `resetOptions` when they differ (prevents unnecessary SDK reloads)
+- [x] Commit
+
+### Task 8.6.3: Pre-load intent on HomePage tabs
+
+- [x] In `HomePage.tsx`, call `usePayPalIntent` based on active tab:
+  - `cruise` tab → `"authorize"`
+  - `tour` / `car_rental` tabs → `"capture"`
+- [x] SDK switches intent in background as user browses tabs
+- [x] Commit
+
+### Task 8.6.4: Pre-load intent on TripDetailPage
+
+- [x] In `PricingSidebar` component, call `usePayPalIntent` based on `trip.payment_flow`:
+  - `"authorize"` → `"authorize"`
+  - All others → `"capture"`
+- [x] SDK switches intent while user reads trip details, before clicking checkout button
+- [x] Commit
+
+### Task 8.6.5: Keep checkout page hooks as safety nets
+
+- [x] Each checkout page still calls `usePayPalIntent` (capture or authorize) as a fallback
+  - `CheckoutInstantPage` → `usePayPalIntent("capture")`
+  - `CheckoutAuthorizePage` → `usePayPalIntent("authorize")`
+  - `CheckoutVaultPage` → `usePayPalIntent("capture")`
+- [x] With pre-loading, these are typically no-ops (intent already matches)
+- [x] Commit
+
+**Result:** Buttons render on first paint with correct intent. No extra render cycle, no flash.
+
+---
+
 ## Section 9: UX Polish (from UI/UX Review)
 
 **Ref:** Spec section "UX Improvements (from UI/UX Review)"
@@ -589,3 +642,65 @@ No new files — verification and edge case fixes only.
   - Features/highlights: `grid-cols-1 md:grid-cols-2`
 - [ ] Verify on 375px viewport — no horizontal scroll, sidebar stacks below
 - [ ] Commit
+
+---
+
+## Section 10: Additional Polish (2026-04-04)
+
+### Task 10.1: Car rental checkout — "or" divider between payment buttons
+
+- [x] Add `── or ──` text divider between PayPal and Pay Later buttons in `CheckoutInstantPage.tsx`
+- [x] Use `flex items-center` with two `border-t` lines and centered `text-xs text-muted-foreground` "or" text
+- [x] Commit
+
+### Task 10.2: Pay Later message grouping
+
+- [x] Wrap Pay Later button + `PayLaterMessages` component in a `space-y-2` container
+- [x] Center-align the message with `text-center`
+- [x] Remove duplicate "Free cancellation" green banner (already in What's Included)
+- [x] Remove unused `CheckCircle2` import
+- [x] Commit
+
+### Task 10.3: Payment section fieldset legend
+
+- [x] Replace `<div>` + `<p>` with `<fieldset>` + `<legend>` for the payment section in `CheckoutInstantPage.tsx`
+- [x] Legend: `mx-auto px-3 text-sm font-semibold text-foreground` — centered on top border with gap
+- [x] Commit
+
+### Task 10.4: Header logo change
+
+- [x] Change header logo text from "TERRA" to "MERCHANT" for all users in `Layout.tsx`
+- [x] Commit
+
+### Task 10.5: Simulation panel — even progress bar
+
+- [x] Change progress bar from dollar-based to step-based: `completedSteps / SIM_STEPS.length * 100`
+- [x] Each step advances ~16.7% evenly (no large jump on final settlement)
+- [x] Commit
+
+### Task 10.6: Fix dotenv loading for PayPal API
+
+- [x] Install `dotenv` and add to `server/src/index.ts` with explicit path: `resolve(__dirname, "../../.env")`
+- [x] Previously, PayPal credentials weren't loaded → invoice creation failed silently
+- [x] Commit
+
+### Task 10.7: Fix QR code multipart parsing
+
+- [x] PayPal's QR code endpoint returns multipart form-data, not raw PNG
+- [x] Extract base64 image data between multipart boundaries using regex: `qrText.match(/\r\n\r\n([\s\S]+?)\r\n--/)`
+- [x] Construct proper `data:image/png;base64,` data URI
+- [x] Commit
+
+### Task 10.8: 403 Forbidden error handling on checkout pages
+
+- [x] Detect `res.status === 403` in `handleCreateOrder` on all 3 checkout pages
+- [x] Show "Please switch to Customer role" message instead of generic "Something went wrong"
+- [x] Use `setError((prev) => prev || ...)` in `onError` to preserve specific error messages
+- [x] Commit
+
+### Task 10.9: Mock data for Jan/Feb 2026
+
+- [x] Added 7 January bookings (authorize, vault, instant, invoice) with charges across all flows
+- [x] Added 9 February bookings with variety (including 1 voided)
+- [x] Monthly Revenue chart now shows 4 months of data (Jan–Apr)
+- [x] Commit

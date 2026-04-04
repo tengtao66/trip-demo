@@ -9,7 +9,6 @@ import {
   Car,
   AlertCircle,
   CalendarDays,
-  CheckCircle2,
   Fuel,
   Users,
   Luggage,
@@ -93,8 +92,13 @@ export default function CheckoutInstantPage({ trip }: Props) {
       body: JSON.stringify({ slug: trip.slug, pickupDate, dropoffDate }),
     });
     if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.error || "Failed to create order");
+      const data = await res.json().catch(() => ({}));
+      const msg =
+        res.status === 403
+          ? "Please switch to Customer role to complete checkout. Use the role switcher in the header."
+          : data.error || "Failed to create order";
+      setError(msg);
+      throw new Error(msg);
     }
     const data = await res.json();
     return data.id;
@@ -116,7 +120,10 @@ export default function CheckoutInstantPage({ trip }: Props) {
 
   function handleError(err: Record<string, unknown>) {
     console.error("PayPal error:", err);
-    setError("Something went wrong with PayPal. Please try again.");
+    // Don't overwrite a more specific error (e.g. 403 role message) with generic one
+    setError((prev) =>
+      prev || "Something went wrong with PayPal. Please try again."
+    );
   }
 
   function handleCancel() {
@@ -270,10 +277,10 @@ export default function CheckoutInstantPage({ trip }: Props) {
             </div>
 
             {/* PayPal Buttons */}
-            <div className="rounded-xl border border-border p-6 space-y-4">
-              <p className="text-sm text-muted-foreground">
+            <fieldset className="rounded-xl border border-border p-6 space-y-4">
+              <legend className="mx-auto px-3 text-sm font-semibold text-foreground">
                 Pay securely with PayPal
-              </p>
+              </legend>
 
               {/* Yellow PayPal button */}
               <PayPalButtons
@@ -285,24 +292,30 @@ export default function CheckoutInstantPage({ trip }: Props) {
                 onCancel={handleCancel}
               />
 
-              {/* Blue Pay Later button */}
-              <PayPalButtons
-                fundingSource="paylater"
-                style={{ layout: "vertical", shape: "rect", label: "pay" }}
-                createOrder={handleCreateOrder}
-                onApprove={handleApprove}
-                onError={handleError}
-                onCancel={handleCancel}
-              />
-
-              {/* Official PayPal Pay Later messaging — waits for SDK to load */}
-              <PayLaterMessages amount={totalPrice} />
-
-              <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg p-3 mt-3">
-                <CheckCircle2 className="h-4 w-4 shrink-0" />
-                Free cancellation up to 24 hours before pickup
+              {/* "or" divider */}
+              <div className="relative flex items-center py-1">
+                <div className="flex-1 border-t border-border" />
+                <span className="px-3 text-xs text-muted-foreground">or</span>
+                <div className="flex-1 border-t border-border" />
               </div>
-            </div>
+
+              {/* Blue Pay Later button + message grouped tightly */}
+              <div className="space-y-2">
+                <PayPalButtons
+                  fundingSource="paylater"
+                  style={{ layout: "vertical", shape: "rect", label: "pay" }}
+                  createOrder={handleCreateOrder}
+                  onApprove={handleApprove}
+                  onError={handleError}
+                  onCancel={handleCancel}
+                />
+                {/* Official PayPal Pay Later messaging — centered under button */}
+                <div className="text-center">
+                  <PayLaterMessages amount={totalPrice} />
+                </div>
+              </div>
+
+            </fieldset>
           </div>
         </div>
       </div>

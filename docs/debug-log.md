@@ -36,6 +36,13 @@
 - **Error:** Potential string concatenation on `paid_amount + amount`
 - **Fix:** `const amount = Number(req.body.amount)` with `isFinite` validation
 
+### PayPal SDK "zoid destroyed all components" console warning
+- **Error:** `Uncaught Error: zoid destroyed all components` when switching between checkout pages with different intents (capture ↔ authorize)
+- **Root cause:** PayPal JS SDK v5 uses zoid for component lifecycle. When `resetOptions` reloads the SDK with a different `intent` param, the old zoid components are destroyed, triggering this error. This is a known limitation of the SDK in SPAs — see https://github.com/paypal/react-paypal-js/issues/72
+- **Impact:** Cosmetic console warning only. Buttons render and function correctly after the SDK reloads.
+- **Mitigation:** App uses single `PayPalScriptProvider` in App.tsx with `intent=capture` (most common). Only the authorize flow triggers `resetOptions`. Car rental and vault checkout pages produce zero console errors.
+- **Status:** Won't fix — PayPal SDK limitation, no API to suppress zoid cleanup warnings
+
 ### Authorize partial capture orphaned authorization
 - **Error:** If partial capture throws, no booking record saved — authorization is orphaned
 - **Fix:** Nested try/catch — save booking as DEPOSIT_AUTHORIZED if capture fails

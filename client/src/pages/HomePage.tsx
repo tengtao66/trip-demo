@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { fetchTrips } from "@/lib/api";
+import { usePayPalIntent } from "@/lib/use-paypal-intent";
 import TripCard from "@/components/trips/TripCard";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { Trip } from "@/types/trip";
@@ -23,6 +24,10 @@ export default function HomePage() {
     ? (tabParam as Trip["category"])
     : "tour";
 
+  // Pre-load PayPal SDK intent based on active tab:
+  // cruise → authorize, car_rental/tour → capture
+  usePayPalIntent(activeTab === "cruise" ? "authorize" : "capture");
+
   useEffect(() => {
     fetchTrips()
       .then(setTrips)
@@ -39,14 +44,14 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="bg-primary text-primary-foreground relative overflow-hidden">
         <div className="max-w-6xl mx-auto px-6 py-16 relative z-10">
-          <h1 className="text-4xl font-semibold">Explore Our Services</h1>
+          <h1 className="text-2xl md:text-4xl font-semibold">Explore Our Services</h1>
           <p className="mt-2 text-primary-foreground/80 text-lg">
             Tours, car rentals, and cruises &mdash; with flexible payment
             options
           </p>
         </div>
         {/* Right-half background image */}
-        <div className="absolute inset-y-0 right-0 w-1/2">
+        <div className="absolute inset-y-0 right-0 w-1/2 hidden md:block">
           <img
             src="/guided-tour-16.webp"
             alt="Guided tours"

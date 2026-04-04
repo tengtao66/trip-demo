@@ -359,35 +359,50 @@ const tripImages: Record<string, string> = {
 
 ## PayPal SDK Configuration Summary
 
-Each checkout page has its own `PayPalScriptProvider`. No global provider in App.tsx.
-
-**CheckoutInstantPage (car rental) provider options:**
+**Single global `PayPalScriptProvider` in App.tsx** with default `intent: "capture"`. Individual pages switch intent via the `usePayPalIntent` hook which calls `resetOptions` on the SDK reducer.
 
 ```js
+// App.tsx — global default options
 {
-  "client-id": clientId,
-  intent: "capture",
+  clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID,
   currency: "USD",
+  intent: "capture",
   components: "buttons,messages",
   "enable-funding": "paylater",
   "buyer-country": "US",
 }
 ```
 
-**Car detail page provider options (messages only):**
+### Intent Pre-loading Strategy
 
-```js
-{
-  "client-id": clientId,
-  currency: "USD",
-  components: "messages",
-  "buyer-country": "US",
+To avoid button flash/remount on checkout pages, the SDK intent is switched **early** — before the user reaches checkout:
+
+1. **HomePage tabs:** `usePayPalIntent` is called based on the active tab:
+   - Tours tab → `capture` (vault flow)
+   - Car Rentals tab → `capture` (instant flow)
+   - Cruises tab → `authorize`
+2. **TripDetailPage (PricingSidebar):** `usePayPalIntent` is called based on `trip.payment_flow`:
+   - `authorize` → `"authorize"`
+   - All others (`vault`, `instant`, `invoice`) → `"capture"`
+3. **Checkout pages:** Each checkout page still calls `usePayPalIntent` as a safety net, but by the time the user navigates there the SDK already has the correct intent loaded — buttons render instantly with no extra render cycle.
+
+### `usePayPalIntent` hook (`client/src/lib/use-paypal-intent.ts`)
+
+Compares `options.intent` against the requested intent. Only calls `resetOptions` when they differ, preventing unnecessary SDK reloads on re-renders or same-intent navigations.
+
+```ts
+export function usePayPalIntent(intent: "capture" | "authorize") {
+  const [{ options }, dispatch] = usePayPalScriptReducer();
+  useEffect(() => {
+    if (options.intent === intent) return;
+    dispatch({ type: "resetOptions", value: { ...options, intent } });
+  }, [intent]);
 }
 ```
 
-**Existing checkout pages** (CheckoutAuthorizePage, CheckoutVaultPage) — unchanged. They use their own providers with flow-specific options.
+### Known limitation
 
-Note: `react-paypal-js` `PayPalScriptProvider` options use kebab-case keys matching the JS SDK script parameters.
+When `resetOptions` reloads the SDK (e.g. switching from `capture` → `authorize`), the PayPal SDK logs a `"zoid destroyed all components"` console warning. This is a known PayPal SDK behavior when the script tag is replaced and does not affect functionality.
 
 ---
 
@@ -444,3 +459,38 @@ Note: `react-paypal-js` `PayPalScriptProvider` options use kebab-case keys match
 | Cruise Detail | `docs/ui/cruise-detail.html` |
 | Cruise Checkout | `docs/ui/cruise-checkout.html` |
 | Cruise Booking Detail | `docs/ui/booking-detail-cruise.html` |
+
+---
+
+## Additional UX Improvements (2026-04-04)
+
+### Car Rental Checkout — Payment Button UX
+
+- **"or" divider:** Add a `── or ──` text divider between the yellow PayPal button and blue Pay Later button to communicate they are alternative payment methods (standard e-commerce pattern used by Stripe, Shopify)
+- **Pay Later message grouping:** The official PayPal Pay Later messaging (`PayPalMessages` component) is grouped tightly under the Pay Later button with `space-y-2` (8px gap), centered, visually binding them as one unit
+- **Fieldset legend pattern:** The payment section uses `<fieldset>` + `<legend>` instead of a `<div>` with a `<p>` label. The legend text "Pay securely with PayPal" sits on the top border line (native browser fieldset gap), bold (`font-semibold`), `text-foreground` color. This is semantic HTML and provides the "open border" visual effect
+- **Removed duplicate cancellation banner:** The green "Free cancellation" banner was removed from the checkout payment section since it already appears in the "What's Included" section on the left column
+
+### Header Branding
+
+- **Logo text:** Changed from "TERRA" to "MERCHANT" for all users (customer and merchant roles). The header `<Link>` always shows "MERCHANT"
+
+### Simulation Panel — Progress Bar
+
+- **Even step progression:** Changed progress bar calculation from dollar-based (`totalCharged / TOTAL_AMOUNT`) to step-based (`completedSteps / SIM_STEPS.length`). Each of the 6 steps advances the bar by ~16.7% evenly, preventing the large jump on the final $1,450 settlement step. The `transition-all duration-700` CSS provides smooth animation
+
+### Invoice Auto-Creation & QR Code
+
+- **dotenv loading:** Added `dotenv` to `server/src/index.ts` with explicit path to project root `.env` file. Previously, PayPal API credentials weren't loaded when the server ran from the `server/` directory, causing invoice creation to fail silently
+- **QR code multipart parsing:** PayPal's `/v2/invoicing/invoices/{id}/generate-qr-code` endpoint returns multipart form-data (not raw PNG). The response body contains a base64-encoded PNG wrapped in multipart boundaries. Fixed by extracting the base64 image data between `\r\n\r\n` and `\r\n--` delimiters instead of treating the entire response as binary
+- **Confirmation page:** When invoice creation succeeds, the trip request confirmation page shows:
+  - "Invoice Sent!" heading (instead of "Trip Request Submitted!")
+  - Blue info card with "View & Pay Invoice" button linking to PayPal's `recipient_view_url`
+  - "Copy Link" button for sharing the invoice URL
+  - QR code image (300x300 PNG) with "Scan to pay" label — scannable on mobile to view and pay the invoice
+- **Fallback behavior:** If PayPal invoice creation fails (network error, API error), the flow degrades gracefully to "Trip Request Submitted!" with status `REQUEST_SUBMITTED` — merchant can manually create the invoice later
+
+### 403 Forbidden Error Handling
+
+- **Role-specific error message:** All checkout pages (instant, authorize, vault) now detect HTTP 403 responses from `/api/orders/create` and show "Please switch to Customer role to complete checkout. Use the role switcher in the header." instead of the generic "Something went wrong with PayPal"
+- **Error preservation:** The `onError` handler uses `setError((prev) => prev || "...")` to avoid overwriting a more specific error message (e.g. the 403 role message) with the generic PayPal error

@@ -137,3 +137,122 @@ INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status,
 VALUES ('mock-void-01', 'TERRA-6001', 'u-customer-04', 't-tokyo-01', 'VOIDED', 'authorize', 800, 200, 'mock_order_void', 'mock_auth_void', datetime('now', '-14 days'), datetime('now', '-12 days'));
 INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
   ('mc-void-01a', 'mock-void-01', 'deposit', 'Deposit for Tokyo Cherry Blossom Express', 200, 'mock_cap_void', 'completed', datetime('now', '-14 days'));
+
+-- ============================================
+-- JANUARY 2026 MOCK BOOKINGS
+-- ============================================
+
+-- Jan: Tokyo fully captured
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, paypal_order_id, authorization_id, created_at, updated_at)
+VALUES ('mock-jan-01', 'TERRA-7001', 'u-customer-02', 't-tokyo-01', 'FULLY_CAPTURED', 'authorize', 800, 800, 'mock_order_j1', 'mock_auth_j1', '2026-01-05 10:00:00', '2026-01-08 14:00:00');
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-jan-01a', 'mock-jan-01', 'deposit', 'Deposit for Tokyo Cherry Blossom Express', 200, 'mock_cap_j1a', 'completed', '2026-01-05 10:00:00'),
+  ('mc-jan-01b', 'mock-jan-01', 'balance', 'Balance for Tokyo Cherry Blossom Express', 600, 'mock_cap_j1b', 'completed', '2026-01-08 14:00:00');
+
+-- Jan: Bali vault completed
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, vault_token_id, created_at, updated_at)
+VALUES ('mock-jan-02', 'TERRA-7010', 'u-customer-03', 't-bali-01', 'COMPLETED', 'vault', 2500, 2500, NULL, '2026-01-10 09:00:00', '2026-01-18 16:00:00');
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-jan-02a', 'mock-jan-02', 'setup_fee', 'Setup Fee for Bali Adventure Retreat', 500, 'mock_cap_j2a', 'completed', '2026-01-10 09:00:00'),
+  ('mc-jan-02b', 'mock-jan-02', 'addon', 'Balinese Spa Treatment', 150, 'mock_cap_j2b', 'completed', '2026-01-12 11:00:00'),
+  ('mc-jan-02c', 'mock-jan-02', 'addon', 'Scuba Diving Session', 200, 'mock_cap_j2c', 'completed', '2026-01-14 10:00:00'),
+  ('mc-jan-02d', 'mock-jan-02', 'final', 'Final Settlement', 1650, 'mock_cap_j2d', 'completed', '2026-01-18 16:00:00');
+
+-- Jan: Caribbean cruise fully captured
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, paypal_order_id, authorization_id, created_at, updated_at)
+VALUES ('mock-jan-03', 'TERRA-7020', 'u-customer-04', 't-cruise-01', 'FULLY_CAPTURED', 'authorize', 2800, 2800, 'mock_order_j3', 'mock_auth_j3', '2026-01-15 14:00:00', '2026-01-22 10:00:00');
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-jan-03a', 'mock-jan-03', 'deposit', 'Deposit for Caribbean Island Hopper', 700, 'mock_cap_j3a', 'completed', '2026-01-15 14:00:00'),
+  ('mc-jan-03b', 'mock-jan-03', 'balance', 'Balance for Caribbean Island Hopper', 2100, 'mock_cap_j3b', 'completed', '2026-01-22 10:00:00');
+
+-- Jan: Economy sedan 5-day rental
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, pickup_date, dropoff_date, created_at, updated_at)
+VALUES ('mock-jan-04', 'TERRA-7030', 'u-customer-05', 't-car-01', 'CONFIRMED', 'instant', 250, 250, '2026-01-20', '2026-01-25', '2026-01-18 12:00:00', '2026-01-18 12:00:00');
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-jan-04a', 'mock-jan-04', 'full_payment', 'Full payment for Economy Sedan (5 days)', 250, 'mock_cap_j4a', 'completed', '2026-01-18 12:00:00');
+
+-- Jan: European invoice fully paid
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, invoice_id, created_at, updated_at)
+VALUES ('mock-jan-05', 'TERRA-7040', 'u-customer-02', 't-europe-01', 'FULLY_PAID', 'invoice', 9500, 9500, 'INV2-MOCK-J01', '2026-01-08 11:00:00', '2026-01-20 15:00:00');
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-jan-05a', 'mock-jan-05', 'deposit', 'Deposit for Custom European Grand Tour', 3800, 'mock_cap_j5a', 'completed', '2026-01-10 09:00:00'),
+  ('mc-jan-05b', 'mock-jan-05', 'balance', 'Balance for Custom European Grand Tour', 5700, 'mock_cap_j5b', 'completed', '2026-01-20 15:00:00');
+
+-- Jan: Luxury convertible 3-day rental
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, pickup_date, dropoff_date, created_at, updated_at)
+VALUES ('mock-jan-06', 'TERRA-7050', 'u-customer-03', 't-car-03', 'CONFIRMED', 'instant', 450, 450, '2026-01-25', '2026-01-28', '2026-01-23 10:00:00', '2026-01-23 10:00:00');
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-jan-06a', 'mock-jan-06', 'full_payment', 'Full payment for Luxury Convertible (3 days)', 450, 'mock_cap_j6a', 'completed', '2026-01-23 10:00:00');
+
+-- Jan: Alaska cruise fully captured
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, paypal_order_id, authorization_id, created_at, updated_at)
+VALUES ('mock-jan-07', 'TERRA-7060', 'u-customer-05', 't-cruise-03', 'FULLY_CAPTURED', 'authorize', 1900, 1900, 'mock_order_j7', 'mock_auth_j7', '2026-01-20 16:00:00', '2026-01-27 11:00:00');
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-jan-07a', 'mock-jan-07', 'deposit', 'Deposit for Alaska Glacier Discovery', 475, 'mock_cap_j7a', 'completed', '2026-01-20 16:00:00'),
+  ('mc-jan-07b', 'mock-jan-07', 'balance', 'Balance for Alaska Glacier Discovery', 1425, 'mock_cap_j7b', 'completed', '2026-01-27 11:00:00');
+
+-- ============================================
+-- FEBRUARY 2026 MOCK BOOKINGS
+-- ============================================
+
+-- Feb: Tokyo fully captured
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, paypal_order_id, authorization_id, created_at, updated_at)
+VALUES ('mock-feb-01', 'TERRA-8001', 'u-customer-04', 't-tokyo-01', 'FULLY_CAPTURED', 'authorize', 800, 800, 'mock_order_f1', 'mock_auth_f1', '2026-02-02 09:00:00', '2026-02-05 12:00:00');
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-feb-01a', 'mock-feb-01', 'deposit', 'Deposit for Tokyo Cherry Blossom Express', 200, 'mock_cap_f1a', 'completed', '2026-02-02 09:00:00'),
+  ('mc-feb-01b', 'mock-feb-01', 'balance', 'Balance for Tokyo Cherry Blossom Express', 600, 'mock_cap_f1b', 'completed', '2026-02-05 12:00:00');
+
+-- Feb: Mediterranean cruise fully captured
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, paypal_order_id, authorization_id, created_at, updated_at)
+VALUES ('mock-feb-02', 'TERRA-8010', 'u-customer-02', 't-cruise-02', 'FULLY_CAPTURED', 'authorize', 4500, 4500, 'mock_order_f2', 'mock_auth_f2', '2026-02-05 15:00:00', '2026-02-14 10:00:00');
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-feb-02a', 'mock-feb-02', 'deposit', 'Deposit for Mediterranean Explorer', 1125, 'mock_cap_f2a', 'completed', '2026-02-05 15:00:00'),
+  ('mc-feb-02b', 'mock-feb-02', 'balance', 'Balance for Mediterranean Explorer', 3375, 'mock_cap_f2b', 'completed', '2026-02-14 10:00:00');
+
+-- Feb: Bali vault completed
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, vault_token_id, created_at, updated_at)
+VALUES ('mock-feb-03', 'TERRA-8020', 'u-customer-05', 't-bali-01', 'COMPLETED', 'vault', 2500, 2500, NULL, '2026-02-08 10:00:00', '2026-02-16 14:00:00');
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-feb-03a', 'mock-feb-03', 'setup_fee', 'Setup Fee for Bali Adventure Retreat', 500, 'mock_cap_f3a', 'completed', '2026-02-08 10:00:00'),
+  ('mc-feb-03b', 'mock-feb-03', 'addon', 'Balinese Spa Treatment', 150, 'mock_cap_f3b', 'completed', '2026-02-10 09:00:00'),
+  ('mc-feb-03c', 'mock-feb-03', 'addon', 'Kecak Fire Dance Event', 120, 'mock_cap_f3c', 'completed', '2026-02-12 18:00:00'),
+  ('mc-feb-03d', 'mock-feb-03', 'addon', 'Scuba Diving Session', 200, 'mock_cap_f3d', 'completed', '2026-02-13 10:00:00'),
+  ('mc-feb-03e', 'mock-feb-03', 'final', 'Final Settlement', 1530, 'mock_cap_f3e', 'completed', '2026-02-16 14:00:00');
+
+-- Feb: SUV 4-day rental
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, pickup_date, dropoff_date, created_at, updated_at)
+VALUES ('mock-feb-04', 'TERRA-8030', 'u-customer-03', 't-car-02', 'CONFIRMED', 'instant', 400, 400, '2026-02-12', '2026-02-16', '2026-02-10 11:00:00', '2026-02-10 11:00:00');
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-feb-04a', 'mock-feb-04', 'full_payment', 'Full payment for SUV (4 days)', 400, 'mock_cap_f4a', 'completed', '2026-02-10 11:00:00');
+
+-- Feb: European invoice fully paid
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, invoice_id, created_at, updated_at)
+VALUES ('mock-feb-05', 'TERRA-8040', 'u-customer-04', 't-europe-01', 'FULLY_PAID', 'invoice', 11000, 11000, 'INV2-MOCK-F01', '2026-02-04 13:00:00', '2026-02-18 10:00:00');
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-feb-05a', 'mock-feb-05', 'deposit', 'Deposit for Custom European Grand Tour', 4400, 'mock_cap_f5a', 'completed', '2026-02-06 09:00:00'),
+  ('mc-feb-05b', 'mock-feb-05', 'balance', 'Balance for Custom European Grand Tour', 6600, 'mock_cap_f5b', 'completed', '2026-02-18 10:00:00');
+
+-- Feb: Economy sedan 10-day rental
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, pickup_date, dropoff_date, created_at, updated_at)
+VALUES ('mock-feb-06', 'TERRA-8050', 'u-customer-02', 't-car-01', 'CONFIRMED', 'instant', 500, 500, '2026-02-15', '2026-02-25', '2026-02-13 14:00:00', '2026-02-13 14:00:00');
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-feb-06a', 'mock-feb-06', 'full_payment', 'Full payment for Economy Sedan (10 days)', 500, 'mock_cap_f6a', 'completed', '2026-02-13 14:00:00');
+
+-- Feb: Caribbean cruise fully captured
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, paypal_order_id, authorization_id, created_at, updated_at)
+VALUES ('mock-feb-07', 'TERRA-8060', 'u-customer-03', 't-cruise-01', 'FULLY_CAPTURED', 'authorize', 2800, 2800, 'mock_order_f7', 'mock_auth_f7', '2026-02-18 10:00:00', '2026-02-24 16:00:00');
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-feb-07a', 'mock-feb-07', 'deposit', 'Deposit for Caribbean Island Hopper', 700, 'mock_cap_f7a', 'completed', '2026-02-18 10:00:00'),
+  ('mc-feb-07b', 'mock-feb-07', 'balance', 'Balance for Caribbean Island Hopper', 2100, 'mock_cap_f7b', 'completed', '2026-02-24 16:00:00');
+
+-- Feb: Tokyo voided (cancelled booking)
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, paypal_order_id, authorization_id, created_at, updated_at)
+VALUES ('mock-feb-08', 'TERRA-8070', 'u-customer-05', 't-tokyo-01', 'VOIDED', 'authorize', 800, 200, 'mock_order_f8', 'mock_auth_f8', '2026-02-20 09:00:00', '2026-02-22 11:00:00');
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-feb-08a', 'mock-feb-08', 'deposit', 'Deposit for Tokyo Cherry Blossom Express', 200, 'mock_cap_f8a', 'completed', '2026-02-20 09:00:00');
+
+-- Feb: Luxury convertible 2-day rental
+INSERT OR IGNORE INTO bookings (id, booking_reference, user_id, trip_id, status, payment_flow, total_amount, paid_amount, pickup_date, dropoff_date, created_at, updated_at)
+VALUES ('mock-feb-09', 'TERRA-8080', 'u-customer-04', 't-car-03', 'CONFIRMED', 'instant', 300, 300, '2026-02-26', '2026-02-28', '2026-02-24 15:00:00', '2026-02-24 15:00:00');
+INSERT OR IGNORE INTO booking_charges (id, booking_id, type, description, amount, paypal_capture_id, status, created_at) VALUES
+  ('mc-feb-09a', 'mock-feb-09', 'full_payment', 'Full payment for Luxury Convertible (2 days)', 300, 'mock_cap_f9a', 'completed', '2026-02-24 15:00:00');

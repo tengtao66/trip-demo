@@ -9,10 +9,13 @@ import {
   CheckCircle2,
   XCircle,
   Info,
+  Loader2,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { authFetch } from "@/lib/auth-fetch";
+import ConfirmDialog from "@/components/ConfirmDialog";
 import type { BookingDetail } from "@/types/booking";
 
 interface Props {
@@ -55,6 +58,8 @@ export default function AuthorizeBookingDetailPage({
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [captureConfirmOpen, setCaptureConfirmOpen] = useState(false);
+  const [voidConfirmOpen, setVoidConfirmOpen] = useState(false);
   const timeLeft = useCountdown(booking.authorization_expires_at);
 
   const balanceRemaining = booking.total_amount - booking.paid_amount;
@@ -71,13 +76,17 @@ export default function AuthorizeBookingDetailPage({
       );
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || "Capture failed");
+        const msg = data.error || "Capture failed";
+        setError(msg);
+        toast.error(msg);
         return;
       }
       setSuccess("Balance captured successfully!");
+      toast.success("Balance captured successfully!");
       onRefresh();
     } catch {
       setError("Network error during capture");
+      toast.error("Network error during capture");
     } finally {
       setActionLoading(null);
     }
@@ -95,13 +104,17 @@ export default function AuthorizeBookingDetailPage({
       );
       if (!res.ok) {
         const data = await res.json();
-        setError(data.error || "Void failed");
+        const msg = data.error || "Void failed";
+        setError(msg);
+        toast.error(msg);
         return;
       }
       setSuccess("Authorization voided successfully.");
+      toast.success("Authorization voided successfully.");
       onRefresh();
     } catch {
       setError("Network error during void");
+      toast.error("Network error during void");
     } finally {
       setActionLoading(null);
     }
@@ -236,12 +249,15 @@ export default function AuthorizeBookingDetailPage({
             {isActive && (
               <div className="flex gap-3 mt-5">
                 <Button
-                  onClick={handleCapture}
+                  onClick={() => setCaptureConfirmOpen(true)}
                   disabled={actionLoading !== null}
-                  className="flex-1"
+                  className="flex-1 cursor-pointer"
                 >
                   {actionLoading === "capture" ? (
-                    "Capturing..."
+                    <>
+                      <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                      Capturing...
+                    </>
                   ) : (
                     <>
                       <CreditCard className="h-4 w-4 mr-1.5" />
@@ -251,11 +267,15 @@ export default function AuthorizeBookingDetailPage({
                 </Button>
                 <Button
                   variant="destructive"
-                  onClick={handleVoid}
+                  onClick={() => setVoidConfirmOpen(true)}
                   disabled={actionLoading !== null}
+                  className="cursor-pointer"
                 >
                   {actionLoading === "void" ? (
-                    "Voiding..."
+                    <>
+                      <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+                      Voiding...
+                    </>
                   ) : (
                     <>
                       <XCircle className="h-4 w-4 mr-1.5" />
@@ -405,6 +425,27 @@ export default function AuthorizeBookingDetailPage({
           </div>
         </div>
       </div>
+
+      {/* Capture Balance Confirmation */}
+      <ConfirmDialog
+        open={captureConfirmOpen}
+        onOpenChange={setCaptureConfirmOpen}
+        title="Capture Balance"
+        description={`This will capture the remaining balance of $${balanceRemaining.toLocaleString()} from the customer's PayPal account. This action cannot be undone.`}
+        confirmLabel={`Capture $${balanceRemaining.toLocaleString()}`}
+        onConfirm={handleCapture}
+      />
+
+      {/* Void Authorization Confirmation */}
+      <ConfirmDialog
+        open={voidConfirmOpen}
+        onOpenChange={setVoidConfirmOpen}
+        title="Void Authorization"
+        description="This will release the remaining authorized amount. The deposit already captured cannot be reversed. This action cannot be undone."
+        confirmLabel="Void Authorization"
+        variant="destructive"
+        onConfirm={handleVoid}
+      />
     </div>
   );
 }
