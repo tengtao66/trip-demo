@@ -58,13 +58,21 @@ struct ProfileView: View {
 
                 // Debug settings (in DEBUG builds)
                 #if DEBUG
-                TerraCard {
-                    VStack(alignment: .leading, spacing: TerraSpacing.xs) {
-                        Text("Debug")
-                            .font(.terraHeadline)
-                            .foregroundStyle(Color.terraText)
-                        InfoRow(label: "User ID", value: authStore.currentUser?.id ?? "-")
-                        InfoRow(label: "Role", value: authStore.role.rawValue)
+                NavigationLink {
+                    DebugSettingsView()
+                } label: {
+                    TerraCard {
+                        HStack {
+                            Image(systemName: "wrench.and.screwdriver")
+                                .foregroundStyle(Color.terraTerracotta)
+                            Text("Debug Settings")
+                                .font(.terraHeadline)
+                                .foregroundStyle(Color.terraText)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 12))
+                                .foregroundStyle(Color.terraTextMuted)
+                        }
                     }
                 }
                 .padding(.horizontal, TerraSpacing.screenEdge)

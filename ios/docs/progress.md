@@ -88,3 +88,12 @@
 - PayPal Pay Later message added to car rental detail view and instant checkout view
 - Updated design spec with PayPal SDK component details and correct enum values
 - Updated implementation plan with key learnings (14 issues documented in debug-log.md)
+- Committed + pushed to GitHub (e12c2f8, 114 files, 14,034 lines)
+
+## 2026-04-05 — Section 7: Polish, Accessibility & Testing
+- Task 7.1: Skeleton loading for MerchantHomeView KPI cards
+- Task 7.2: ErrorBanner component with auto-dismiss, VoiceOver announcement, retry button
+- Task 7.3: HapticFeedback utility (success/error/impact), added to checkout confirmation + merchant actions
+- Task 7.4: VoiceOver labels on ErrorBanner dismiss button, decorative icons hidden
+- Task 7.6: StaggeredAppearance ViewModifier with reduce-motion support, applied to TripListView
+- Task 7.7: DebugSettingsView with base URL override, session info, reset all data — linked from ProfileView

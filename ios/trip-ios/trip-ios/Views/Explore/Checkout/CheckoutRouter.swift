@@ -51,6 +51,7 @@ struct CheckoutRouter: View {
     }
 
     private func handleComplete(result: BookingResult) {
+        HapticFeedback.success()
         bookingResult = result
         showConfirmation = true
     }

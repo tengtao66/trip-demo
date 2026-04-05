@@ -27,11 +27,12 @@ struct TripListView: View {
                 emptyState
             } else {
                 LazyVGrid(columns: columns, spacing: TerraSpacing.md) {
-                    ForEach(trips) { trip in
+                    ForEach(Array(trips.enumerated()), id: \.element.id) { index, trip in
                         NavigationLink(value: NavigationDestination.tripDetail(slug: trip.slug)) {
                             TripCardView(trip: trip)
                         }
                         .buttonStyle(.plain)
+                        .staggeredAppearance(index: index)
                     }
                 }
                 .padding(.horizontal, TerraSpacing.screenEdge)

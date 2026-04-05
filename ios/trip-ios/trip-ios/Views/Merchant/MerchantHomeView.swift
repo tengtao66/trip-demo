@@ -19,6 +19,9 @@ struct MerchantHomeView: View {
                 if let stats {
                     kpiGrid(stats)
                         .padding(.horizontal, TerraSpacing.screenEdge)
+                } else if isLoading {
+                    kpiSkeletonGrid
+                        .padding(.horizontal, TerraSpacing.screenEdge)
                 }
 
                 // Filter chips
@@ -129,6 +132,24 @@ struct MerchantHomeView: View {
                 }
             }
         }
+    }
+
+    // MARK: - Skeleton
+
+    private var kpiSkeletonGrid: some View {
+        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: TerraSpacing.sm) {
+            ForEach(0..<4, id: \.self) { _ in
+                TerraCard {
+                    VStack(spacing: TerraSpacing.xs) {
+                        RoundedRectangle(cornerRadius: 4).fill(Color.terraBorder).frame(width: 24, height: 24)
+                        RoundedRectangle(cornerRadius: 4).fill(Color.terraBorder).frame(width: 60, height: 20)
+                        RoundedRectangle(cornerRadius: 4).fill(Color.terraBorder).frame(width: 80, height: 12)
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            }
+        }
+        .redacted(reason: .placeholder)
     }
 
     // MARK: - Filter Chip

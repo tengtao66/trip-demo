@@ -156,6 +156,7 @@ struct MerchantBookingDetailView: View {
         actionInProgress = true
         do {
             _ = try await MerchantService().captureBalance(authorizationId: authorizationId)
+            HapticFeedback.success()
             await load()
         } catch let apiError as APIError {
             self.error = apiError
@@ -169,6 +170,7 @@ struct MerchantBookingDetailView: View {
         actionInProgress = true
         do {
             _ = try await MerchantService().voidAuth(authorizationId: authorizationId)
+            HapticFeedback.success()
             await load()
         } catch let apiError as APIError {
             self.error = apiError
