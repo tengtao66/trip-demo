@@ -160,8 +160,10 @@ struct MerchantBookingDetailView: View {
             await load()
         } catch let apiError as APIError {
             self.error = apiError
+            HapticFeedback.error()
         } catch {
             self.error = .networkError(error.localizedDescription)
+            HapticFeedback.error()
         }
         actionInProgress = false
     }
@@ -174,8 +176,10 @@ struct MerchantBookingDetailView: View {
             await load()
         } catch let apiError as APIError {
             self.error = apiError
+            HapticFeedback.error()
         } catch {
             self.error = .networkError(error.localizedDescription)
+            HapticFeedback.error()
         }
         actionInProgress = false
     }

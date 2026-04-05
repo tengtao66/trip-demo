@@ -74,8 +74,9 @@ struct MerchantHomeView: View {
             let service = MerchantService()
             async let s = service.fetchStats()
             async let b = service.fetchAllBookings()
-            stats = try await s
-            allBookings = try await b
+            let (newStats, newBookings) = try await (s, b)
+            stats = newStats
+            allBookings = newBookings
         } catch let apiError as APIError {
             error = apiError
         } catch {

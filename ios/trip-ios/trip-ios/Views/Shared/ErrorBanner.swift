@@ -4,10 +4,10 @@ import UIKit
 struct ErrorBanner: View {
     let message: String
     var retryAction: (() -> Void)? = nil
-    @State private var isVisible = true
+    @Binding var isPresented: Bool
 
     var body: some View {
-        if isVisible {
+        if isPresented {
             HStack(spacing: TerraSpacing.xs) {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundStyle(Color.terraDestructive)
@@ -21,14 +21,14 @@ struct ErrorBanner: View {
                     Button("Retry") {
                         retryAction()
                     }
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.system(.caption, weight: .semibold))
                     .foregroundStyle(Color.terraTerracotta)
                 }
                 Button {
-                    withAnimation { isVisible = false }
+                    withAnimation { isPresented = false }
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.system(.caption2, weight: .bold))
                         .foregroundStyle(Color.terraTextMuted)
                 }
                 .accessibilityLabel("Dismiss error")
@@ -40,19 +40,21 @@ struct ErrorBanner: View {
             .transition(.move(edge: .top).combined(with: .opacity))
             .onAppear {
                 UIAccessibility.post(notification: .announcement, argument: message)
-                // Auto-dismiss after 8 seconds
-                DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
-                    withAnimation { isVisible = false }
-                }
+            }
+            .task {
+                try? await Task.sleep(for: .seconds(8))
+                withAnimation { isPresented = false }
             }
         }
     }
 }
 
 #Preview {
+    @Previewable @State var show1 = true
+    @Previewable @State var show2 = true
     VStack(spacing: 16) {
-        ErrorBanner(message: "Network connection lost", retryAction: {})
-        ErrorBanner(message: "Server error (500): Internal server error")
+        ErrorBanner(message: "Network connection lost", retryAction: {}, isPresented: $show1)
+        ErrorBanner(message: "Server error (500)", isPresented: $show2)
     }
     .padding()
 }

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct StaggeredAppearance: ViewModifier {
     let index: Int
-    let reduceMotion: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isVisible = false
 
     func body(content: Content) -> some View {
@@ -19,7 +19,7 @@ struct StaggeredAppearance: ViewModifier {
 }
 
 extension View {
-    func staggeredAppearance(index: Int, reduceMotion: Bool = false) -> some View {
-        modifier(StaggeredAppearance(index: index, reduceMotion: reduceMotion))
+    func staggeredAppearance(index: Int) -> some View {
+        modifier(StaggeredAppearance(index: index))
     }
 }
