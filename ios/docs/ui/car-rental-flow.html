@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TERRA iOS — Car Rental Flow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --mocha: #5C3D2E;
+    --terracotta: #A0522D;
+    --sage: #86A873;
+    --alpine-oat: #FAF6F1;
+    --ivory: #FFFDF9;
+    --border: #E8DFD4;
+    --text: #3D2B1F;
+    --text-muted: #8B7355;
+    --warning: #B8860B;
+    --destructive: #DC2626;
+    --blue-paypal: #0070ba;
+    --phone-width: 320px;
+    --phone-height: 693px;
+    --phone-radius: 44px;
+    --screen-radius: 38px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #f0f0f0;
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── Page Header ─────────────────────────── */
+  .page-header {
+    background: var(--mocha);
+    color: #fff;
+    padding: 32px 40px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .page-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  .page-header p {
+    font-size: 13px;
+    opacity: 0.75;
+    margin-top: 4px;
+  }
+
+  /* ── Legend ───────────────────────────────── */
+  .legend {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 14px 40px;
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 13px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── Storyboard Container ────────────────── */
+  .storyboard-wrap {
+    padding: 40px 40px 60px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+  .storyboard {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    width: max-content;
+  }
+
+  /* ── Phone + Arrow Column ────────────────── */
+  .screen-col {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    scroll-snap-align: start;
+  }
+  .screen-col:last-child .flow-arrow { display: none; }
+
+  .flow-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-muted);
+  }
+  .flow-arrow svg { flex-shrink: 0; }
+  .flow-arrow span {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  /* ── Phone Frame ─────────────────────────── */
+  .phone-frame-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .phone-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--mocha);
+    text-align: center;
+    max-width: var(--phone-width);
+    letter-spacing: -0.1px;
+  }
+  .phone-sublabel {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 2px;
+  }
+
+  .phone {
+    width: var(--phone-width);
+    height: var(--phone-height);
+    background: #000;
+    border-radius: var(--phone-radius);
+    padding: 8px;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25), 0 4px 12px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(255,255,255,0.08);
+  }
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 28px;
+    background: #000;
+    border-radius: 0 0 18px 18px;
+    z-index: 10;
+  }
+
+  .screen {
+    width: 100%;
+    height: 100%;
+    background: var(--alpine-oat);
+    border-radius: var(--screen-radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* ── iOS Status Bar ──────────────────────── */
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 24px 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    flex-shrink: 0;
+    height: 44px;
+    z-index: 5;
+  }
+  .status-bar .time { font-size: 14px; font-weight: 700; }
+  .status-icons { display: flex; gap: 5px; align-items: center; }
+
+  /* ── iOS Nav Bar ─────────────────────────── */
+  .nav-bar {
+    padding: 4px 16px 8px;
+    flex-shrink: 0;
+  }
+  .nav-bar-back {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    color: var(--terracotta);
+    margin-bottom: 4px;
+  }
+  .nav-bar-back svg { width: 16px; height: 16px; }
+  .nav-bar .nav-title-large {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+  .nav-bar .nav-title-inline {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    text-align: center;
+  }
+  .nav-bar-inline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 16px 8px;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .nav-bar-inline .nav-title-inline {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+  }
+  .nav-bar-inline .nav-back {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 14px;
+    color: var(--terracotta);
+  }
+  .nav-bar-inline .nav-back svg { width: 16px; height: 16px; }
+
+  /* ── Screen Content ──────────────────────── */
+  .screen-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 16px 16px;
+  }
+  .screen-content::-webkit-scrollbar { display: none; }
+
+  /* ── iOS Tab Bar ─────────────────────────── */
+  .tab-bar {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 6px 0 4px;
+    background: var(--ivory);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 9px;
+    color: var(--text-muted);
+  }
+  .tab-item.active { color: var(--terracotta); }
+  .tab-item svg { width: 20px; height: 20px; }
+
+  .home-indicator {
+    width: 120px;
+    height: 4px;
+    background: var(--text);
+    border-radius: 2px;
+    margin: 6px auto 8px;
+    opacity: 0.15;
+    flex-shrink: 0;
+  }
+
+  /* ── Cards ───────────────────────────────── */
+  .card {
+    background: var(--ivory);
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(92,61,46,0.06), 0 1px 2px rgba(92,61,46,0.04);
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .card-body { padding: 12px; }
+
+  /* ── Car Image Placeholder ───────────────── */
+  .car-img {
+    width: 100%;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.7);
+  }
+  .car-img.sedan {
+    background: linear-gradient(135deg, #a08060 0%, #c4a882 100%);
+  }
+  .car-img.suv {
+    background: linear-gradient(135deg, #6b8f5e 0%, #93b584 100%);
+  }
+  .car-img.luxury {
+    background: linear-gradient(135deg, #7a5c6a 0%, #a88095 100%);
+  }
+  .car-img.hero {
+    height: 140px;
+  }
+  .car-img svg { width: 48px; height: 48px; opacity: 0.6; }
+
+  /* ── Typography helpers ──────────────────── */
+  .text-lg { font-size: 16px; font-weight: 600; color: var(--text); }
+  .text-md { font-size: 14px; font-weight: 500; color: var(--text); }
+  .text-sm { font-size: 12px; color: var(--text); }
+  .text-xs { font-size: 10px; color: var(--text-muted); }
+  .text-muted { color: var(--text-muted); }
+  .text-mocha { color: var(--mocha); }
+  .text-terracotta { color: var(--terracotta); }
+  .text-sage { color: var(--sage); }
+  .text-bold { font-weight: 600; }
+  .text-price { font-size: 18px; font-weight: 700; color: var(--mocha); }
+
+  /* ── Buttons ─────────────────────────────── */
+  .btn-primary {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: var(--terracotta);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    text-align: center;
+    cursor: pointer;
+  }
+  .btn-outline {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    color: var(--terracotta);
+    border: 1.5px solid var(--terracotta);
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    text-align: center;
+  }
+  .btn-text {
+    background: none;
+    border: none;
+    color: var(--terracotta);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: center;
+    display: block;
+    margin: 8px auto 0;
+  }
+  .btn-destructive-outline {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    color: var(--destructive);
+    border: 1.5px solid var(--destructive);
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    text-align: center;
+    opacity: 0.8;
+  }
+
+  /* ── PayPal Button ───────────────────────── */
+  .paylater-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px;
+    background: #FFFFFF;
+    border: 1px solid #2C2E2F;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #2C2E2F;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .paylater-msg {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 12px;
+    line-height: 1.5;
+    padding: 0 8px;
+  }
+  .paylater-msg strong {
+    color: var(--text);
+  }
+
+  /* ── Badges ──────────────────────────────── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .badge-sage { background: rgba(134,168,115,0.15); color: #4e7a3a; }
+  .badge-warning { background: rgba(184,134,11,0.12); color: var(--warning); }
+  .badge-mocha { background: rgba(92,61,46,0.1); color: var(--mocha); }
+
+  /* ── Spec Row ────────────────────────────── */
+  .spec-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin: 12px 0;
+  }
+  .spec-item {
+    background: var(--alpine-oat);
+    border-radius: 10px;
+    padding: 10px 6px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .spec-item svg { width: 18px; height: 18px; color: var(--terracotta); margin-bottom: 4px; }
+  .spec-item .spec-val { font-size: 12px; font-weight: 600; color: var(--text); }
+  .spec-item .spec-label { font-size: 9px; color: var(--text-muted); margin-top: 1px; }
+
+  /* ── Date Input ──────────────────────────── */
+  .date-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--ivory);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+  }
+  .date-input svg { width: 16px; height: 16px; color: var(--terracotta); flex-shrink: 0; }
+  .date-input .date-label { font-size: 10px; color: var(--text-muted); }
+  .date-input .date-value { font-size: 13px; font-weight: 500; color: var(--text); }
+
+  /* ── Summary Row ─────────────────────────── */
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 12px;
+  }
+  .summary-row.total {
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+    padding-top: 8px;
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  /* ── Divider ─────────────────────────────── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 12px 0;
+  }
+
+  /* ── Section heading ─────────────────────── */
+  .section-heading {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--mocha);
+    margin: 14px 0 8px;
+  }
+
+  /* ── Timeline ────────────────────────────── */
+  .timeline-item {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    position: relative;
+  }
+  .timeline-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--sage);
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+  .timeline-dot.pending { background: var(--warning); }
+  .timeline-content { flex: 1; }
+  .timeline-title { font-size: 12px; font-weight: 500; color: var(--text); }
+  .timeline-subtitle { font-size: 10px; color: var(--text-muted); margin-top: 1px; }
+
+  /* ── Processing Overlay ──────────────────── */
+  .processing-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(61,43,31,0.5);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    border-radius: var(--screen-radius);
+  }
+  .processing-modal {
+    background: var(--ivory);
+    border-radius: 20px;
+    padding: 32px 28px;
+    text-align: center;
+    width: 240px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+  }
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--terracotta);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Confirmation Checkmark ──────────────── */
+  .check-circle {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(134,168,115,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+  }
+  .check-circle svg { width: 32px; height: 32px; color: var(--sage); }
+
+  /* ── Ref Box ─────────────────────────────── */
+  .ref-box {
+    background: rgba(134,168,115,0.08);
+    border: 1px dashed var(--sage);
+    border-radius: 8px;
+    padding: 8px 12px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--mocha);
+    letter-spacing: 1px;
+    margin: 8px 0;
+  }
+
+  /* ── Info Row (label : value) ─────────────── */
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 11px;
+  }
+  .info-row .label { color: var(--text-muted); }
+  .info-row .value { color: var(--text); font-weight: 500; text-align: right; max-width: 55%; word-break: break-all; }
+
+  /* ── Secure Badge ────────────────────────── */
+  .secure-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 16px;
+  }
+  .secure-badge svg { width: 14px; height: 14px; }
+
+  /* ── Merchant Badge ──────────────────────── */
+  .merchant-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(92,61,46,0.08);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--mocha);
+    margin-bottom: 10px;
+  }
+
+  /* ── Customer Card ───────────────────────── */
+  .customer-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+  }
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--terracotta), var(--mocha));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ── Link ─────────────────────────────────── */
+  .link-terra {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--terracotta);
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .link-terra svg { width: 14px; height: 14px; }
+
+  /* ── Responsive ──────────────────────────── */
+  @media (max-width: 768px) {
+    .page-header { padding: 24px 20px 18px; }
+    .legend { padding: 12px 20px; }
+    .storyboard-wrap { padding: 24px 20px 40px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Page Header -->
+<div class="page-header">
+  <h1>TERRA iOS — Car Rental Flow</h1>
+  <p>Instant Capture Payment -- PayPal Order Create, Capture</p>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item">
+    <div class="legend-dot" style="background:var(--terracotta)"></div>
+    <span><strong>Instant Capture:</strong> Full payment collected at checkout</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:var(--sage)"></div>
+    <span>Success / Completed</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:#FFFFFF;border:1px solid #2C2E2F"></div>
+    <span>PayPal Pay Later</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-dot" style="background:var(--mocha)"></div>
+    <span>Merchant View</span>
+  </div>
+</div>
+
+<!-- Storyboard -->
+<div class="storyboard-wrap">
+<div class="storyboard">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SCREEN 1: Car Rental Browse                -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="screen-col">
+<div class="phone-frame-wrap">
+  <div class="phone">
+    <div class="screen">
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="time">9:41</span>
+        <div class="status-icons">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>
+          <svg width="18" height="14" viewBox="0 0 28 14" fill="currentColor"><rect x="0" y="1" width="23" height="12" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="24.5" y="4.5" width="2" height="5" rx="1" fill="currentColor" opacity="0.4"/><rect x="2" y="3" width="19" height="8" rx="1.5" fill="currentColor"/></svg>
+        </div>
+      </div>
+
+      <!-- Nav Bar (large title) -->
+      <div class="nav-bar">
+        <div class="nav-title-large">Car Rentals</div>
+      </div>
+
+      <!-- Content -->
+      <div class="screen-content">
+        <!-- Card 1: Economy Sedan -->
+        <div class="card">
+          <div class="car-img sedan">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.7-2.8C12.2 6.1 10.8 6 10 6H5.2c-.8 0-1.5.4-1.9 1L1 11v5c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+          </div>
+          <div class="card-body">
+            <div style="display:flex;justify-content:space-between;align-items:baseline">
+              <span class="text-lg">Economy Sedan</span>
+              <span class="text-price">$50<span style="font-size:11px;font-weight:400;color:var(--text-muted)">/day</span></span>
+            </div>
+            <p class="text-xs" style="margin:6px 0 8px">Compact and fuel-efficient, perfect for city exploration</p>
+            <span class="link-terra">View Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+          </div>
+        </div>
+
+        <!-- Card 2: SUV Explorer -->
+        <div class="card">
+          <div class="car-img suv">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 17h1c.6 0 1-.4 1-1v-1h8v1c0 .6.4 1 1 1h1"/><path d="M3 11l1.5-5A2 2 0 0 1 6.4 4.5h11.2a2 2 0 0 1 1.9 1.5L21 11"/><path d="M3 11h18v3c0 1-1 2-2 2H5c-1 0-2-1-2-2v-3Z"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+          </div>
+          <div class="card-body">
+            <div style="display:flex;justify-content:space-between;align-items:baseline">
+              <span class="text-lg">SUV Explorer</span>
+              <span class="text-price">$100<span style="font-size:11px;font-weight:400;color:var(--text-muted)">/day</span></span>
+            </div>
+            <p class="text-xs" style="margin:6px 0 8px">Spacious and powerful, ideal for off-road adventures</p>
+            <span class="link-terra">View Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+          </div>
+        </div>
+
+        <!-- Card 3: Luxury Convertible -->
+        <div class="card">
+          <div class="car-img luxury">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.7-2.8C12.2 6.1 10.8 6 10 6H5.2c-.8 0-1.5.4-1.9 1L1 11v5c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M5 6l1-3h10l1 3"/></svg>
+          </div>
+          <div class="card-body">
+            <div style="display:flex;justify-content:space-between;align-items:baseline">
+              <span class="text-lg">Luxury Convertible</span>
+              <span class="text-price">$150<span style="font-size:11px;font-weight:400;color:var(--text-muted)">/day</span></span>
+            </div>
+            <p class="text-xs" style="margin:6px 0 8px">Premium luxury with open-top driving experience</p>
+            <span class="link-terra">View Details <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Bar -->
+      <div class="tab-bar">
+        <div class="tab-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Home</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <span>Search</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+          <span>Bookings</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profile</span>
+        </div>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+  <div class="phone-label">1. Car Rental Browse</div>
+  <div class="phone-sublabel">Product listing</div>
+</div>
+
+<!-- Arrow -->
+<div class="flow-arrow">
+  <svg width="32" height="16" viewBox="0 0 32 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M0 8h28"/><path d="M24 3l6 5-6 5"/></svg>
+  <span>Select</span>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SCREEN 2: Car Rental Detail                -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="screen-col">
+<div class="phone-frame-wrap">
+  <div class="phone">
+    <div class="screen">
+      <div class="status-bar">
+        <span class="time">9:41</span>
+        <div class="status-icons">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>
+          <svg width="18" height="14" viewBox="0 0 28 14" fill="currentColor"><rect x="0" y="1" width="23" height="12" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="24.5" y="4.5" width="2" height="5" rx="1" fill="currentColor" opacity="0.4"/><rect x="2" y="3" width="19" height="8" rx="1.5" fill="currentColor"/></svg>
+        </div>
+      </div>
+
+      <div class="nav-bar-inline">
+        <div class="nav-back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+          <span>Car Rentals</span>
+        </div>
+        <span class="nav-title-inline">Economy Sedan</span>
+        <span style="width:80px"></span>
+      </div>
+
+      <div class="screen-content">
+        <div class="car-img sedan hero" style="border-radius:12px;margin-bottom:12px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:56px;height:56px"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.7-2.8C12.2 6.1 10.8 6 10 6H5.2c-.8 0-1.5.4-1.9 1L1 11v5c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+        </div>
+
+        <!-- Specs -->
+        <div class="spec-row">
+          <div class="spec-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <div class="spec-val">5</div>
+            <div class="spec-label">Seats</div>
+          </div>
+          <div class="spec-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M12 4v16"/><path d="M2 12h20"/></svg>
+            <div class="spec-val">Auto</div>
+            <div class="spec-label">Trans.</div>
+          </div>
+          <div class="spec-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V6c0-1.1.9-2 2-2h2"/><path d="M7 2h10"/><path d="M17 4h2a2 2 0 0 1 2 2v3"/><path d="M21 15v5a2 2 0 0 1-2 2h-1"/><path d="M10 22H5"/><circle cx="12" cy="12" r="3"/></svg>
+            <div class="spec-val">Gas</div>
+            <div class="spec-label">Fuel</div>
+          </div>
+          <div class="spec-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 11h1a3 3 0 0 1 0 6h-1"/><path d="M9 12a3 3 0 0 0-3-3H3"/><path d="M3 15h3a3 3 0 0 1 0 6H3"/><path d="M9 18a3 3 0 0 0 3 3"/><path d="M12 3v3"/><path d="M12 12v3"/></svg>
+            <div class="spec-val">Yes</div>
+            <div class="spec-label">A/C</div>
+          </div>
+        </div>
+
+        <!-- Date Picker -->
+        <div class="section-heading">Trip Dates</div>
+        <div class="date-input">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+          <div>
+            <div class="date-label">Pickup Date</div>
+            <div class="date-value">Apr 10, 2026</div>
+          </div>
+        </div>
+        <div class="date-input">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+          <div>
+            <div class="date-label">Dropoff Date</div>
+            <div class="date-value">Apr 13, 2026</div>
+          </div>
+        </div>
+
+        <div style="text-align:center;padding:8px 0;font-size:12px;color:var(--text-muted)">
+          3 days x $50/day
+        </div>
+
+        <!-- Price Summary -->
+        <div class="card" style="margin-top:4px">
+          <div class="card-body">
+            <div class="summary-row"><span class="text-muted">Subtotal</span><span>$150.00</span></div>
+            <div class="summary-row"><span class="text-muted">Tax</span><span>$12.00</span></div>
+            <div class="summary-row total"><span>Total</span><span style="color:var(--mocha)">$162.00</span></div>
+          </div>
+        </div>
+
+        <button class="btn-primary" style="margin-top:12px">Continue to Checkout</button>
+      </div>
+
+      <div class="tab-bar">
+        <div class="tab-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Home</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <span>Search</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+          <span>Bookings</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profile</span>
+        </div>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+  <div class="phone-label">2. Car Rental Detail</div>
+  <div class="phone-sublabel">Configuration + pricing</div>
+</div>
+
+<div class="flow-arrow">
+  <svg width="32" height="16" viewBox="0 0 32 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M0 8h28"/><path d="M24 3l6 5-6 5"/></svg>
+  <span>Continue</span>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SCREEN 3: Checkout                         -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="screen-col">
+<div class="phone-frame-wrap">
+  <div class="phone">
+    <div class="screen">
+      <div class="status-bar">
+        <span class="time">9:42</span>
+        <div class="status-icons">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>
+          <svg width="18" height="14" viewBox="0 0 28 14" fill="currentColor"><rect x="0" y="1" width="23" height="12" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="24.5" y="4.5" width="2" height="5" rx="1" fill="currentColor" opacity="0.4"/><rect x="2" y="3" width="19" height="8" rx="1.5" fill="currentColor"/></svg>
+        </div>
+      </div>
+
+      <div class="nav-bar-inline">
+        <div class="nav-back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+          <span>Back</span>
+        </div>
+        <span class="nav-title-inline">Checkout</span>
+        <span style="width:50px"></span>
+      </div>
+
+      <div class="screen-content">
+        <!-- Order Summary -->
+        <div class="card">
+          <div class="card-body">
+            <div class="section-heading" style="margin-top:0">Order Summary</div>
+            <div style="display:flex;gap:10px;align-items:center;margin-top:6px">
+              <div style="width:52px;height:38px;border-radius:8px;background:linear-gradient(135deg,#a08060,#c4a882);display:flex;align-items:center;justify-content:center">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.7-2.8C12.2 6.1 10.8 6 10 6H5.2c-.8 0-1.5.4-1.9 1L1 11v5c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+              </div>
+              <div>
+                <div class="text-md">Economy Sedan</div>
+                <div class="text-xs text-muted">3 days rental</div>
+              </div>
+              <div style="margin-left:auto;font-size:16px;font-weight:700;color:var(--mocha)">$162.00</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trip Details -->
+        <div class="card">
+          <div class="card-body">
+            <div class="section-heading" style="margin-top:0">Trip Details</div>
+            <div class="info-row">
+              <span class="label">Pickup</span>
+              <span class="value">Apr 10, 2026</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Dropoff</span>
+              <span class="value">Apr 13, 2026</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Duration</span>
+              <span class="value">3 days</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Section -->
+        <div class="section-heading">Payment Method</div>
+
+        <button class="paylater-btn">
+          <svg viewBox="0 0 130 24" width="110" height="20">
+            <text x="0" y="18" font-family="Inter, sans-serif" font-weight="800" font-size="18" fill="#003087">Pay</text>
+            <text x="35" y="18" font-family="Inter, sans-serif" font-weight="800" font-size="18" fill="#0070BA">Pal</text>
+            <text x="72" y="18" font-family="Inter, sans-serif" font-weight="600" font-size="14" fill="#2C2E2F">Pay Later</text>
+          </svg>
+        </button>
+
+        <div class="paylater-msg">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#003087" stroke-width="2" style="vertical-align:middle;margin-right:4px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+          Pay in <strong>4 interest-free payments</strong> of <strong>$40.50</strong> with PayPal. No late fees. <a href="#" style="color:#0070BA;text-decoration:underline">Learn more</a>
+        </div>
+
+        <div class="secure-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span>Secure checkout powered by PayPal</span>
+        </div>
+      </div>
+
+      <div class="tab-bar">
+        <div class="tab-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Home</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <span>Search</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+          <span>Bookings</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profile</span>
+        </div>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+  <div class="phone-label">3. Checkout</div>
+  <div class="phone-sublabel">PayPal Pay Later</div>
+</div>
+
+<div class="flow-arrow">
+  <svg width="32" height="16" viewBox="0 0 32 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M0 8h28"/><path d="M24 3l6 5-6 5"/></svg>
+  <span>Pay</span>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SCREEN 4: Processing                       -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="screen-col">
+<div class="phone-frame-wrap">
+  <div class="phone">
+    <div class="screen">
+      <div class="status-bar">
+        <span class="time">9:42</span>
+        <div class="status-icons">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>
+          <svg width="18" height="14" viewBox="0 0 28 14" fill="currentColor"><rect x="0" y="1" width="23" height="12" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="24.5" y="4.5" width="2" height="5" rx="1" fill="currentColor" opacity="0.4"/><rect x="2" y="3" width="19" height="8" rx="1.5" fill="currentColor"/></svg>
+        </div>
+      </div>
+
+      <div class="nav-bar-inline">
+        <div class="nav-back" style="visibility:hidden">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+          <span>Back</span>
+        </div>
+        <span class="nav-title-inline">Checkout</span>
+        <span style="width:50px"></span>
+      </div>
+
+      <!-- Dimmed checkout content behind overlay -->
+      <div class="screen-content" style="opacity:0.3;pointer-events:none">
+        <div class="card">
+          <div class="card-body">
+            <div class="section-heading" style="margin-top:0">Order Summary</div>
+            <div style="display:flex;gap:10px;align-items:center;margin-top:6px">
+              <div style="width:52px;height:38px;border-radius:8px;background:linear-gradient(135deg,#a08060,#c4a882)"></div>
+              <div>
+                <div class="text-md">Economy Sedan</div>
+                <div class="text-xs text-muted">3 days rental</div>
+              </div>
+              <div style="margin-left:auto;font-size:16px;font-weight:700;color:var(--mocha)">$162.00</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body" style="height:60px"></div>
+        </div>
+      </div>
+
+      <!-- Processing Overlay -->
+      <div class="processing-overlay">
+        <div class="processing-modal">
+          <div class="spinner"></div>
+          <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px">Processing Payment...</div>
+          <div style="font-size:11px;color:var(--text-muted)">Please don't close this screen</div>
+        </div>
+      </div>
+
+      <div class="tab-bar" style="opacity:0.3">
+        <div class="tab-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Home</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <span>Search</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+          <span>Bookings</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profile</span>
+        </div>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+  <div class="phone-label">4. Processing</div>
+  <div class="phone-sublabel">Payment capture in progress</div>
+</div>
+
+<div class="flow-arrow">
+  <svg width="32" height="16" viewBox="0 0 32 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M0 8h28"/><path d="M24 3l6 5-6 5"/></svg>
+  <span>Captured</span>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SCREEN 5: Booking Confirmation             -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="screen-col">
+<div class="phone-frame-wrap">
+  <div class="phone">
+    <div class="screen">
+      <div class="status-bar">
+        <span class="time">9:43</span>
+        <div class="status-icons">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>
+          <svg width="18" height="14" viewBox="0 0 28 14" fill="currentColor"><rect x="0" y="1" width="23" height="12" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="24.5" y="4.5" width="2" height="5" rx="1" fill="currentColor" opacity="0.4"/><rect x="2" y="3" width="19" height="8" rx="1.5" fill="currentColor"/></svg>
+        </div>
+      </div>
+
+      <div class="nav-bar-inline" style="visibility:hidden;height:28px"></div>
+
+      <div class="screen-content" style="text-align:center;padding-top:20px">
+        <div class="check-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+
+        <div style="font-size:22px;font-weight:700;color:var(--text);margin-bottom:4px">Booking Confirmed!</div>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Your car rental has been booked</p>
+
+        <div class="ref-box">TERRA-A1B2</div>
+
+        <div class="card" style="text-align:left;margin-top:14px">
+          <div class="card-body">
+            <div class="info-row">
+              <span class="label">Vehicle</span>
+              <span class="value">Economy Sedan</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Pickup</span>
+              <span class="value">Apr 10, 2026</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Dropoff</span>
+              <span class="value">Apr 13, 2026</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Duration</span>
+              <span class="value">3 days</span>
+            </div>
+            <div class="divider"></div>
+            <div class="info-row">
+              <span class="label" style="font-weight:600;color:var(--text)">Total Paid</span>
+              <span class="value" style="font-weight:700;color:var(--mocha);font-size:14px">$162.00</span>
+            </div>
+            <div class="info-row">
+              <span class="label">PayPal Txn ID</span>
+              <span class="value" style="font-size:9px;color:var(--text-muted)">5XJ23987NF620842K</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-primary" style="margin-top:16px">View My Bookings</button>
+        <button class="btn-text">Back to Home</button>
+      </div>
+
+      <div class="tab-bar">
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Home</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <span>Search</span>
+        </div>
+        <div class="tab-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+          <span>Bookings</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profile</span>
+        </div>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+  <div class="phone-label">5. Booking Confirmation</div>
+  <div class="phone-sublabel">Payment captured successfully</div>
+</div>
+
+<div class="flow-arrow">
+  <svg width="32" height="16" viewBox="0 0 32 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M0 8h28"/><path d="M24 3l6 5-6 5"/></svg>
+  <span>View</span>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SCREEN 6: Customer Booking Detail          -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="screen-col">
+<div class="phone-frame-wrap">
+  <div class="phone">
+    <div class="screen">
+      <div class="status-bar">
+        <span class="time">9:44</span>
+        <div class="status-icons">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>
+          <svg width="18" height="14" viewBox="0 0 28 14" fill="currentColor"><rect x="0" y="1" width="23" height="12" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="24.5" y="4.5" width="2" height="5" rx="1" fill="currentColor" opacity="0.4"/><rect x="2" y="3" width="19" height="8" rx="1.5" fill="currentColor"/></svg>
+        </div>
+      </div>
+
+      <div class="nav-bar-inline">
+        <div class="nav-back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+          <span>Bookings</span>
+        </div>
+        <span class="nav-title-inline">Booking Detail</span>
+        <span style="width:70px"></span>
+      </div>
+
+      <div class="screen-content">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div style="font-size:18px;font-weight:700;color:var(--mocha);letter-spacing:0.5px">TERRA-A1B2</div>
+          <span class="badge badge-sage">Completed</span>
+        </div>
+
+        <!-- Car Info -->
+        <div class="card">
+          <div style="display:flex;gap:10px;align-items:center;padding:10px 12px">
+            <div style="width:56px;height:42px;border-radius:8px;background:linear-gradient(135deg,#a08060,#c4a882);display:flex;align-items:center;justify-content:center">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.7-2.8C12.2 6.1 10.8 6 10 6H5.2c-.8 0-1.5.4-1.9 1L1 11v5c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+            </div>
+            <div>
+              <div class="text-md">Economy Sedan</div>
+              <div class="text-xs text-muted">3-day rental</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="section-heading">Details</div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <div class="timeline-title">Payment Captured</div>
+            <div class="timeline-subtitle">$162.00 via PayPal</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" stroke-width="2.5" style="margin-top:2px"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <div class="timeline-title">Pickup</div>
+            <div class="timeline-subtitle">Apr 10, 2026</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-content">
+            <div class="timeline-title">Dropoff</div>
+            <div class="timeline-subtitle">Apr 13, 2026</div>
+          </div>
+        </div>
+
+        <!-- PayPal Details -->
+        <div class="section-heading">PayPal Order</div>
+        <div class="card">
+          <div class="card-body">
+            <div class="info-row">
+              <span class="label">Order ID</span>
+              <span class="value" style="font-size:9px">9AB82316KF089842T</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Capture ID</span>
+              <span class="value" style="font-size:9px">5XJ23987NF620842K</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Status</span>
+              <span class="value"><span class="badge badge-sage" style="font-size:9px">Captured</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Support -->
+        <div style="text-align:center;margin-top:16px">
+          <span class="link-terra" style="font-size:13px">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+            Need Help?
+          </span>
+        </div>
+      </div>
+
+      <div class="tab-bar">
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Home</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <span>Search</span>
+        </div>
+        <div class="tab-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+          <span>Bookings</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profile</span>
+        </div>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+  <div class="phone-label">6. Customer Booking Detail</div>
+  <div class="phone-sublabel">Post-purchase view</div>
+</div>
+
+<div class="flow-arrow">
+  <svg width="32" height="16" viewBox="0 0 32 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M0 8h28"/><path d="M24 3l6 5-6 5"/></svg>
+  <span>Merchant</span>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- SCREEN 7: Merchant Booking Detail          -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="screen-col">
+<div class="phone-frame-wrap">
+  <div class="phone">
+    <div class="screen">
+      <div class="status-bar">
+        <span class="time">9:45</span>
+        <div class="status-icons">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>
+          <svg width="18" height="14" viewBox="0 0 28 14" fill="currentColor"><rect x="0" y="1" width="23" height="12" rx="3" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="24.5" y="4.5" width="2" height="5" rx="1" fill="currentColor" opacity="0.4"/><rect x="2" y="3" width="19" height="8" rx="1.5" fill="currentColor"/></svg>
+        </div>
+      </div>
+
+      <div class="nav-bar-inline">
+        <div class="nav-back">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+          <span>Bookings</span>
+        </div>
+        <span class="nav-title-inline">TERRA-A1B2</span>
+        <span style="width:70px"></span>
+      </div>
+
+      <div class="screen-content">
+        <div class="merchant-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg>
+          Merchant View
+        </div>
+
+        <!-- Customer Card -->
+        <div class="card">
+          <div class="customer-card">
+            <div class="avatar">JD</div>
+            <div>
+              <div class="text-md">John Doe</div>
+              <div class="text-xs text-muted">john.doe@email.com</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rental Info -->
+        <div class="section-heading">Rental Info</div>
+        <div class="card">
+          <div class="card-body">
+            <div class="info-row">
+              <span class="label">Vehicle</span>
+              <span class="value">Economy Sedan</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Pickup</span>
+              <span class="value">Apr 10, 2026</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Dropoff</span>
+              <span class="value">Apr 13, 2026</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Duration</span>
+              <span class="value">3 days</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Section -->
+        <div class="section-heading">Payment</div>
+        <div class="card">
+          <div class="card-body">
+            <div class="info-row">
+              <span class="label">Status</span>
+              <span class="value"><span class="badge badge-sage" style="font-size:9px">Captured</span></span>
+            </div>
+            <div class="info-row">
+              <span class="label">PayPal Order ID</span>
+              <span class="value" style="font-size:9px">9AB82316KF089842T</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Capture ID</span>
+              <span class="value" style="font-size:9px">5XJ23987NF620842K</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Amount</span>
+              <span class="value" style="font-weight:700;color:var(--mocha)">$162.00</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Captured At</span>
+              <span class="value" style="font-size:10px">Apr 7, 2026 9:42 AM</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action -->
+        <button class="btn-destructive-outline" style="margin-top:14px">
+          Issue Refund
+        </button>
+      </div>
+
+      <div class="tab-bar">
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Home</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <span>Search</span>
+        </div>
+        <div class="tab-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+          <span>Bookings</span>
+        </div>
+        <div class="tab-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Profile</span>
+        </div>
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+  <div class="phone-label">7. Merchant Booking Detail</div>
+  <div class="phone-sublabel">Admin / merchant view</div>
+</div>
+
+<!-- No arrow after last screen -->
+<div class="flow-arrow" style="display:none"></div>
+</div>
+
+</div><!-- .storyboard -->
+</div><!-- .storyboard-wrap -->
+
+</body>
+</html>

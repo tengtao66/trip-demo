@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TERRA iOS — Trip Booking Flow (Vault)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --mocha: #5C3D2E;
+    --terracotta: #A0522D;
+    --sage: #86A873;
+    --alpine-oat: #FAF6F1;
+    --ivory: #FFFDF9;
+    --border: #E8DFD4;
+    --text: #3D2B1F;
+    --text-muted: #8B7355;
+    --warning: #B8860B;
+    --destructive: #DC2626;
+    --blue-paypal: #0070ba;
+    --frame-bg: #f0f0f0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--frame-bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── Page Header ── */
+  .page-header {
+    padding: 32px 40px 0;
+    max-width: 100%;
+  }
+  .page-header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--mocha);
+    margin-bottom: 6px;
+  }
+  .page-header p {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 0;
+  }
+
+  /* ── Flow Diagram ── */
+  .flow-diagram {
+    margin: 24px 40px 0;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .flow-step {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    white-space: nowrap;
+  }
+  .flow-node {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .flow-node.customer { background: #EDE9FE; color: #5B21B6; }
+  .flow-node.vault { background: #DBEAFE; color: #1E40AF; }
+  .flow-node.trip { background: #FEF3C7; color: #92400E; }
+  .flow-node.addon { background: #FDE68A; color: #78350F; }
+  .flow-node.done { background: #D1FAE5; color: #065F46; }
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    color: #9CA3AF;
+    font-size: 11px;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+  .flow-arrow svg { flex-shrink: 0; }
+
+  /* ── Legend ── */
+  .legend {
+    margin: 16px 40px 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  /* ── Storyboard ── */
+  .storyboard-wrapper {
+    padding: 28px 40px 40px;
+  }
+  .storyboard {
+    display: flex;
+    gap: 28px;
+    overflow-x: auto;
+    padding-bottom: 20px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+  .storyboard::-webkit-scrollbar {
+    height: 8px;
+  }
+  .storyboard::-webkit-scrollbar-track {
+    background: #e0e0e0;
+    border-radius: 4px;
+  }
+  .storyboard::-webkit-scrollbar-thumb {
+    background: #bbb;
+    border-radius: 4px;
+  }
+
+  /* ── Screen Column ── */
+  .screen-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    scroll-snap-align: center;
+    position: relative;
+  }
+  .screen-col:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0; height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 12px solid #ccc;
+  }
+  .screen-label {
+    margin-top: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--mocha);
+    text-align: center;
+    max-width: 320px;
+  }
+  .screen-sublabel {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    text-align: center;
+  }
+  .arrow-label {
+    position: absolute;
+    right: -26px;
+    top: calc(50% - 22px);
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--terracotta);
+    white-space: nowrap;
+    transform: translateX(2px);
+    text-align: center;
+  }
+
+  /* ── iPhone Frame ── */
+  .iphone-frame {
+    width: 320px;
+    height: 693px;
+    background: #000;
+    border-radius: 44px;
+    padding: 4px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.1);
+    position: relative;
+  }
+  .iphone-inner {
+    width: 100%;
+    height: 100%;
+    background: var(--alpine-oat);
+    border-radius: 40px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* ── iOS Status Bar ── */
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 28px 0;
+    height: 44px;
+    flex-shrink: 0;
+    background: transparent;
+    position: relative;
+    z-index: 10;
+  }
+  .status-bar .time {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.2px;
+  }
+  .status-bar .icons {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .status-bar .icons svg { width: 16px; height: 16px; }
+
+  /* ── Dynamic Island ── */
+  .dynamic-island {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 32px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 20;
+  }
+
+  /* ── iOS Nav Bar ── */
+  .nav-bar {
+    display: flex;
+    align-items: center;
+    padding: 4px 16px 8px;
+    flex-shrink: 0;
+    min-height: 44px;
+  }
+  .nav-bar .back-btn {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    color: var(--terracotta);
+    font-size: 16px;
+    font-weight: 400;
+    cursor: pointer;
+  }
+  .nav-bar .back-btn svg { width: 20px; height: 20px; }
+  .nav-bar .nav-title {
+    flex: 1;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-right: 24px;
+  }
+
+  .large-title {
+    padding: 0 16px 8px;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text);
+    flex-shrink: 0;
+  }
+
+  /* ── Screen Content ── */
+  .screen-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 16px 16px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .screen-content::-webkit-scrollbar { display: none; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--ivory);
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .card-body { padding: 14px; }
+
+  /* ── Tour Cards ── */
+  .tour-card-img {
+    width: 100%;
+    height: 120px;
+    position: relative;
+  }
+  .tour-card-img .gradient {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.5));
+  }
+  .tour-card-img .tour-label {
+    position: absolute;
+    bottom: 10px; left: 14px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .tour-card-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .tour-card-meta span {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .tour-card-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .view-link {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--terracotta);
+  }
+
+  /* ── Info Chips ── */
+  .info-chips {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .chip {
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--alpine-oat);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .chip.info { background: #EFF6FF; color: #1E40AF; }
+  .chip.warning { background: #FEF3C7; color: #92400E; }
+  .chip.success { background: #ECFDF5; color: #065F46; }
+
+  /* ── Itinerary ── */
+  .itinerary-item {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+  .itinerary-item:last-child { border-bottom: none; }
+  .itin-day {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--terracotta);
+    background: #FFF5EE;
+    border-radius: 6px;
+    padding: 4px 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .itin-text {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .itin-text strong { font-weight: 600; }
+
+  /* ── Fee Schedule ── */
+  .fee-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 12px;
+    color: var(--text);
+  }
+  .fee-row.total {
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+    padding-top: 8px;
+    font-weight: 700;
+  }
+
+  /* ── Info Callout ── */
+  .info-callout {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px;
+    background: #EFF6FF;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    align-items: flex-start;
+  }
+  .info-callout svg { flex-shrink: 0; color: #3B82F6; margin-top: 1px; }
+  .info-callout p { font-size: 11px; color: #1E40AF; line-height: 1.4; }
+
+  .warning-callout {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px;
+    background: #FEF3C7;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    align-items: flex-start;
+  }
+  .warning-callout svg { flex-shrink: 0; color: var(--warning); margin-top: 1px; }
+  .warning-callout p { font-size: 11px; color: #92400E; line-height: 1.4; }
+
+  /* ── Buttons ── */
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 8px;
+  }
+  .btn-terra {
+    background: var(--terracotta);
+    color: #fff;
+  }
+  .btn-sage {
+    background: var(--sage);
+    color: #fff;
+  }
+  .btn-vault {
+    background: var(--blue-paypal);
+    color: #fff;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .btn-outline {
+    background: transparent;
+    border: 1.5px solid var(--border);
+    color: var(--text);
+  }
+  .btn-outline-terra {
+    background: transparent;
+    border: 1.5px solid var(--terracotta);
+    color: var(--terracotta);
+  }
+  .btn-outline-destructive {
+    background: transparent;
+    border: 1.5px solid var(--destructive);
+    color: var(--destructive);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 13px;
+    padding: 10px;
+  }
+  .btn-sm {
+    padding: 10px 14px;
+    font-size: 12px;
+    border-radius: 10px;
+    width: auto;
+  }
+
+  /* ── Tab Bar ── */
+  .tab-bar {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    padding: 8px 0 20px;
+    background: var(--ivory);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+  .tab-item.active { color: var(--terracotta); }
+  .tab-item svg { width: 22px; height: 22px; }
+
+  /* ── Checkmark Circle ── */
+  .check-circle {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--sage);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 16px auto 12px;
+  }
+  .check-circle svg { color: #fff; width: 28px; height: 28px; }
+
+  /* ── Progress Bar ── */
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: #E5E7EB;
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 6px 0;
+  }
+  .progress-bar .fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--sage);
+  }
+
+  /* ── Timeline ── */
+  .timeline { padding: 4px 0; }
+  .timeline-item {
+    display: flex;
+    gap: 10px;
+    padding-bottom: 16px;
+    position: relative;
+  }
+  .timeline-item:last-child { padding-bottom: 0; }
+  .timeline-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 9px;
+    top: 22px;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+  .timeline-dot {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .timeline-dot.done { background: var(--sage); color: #fff; }
+  .timeline-dot.pending { background: #E5E7EB; border: 2px solid #D1D5DB; }
+  .timeline-dot svg { width: 12px; height: 12px; }
+  .timeline-text { font-size: 12px; color: var(--text); line-height: 1.4; }
+  .timeline-text .tl-date { font-size: 10px; color: var(--text-muted); display: block; }
+
+  /* ── Badge ── */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-warning { background: #FEF3C7; color: #92400E; }
+  .badge-success { background: #ECFDF5; color: #065F46; }
+  .badge-info { background: #EFF6FF; color: #1E40AF; }
+  .badge-merchant { background: #F3E8FF; color: #7C3AED; }
+  .badge-vault { background: #DBEAFE; color: #1E40AF; }
+
+  /* ── Section Title ── */
+  .section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .section-subtitle {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  /* ── Key-Value Rows ── */
+  .kv-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    font-size: 12px;
+  }
+  .kv-row .kv-label { color: var(--text-muted); }
+  .kv-row .kv-value { color: var(--text); font-weight: 500; }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 8px 0;
+  }
+
+  /* ── Modal Overlay ── */
+  .modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 30;
+    border-radius: 40px;
+  }
+  .modal-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px 24px;
+    text-align: center;
+    width: 240px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  }
+  .modal-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .modal-card p {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  /* ── Bottom Sheet ── */
+  .bottom-sheet-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: flex-end;
+    z-index: 30;
+    border-radius: 40px;
+  }
+  .bottom-sheet {
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    padding: 16px 20px 28px;
+    width: 100%;
+    box-shadow: 0 -4px 24px rgba(0,0,0,0.15);
+  }
+  .bottom-sheet .handle {
+    width: 36px;
+    height: 4px;
+    background: #D1D5DB;
+    border-radius: 2px;
+    margin: 0 auto 14px;
+  }
+  .bottom-sheet h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 14px;
+    text-align: center;
+  }
+
+  /* ── Spinner ── */
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid #E5E7EB;
+    border-top-color: var(--blue-paypal);
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Included List ── */
+  .included-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 12px;
+    color: var(--text);
+  }
+  .included-item svg { width: 14px; height: 14px; color: var(--sage); flex-shrink: 0; }
+
+  /* ── Terms ── */
+  .terms {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 6px 0;
+    line-height: 1.4;
+  }
+
+  /* ── How It Works Steps ── */
+  .how-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .how-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .how-step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--alpine-oat);
+    border: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--terracotta);
+    flex-shrink: 0;
+  }
+  .how-step-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .how-step-icon svg { width: 16px; height: 16px; }
+  .how-step-text {
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .how-step-text strong {
+    font-weight: 600;
+    display: block;
+    font-size: 12px;
+  }
+  .how-step-text span {
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  /* ── Preset Card ── */
+  .preset-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .preset-card {
+    padding: 12px 10px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--ivory);
+    text-align: center;
+    cursor: pointer;
+  }
+  .preset-card.selected {
+    border-color: var(--terracotta);
+    background: #FFF5EE;
+  }
+  .preset-card .preset-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .preset-card .preset-amount {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--terracotta);
+  }
+
+  /* ── Charges Table ── */
+  .charges-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+  .charges-table th {
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding: 6px 4px;
+    border-bottom: 1px solid var(--border);
+    font-size: 10px;
+  }
+  .charges-table td {
+    padding: 7px 4px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: middle;
+  }
+  .charges-table tr:last-child td { border-bottom: none; }
+
+  /* ── White Status Bar (for hero screens) ── */
+  .status-bar-white .time { color: #fff; }
+  .status-bar-white .icons svg { stroke: #fff; }
+
+  /* ── Merchant header ── */
+  .merchant-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  /* ── Save Payment Badge ── */
+  .save-pay-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: #DBEAFE;
+    color: #1E40AF;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  /* ── Input field ── */
+  .input-field {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-size: 13px;
+    font-family: inherit;
+    background: var(--ivory);
+    color: var(--text);
+    outline: none;
+    margin-bottom: 10px;
+  }
+  .input-field::placeholder { color: #C4B5A4; }
+
+  /* ── Destructive link ── */
+  .destructive-link {
+    font-size: 12px;
+    color: var(--destructive);
+    opacity: 0.7;
+    cursor: pointer;
+    text-align: center;
+    display: block;
+    margin-top: 4px;
+  }
+
+  /* ── Security note ── */
+  .security-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 8px 10px;
+    background: var(--alpine-oat);
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  .security-note svg { width: 14px; height: 14px; color: var(--sage); flex-shrink: 0; margin-top: 1px; }
+  .security-note p { font-size: 10px; color: var(--text-muted); line-height: 1.4; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>TERRA iOS — Trip Booking Flow (Vault)</h1>
+  <p>Vault (Save Payment): Customer saves payment method, merchant charges as needed throughout the trip</p>
+</div>
+
+<!-- Flow Diagram -->
+<div class="flow-diagram">
+  <div class="flow-step">
+    <div class="flow-node customer">Customer Saves PayPal</div>
+    <div class="flow-arrow">
+      <svg width="20" height="12" viewBox="0 0 20 12"><path d="M0 6h16M12 1l5 5-5 5" stroke="currentColor" fill="none" stroke-width="1.5"/></svg>
+    </div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-node vault">Setup Fee ($500)</div>
+    <div class="flow-arrow">
+      <svg width="20" height="12" viewBox="0 0 20 12"><path d="M0 6h16M12 1l5 5-5 5" stroke="currentColor" fill="none" stroke-width="1.5"/></svg>
+    </div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-node trip">Trip Begins</div>
+    <div class="flow-arrow">
+      <svg width="20" height="12" viewBox="0 0 20 12"><path d="M0 6h16M12 1l5 5-5 5" stroke="currentColor" fill="none" stroke-width="1.5"/></svg>
+    </div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-node addon">Add-on Charges</div>
+    <div class="flow-arrow">
+      <svg width="20" height="12" viewBox="0 0 20 12"><path d="M0 6h16M12 1l5 5-5 5" stroke="currentColor" fill="none" stroke-width="1.5"/></svg>
+    </div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-node done">Final Settlement</div>
+  </div>
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#EDE9FE"></div>Customer Action</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#DBEAFE"></div>Vault Setup</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#FEF3C7"></div>Trip Phase</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#FDE68A"></div>Merchant Charges</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#D1FAE5"></div>Settlement</div>
+</div>
+
+<!-- Storyboard -->
+<div class="storyboard-wrapper">
+  <div class="storyboard" id="storyboard">
+
+    <!-- ══════════════ Screen 1: Tour Browse ══════════════ -->
+    <div class="screen-col">
+      <div class="arrow-label">View Details</div>
+      <div class="iphone-frame">
+        <div class="iphone-inner">
+          <div class="dynamic-island"></div>
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 10l3-3 3 3 3-5 3 4"/></svg>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="10" height="8" rx="1"/><rect x="11" y="6" width="3" height="4" rx="0.5"/><rect x="2.5" y="5.5" width="4" height="5" rx="0.5" fill="currentColor"/></svg>
+            </span>
+          </div>
+          <div class="large-title">Tours</div>
+          <div class="screen-content">
+            <!-- Tokyo Card -->
+            <div class="card">
+              <div class="tour-card-img" style="background: linear-gradient(135deg, #FFB7C5 0%, #FF69B4 50%, #C71585 100%);">
+                <div class="gradient"></div>
+                <span class="tour-label">Tokyo Cherry Blossom</span>
+              </div>
+              <div class="card-body">
+                <div class="tour-card-meta">
+                  <span><i data-lucide="calendar" style="width:12px;height:12px"></i> 5 Days</span>
+                  <span><i data-lucide="dollar-sign" style="width:12px;height:12px"></i> $800</span>
+                </div>
+                <div class="tour-card-desc">Experience Japan's iconic cherry blossoms from Tokyo to Kyoto.</div>
+                <span class="view-link">View Details <i data-lucide="arrow-right" style="width:12px;height:12px;vertical-align:middle"></i></span>
+              </div>
+            </div>
+            <!-- Bali Card (Featured) -->
+            <div class="card" style="border:2px solid var(--terracotta);">
+              <div class="tour-card-img" style="background: linear-gradient(135deg, #87CEEB 0%, #2E8B57 50%, #006400 100%);">
+                <div class="gradient"></div>
+                <span class="tour-label">Bali Adventure Retreat</span>
+                <div class="save-pay-badge" style="position:absolute;top:10px;right:10px;"><i data-lucide="shield" style="width:10px;height:10px"></i> Save & Pay Later</div>
+              </div>
+              <div class="card-body">
+                <div class="tour-card-meta">
+                  <span><i data-lucide="calendar" style="width:12px;height:12px"></i> 10 Days</span>
+                  <span><i data-lucide="dollar-sign" style="width:12px;height:12px"></i> $2,500</span>
+                </div>
+                <div class="tour-card-desc">Temples, rice terraces, and beaches in an unforgettable retreat.</div>
+                <span class="view-link">View Details <i data-lucide="arrow-right" style="width:12px;height:12px;vertical-align:middle"></i></span>
+              </div>
+            </div>
+            <!-- Europe Card -->
+            <div class="card">
+              <div class="tour-card-img" style="background: linear-gradient(135deg, #DEB887 0%, #D2691E 50%, #8B4513 100%);">
+                <div class="gradient"></div>
+                <span class="tour-label">Alpine Europe</span>
+              </div>
+              <div class="card-body">
+                <div class="tour-card-meta">
+                  <span><i data-lucide="calendar" style="width:12px;height:12px"></i> 12 Days</span>
+                  <span><i data-lucide="dollar-sign" style="width:12px;height:12px"></i> $3,200</span>
+                </div>
+                <div class="tour-card-desc">Traverse the Swiss Alps and Austrian villages.</div>
+                <span class="view-link">View Details <i data-lucide="arrow-right" style="width:12px;height:12px;vertical-align:middle"></i></span>
+              </div>
+            </div>
+          </div>
+          <!-- Tab Bar -->
+          <div class="tab-bar">
+            <div class="tab-item active"><i data-lucide="home"></i><span>Home</span></div>
+            <div class="tab-item"><i data-lucide="search"></i><span>Search</span></div>
+            <div class="tab-item"><i data-lucide="book-open"></i><span>Bookings</span></div>
+            <div class="tab-item"><i data-lucide="user"></i><span>Profile</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="screen-label">1. Tour Browse</div>
+      <div class="screen-sublabel">Bali featured with vault badge</div>
+    </div>
+
+    <!-- ══════════════ Screen 2: Tour Detail ══════════════ -->
+    <div class="screen-col">
+      <div class="arrow-label">Save Payment</div>
+      <div class="iphone-frame">
+        <div class="iphone-inner">
+          <div class="dynamic-island"></div>
+          <div class="status-bar status-bar-white" style="position:absolute;top:0;left:0;right:0;z-index:10;">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 10l3-3 3 3 3-5 3 4"/></svg>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="10" height="8" rx="1"/><rect x="11" y="6" width="3" height="4" rx="0.5"/><rect x="2.5" y="5.5" width="4" height="5" rx="0.5" fill="currentColor"/></svg>
+            </span>
+          </div>
+          <div class="screen-content" style="padding:0;">
+            <!-- Hero -->
+            <div style="height:170px;background:linear-gradient(135deg, #87CEEB 0%, #2E8B57 50%, #006400 100%);position:relative;">
+              <div style="position:absolute;inset:0;background:linear-gradient(transparent 30%, rgba(0,0,0,0.55));"></div>
+              <div style="position:absolute;top:48px;left:12px;">
+                <div style="display:flex;align-items:center;gap:4px;color:#fff;font-size:14px;cursor:pointer;">
+                  <i data-lucide="chevron-left" style="width:20px;height:20px"></i> Tours
+                </div>
+              </div>
+              <div style="position:absolute;bottom:14px;left:16px;color:#fff;">
+                <div style="font-size:18px;font-weight:700;">Bali Adventure Retreat</div>
+                <div style="font-size:11px;opacity:0.9;">10 Days / Guided Tour</div>
+              </div>
+            </div>
+            <div style="padding:14px 16px 16px;">
+              <!-- Info Chips -->
+              <div class="info-chips">
+                <div class="chip"><i data-lucide="calendar" style="width:12px;height:12px"></i> 10 Days</div>
+                <div class="chip"><i data-lucide="dollar-sign" style="width:12px;height:12px"></i> $2,500</div>
+                <div class="chip"><i data-lucide="receipt" style="width:12px;height:12px"></i> $500 Setup</div>
+              </div>
+              <div class="chip info" style="margin-bottom:12px;"><i data-lucide="shield" style="width:12px;height:12px"></i> Save Payment Method</div>
+
+              <!-- Itinerary -->
+              <div class="section-title">Day Highlights</div>
+              <div class="card" style="margin-bottom:12px;">
+                <div class="card-body" style="padding:10px 14px;">
+                  <div class="itinerary-item"><span class="itin-day">Day 1-2</span><span class="itin-text"><strong>Ubud</strong> — Rice terraces & temples</span></div>
+                  <div class="itinerary-item"><span class="itin-day">Day 3-4</span><span class="itin-text"><strong>Mount Batur</strong> — Sunrise trek</span></div>
+                  <div class="itinerary-item"><span class="itin-day">Day 5-6</span><span class="itin-text"><strong>Seminyak</strong> — Beach & spa</span></div>
+                  <div class="itinerary-item"><span class="itin-day">Day 7-8</span><span class="itin-text"><strong>Nusa Penida</strong> — Island tour</span></div>
+                  <div class="itinerary-item"><span class="itin-day">Day 9-10</span><span class="itin-text"><strong>Tanah Lot</strong> — Temple & departure</span></div>
+                </div>
+              </div>
+
+              <!-- What's Included -->
+              <div class="section-title">What's Included</div>
+              <div class="card" style="margin-bottom:12px;">
+                <div class="card-body" style="padding:10px 14px;">
+                  <div class="included-item"><i data-lucide="bed"></i> 9 nights accommodation</div>
+                  <div class="included-item"><i data-lucide="utensils"></i> Daily breakfast & select dinners</div>
+                  <div class="included-item"><i data-lucide="bus"></i> All transfers & transport</div>
+                  <div class="included-item"><i data-lucide="user-check"></i> Expert local guide</div>
+                </div>
+              </div>
+
+              <!-- Fee Schedule -->
+              <div class="section-title">Fee Schedule</div>
+              <div class="card" style="margin-bottom:12px;">
+                <div class="card-body" style="padding:10px 14px;">
+                  <div class="fee-row"><span>Setup Fee (due now)</span><span style="font-weight:600;">$500</span></div>
+                  <div class="fee-row"><span style="color:var(--text-muted);">Add-ons (during trip)</span><span style="color:var(--text-muted);">Variable</span></div>
+                  <div class="fee-row"><span style="color:var(--text-muted);">Final Settlement (after trip)</span><span style="color:var(--text-muted);">Remaining</span></div>
+                  <div class="fee-row total"><span>Total base</span><span>$2,500</span></div>
+                </div>
+              </div>
+
+              <div class="info-callout">
+                <i data-lucide="info" style="width:16px;height:16px"></i>
+                <p>Save your payment method to enable flexible billing. Only the setup fee is charged today.</p>
+              </div>
+
+              <button class="btn btn-terra"><i data-lucide="shield" style="width:16px;height:16px"></i> Save Payment & Pay Setup Fee</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="screen-label">2. Tour Detail</div>
+      <div class="screen-sublabel">Bali Adventure Retreat</div>
+    </div>
+
+    <!-- ══════════════ Screen 3: Checkout — Vault Setup ══════════════ -->
+    <div class="screen-col">
+      <div class="arrow-label">Vault PayPal</div>
+      <div class="iphone-frame">
+        <div class="iphone-inner">
+          <div class="dynamic-island"></div>
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 10l3-3 3 3 3-5 3 4"/></svg>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="10" height="8" rx="1"/><rect x="11" y="6" width="3" height="4" rx="0.5"/><rect x="2.5" y="5.5" width="4" height="5" rx="0.5" fill="currentColor"/></svg>
+            </span>
+          </div>
+          <div class="nav-bar">
+            <div class="back-btn"><i data-lucide="chevron-left" style="width:20px;height:20px"></i> Back</div>
+            <div class="nav-title">Checkout</div>
+          </div>
+          <div class="screen-content">
+            <!-- Order Summary -->
+            <div class="card" style="margin-bottom:12px;">
+              <div class="card-body" style="display:flex;gap:10px;align-items:center;">
+                <div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#87CEEB,#006400);flex-shrink:0;"></div>
+                <div>
+                  <div style="font-size:14px;font-weight:600;">Bali Adventure Retreat</div>
+                  <div style="font-size:11px;color:var(--text-muted);">10 Days / Guided Tour</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fee Breakdown -->
+            <div class="section-title">Fee Schedule</div>
+            <div class="card" style="margin-bottom:12px;">
+              <div class="card-body" style="padding:10px 14px;">
+                <div class="fee-row"><span>Setup Fee (charged now)</span><span style="font-weight:700;color:var(--text);">$500</span></div>
+                <div class="fee-row"><span style="color:var(--text-muted);">Add-ons</span><span style="color:var(--text-muted);font-size:11px;">Charged during trip</span></div>
+                <div class="fee-row"><span style="color:var(--text-muted);">Final Settlement</span><span style="color:var(--text-muted);font-size:11px;">After trip completion</span></div>
+              </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="section-title">How It Works</div>
+            <div class="card" style="margin-bottom:12px;">
+              <div class="card-body" style="padding:12px 14px;">
+                <div class="how-steps">
+                  <div class="how-step">
+                    <div class="how-step-icon" style="background:#EFF6FF;"><i data-lucide="shield" style="width:16px;height:16px;color:#3B82F6"></i></div>
+                    <div class="how-step-text"><strong>Save your PayPal</strong><span>Securely store your payment method</span></div>
+                  </div>
+                  <div class="how-step">
+                    <div class="how-step-icon" style="background:#FEF3C7;"><i data-lucide="receipt" style="width:16px;height:16px;color:#D97706"></i></div>
+                    <div class="how-step-text"><strong>We charge add-ons as you go</strong><span>Spa, excursions, activities billed as needed</span></div>
+                  </div>
+                  <div class="how-step">
+                    <div class="how-step-icon" style="background:#ECFDF5;"><i data-lucide="check-circle" style="width:16px;height:16px;color:#059669"></i></div>
+                    <div class="how-step-text"><strong>Final settlement after trip</strong><span>Remaining balance charged at checkout</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PayPal Vault Button -->
+            <button class="btn btn-vault">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.72a.77.77 0 0 1 .757-.649h6.058c2.01 0 3.63.5 4.558 1.42.87.86 1.2 2.12.96 3.74-.01.07-.02.14-.03.21-.46 2.93-2.48 4.63-5.37 4.63H9.54a.77.77 0 0 0-.757.65l-.87 5.49-.24 1.52a.641.641 0 0 1-.633.74h.036z" fill="#fff"/><path d="M19.276 7.98c-.01.07-.02.14-.03.21-.95 4.87-4.21 6.55-8.37 6.55H9.54a.77.77 0 0 0-.757.65l-1.11 7.01a.565.565 0 0 0 .558.654h3.917a.677.677 0 0 0 .669-.572l.027-.14.53-3.37.034-.186a.677.677 0 0 1 .669-.572h.422c2.728 0 4.864-1.108 5.488-4.312.26-1.337.125-2.453-.562-3.237a2.68 2.68 0 0 0-.77-.584z" fill="rgba(255,255,255,0.7)"/></svg>
+              Save Payment Method
+            </button>
+
+            <div class="security-note">
+              <i data-lucide="lock" style="width:14px;height:14px"></i>
+              <p>Your payment details are securely stored by PayPal. You can remove your saved payment at any time.</p>
+            </div>
+
+            <div class="terms">By saving, you authorize TERRA to charge your PayPal for approved services.</div>
+          </div>
+        </div>
+      </div>
+      <div class="screen-label">3. Checkout</div>
+      <div class="screen-sublabel">Vault setup & $500 setup fee</div>
+    </div>
+
+    <!-- ══════════════ Screen 4: Vault Processing ══════════════ -->
+    <div class="screen-col">
+      <div class="arrow-label">Processing</div>
+      <div class="iphone-frame">
+        <div class="iphone-inner">
+          <div class="dynamic-island"></div>
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 10l3-3 3 3 3-5 3 4"/></svg>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="10" height="8" rx="1"/><rect x="11" y="6" width="3" height="4" rx="0.5"/><rect x="2.5" y="5.5" width="4" height="5" rx="0.5" fill="currentColor"/></svg>
+            </span>
+          </div>
+          <div class="nav-bar">
+            <div class="back-btn" style="visibility:hidden;"><i data-lucide="chevron-left" style="width:20px;height:20px"></i></div>
+            <div class="nav-title">Checkout</div>
+          </div>
+          <div class="screen-content"></div>
+          <!-- Modal -->
+          <div class="modal-overlay">
+            <div class="modal-card">
+              <div class="spinner"></div>
+              <h3>Saving Payment Method...</h3>
+              <p>Processing setup fee of $500</p>
+              <div style="margin-top:14px;"><i data-lucide="lock" style="width:18px;height:18px;color:var(--text-muted)"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="screen-label">4. Vault Processing</div>
+      <div class="screen-sublabel">Saving payment method</div>
+    </div>
+
+    <!-- ══════════════ Screen 5: Booking Confirmation ══════════════ -->
+    <div class="screen-col">
+      <div class="arrow-label">View Bookings</div>
+      <div class="iphone-frame">
+        <div class="iphone-inner">
+          <div class="dynamic-island"></div>
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 10l3-3 3 3 3-5 3 4"/></svg>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="10" height="8" rx="1"/><rect x="11" y="6" width="3" height="4" rx="0.5"/><rect x="2.5" y="5.5" width="4" height="5" rx="0.5" fill="currentColor"/></svg>
+            </span>
+          </div>
+          <div class="nav-bar">
+            <div class="back-btn" style="visibility:hidden;"><i data-lucide="chevron-left" style="width:20px;height:20px"></i></div>
+            <div class="nav-title">Confirmation</div>
+          </div>
+          <div class="screen-content">
+            <div class="check-circle"><i data-lucide="check" style="width:28px;height:28px"></i></div>
+            <div style="text-align:center;margin-bottom:16px;">
+              <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px;">Payment Method Saved!</div>
+              <div style="font-size:12px;color:var(--text-muted);">Setup fee charged successfully</div>
+            </div>
+
+            <div class="card" style="margin-bottom:12px;">
+              <div class="card-body" style="padding:12px 14px;">
+                <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;">Booking Reference</div>
+                <div style="font-size:16px;font-weight:700;color:var(--mocha);margin-bottom:10px;">TERRA-B7V8</div>
+                <div class="divider"></div>
+                <div class="kv-row"><span class="kv-label">Tour</span><span class="kv-value">Bali Adventure Retreat</span></div>
+                <div class="kv-row"><span class="kv-label">Setup Fee Paid</span><span class="kv-value" style="color:var(--sage);display:flex;align-items:center;gap:3px;">$500 <i data-lucide="check-circle" style="width:12px;height:12px"></i></span></div>
+                <div class="kv-row"><span class="kv-label">Payment Method</span><span class="kv-value" style="display:flex;align-items:center;gap:4px;"><i data-lucide="shield" style="width:11px;height:11px;color:var(--blue-paypal)"></i> Saved (PayPal)</span></div>
+                <div class="kv-row"><span class="kv-label">Vault Token</span><span class="kv-value" style="font-size:11px;font-family:monospace;color:var(--text-muted);">&#x2022;&#x2022;&#x2022;&#x2022; &#x2022;&#x2022;&#x2022;&#x2022;</span></div>
+              </div>
+            </div>
+
+            <div class="info-callout">
+              <i data-lucide="info" style="width:16px;height:16px"></i>
+              <p>Your merchant can now charge approved services to your saved payment method.</p>
+            </div>
+
+            <button class="btn btn-terra"><i data-lucide="book-open" style="width:16px;height:16px"></i> View My Bookings</button>
+          </div>
+        </div>
+      </div>
+      <div class="screen-label">5. Confirmation</div>
+      <div class="screen-sublabel">Vault saved & setup fee paid</div>
+    </div>
+
+    <!-- ══════════════ Screen 6: Customer Booking Detail ══════════════ -->
+    <div class="screen-col">
+      <div class="arrow-label">During Trip</div>
+      <div class="iphone-frame">
+        <div class="iphone-inner">
+          <div class="dynamic-island"></div>
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 10l3-3 3 3 3-5 3 4"/></svg>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="10" height="8" rx="1"/><rect x="11" y="6" width="3" height="4" rx="0.5"/><rect x="2.5" y="5.5" width="4" height="5" rx="0.5" fill="currentColor"/></svg>
+            </span>
+          </div>
+          <div class="nav-bar">
+            <div class="back-btn"><i data-lucide="chevron-left" style="width:20px;height:20px"></i> Bookings</div>
+            <div class="nav-title">Booking</div>
+          </div>
+          <div class="screen-content">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <div style="font-size:16px;font-weight:700;">TERRA-B7V8</div>
+              <span class="badge badge-info"><i data-lucide="shield" style="width:10px;height:10px"></i> Payment on File</span>
+            </div>
+
+            <!-- Tour Info Card -->
+            <div class="card" style="margin-bottom:10px;">
+              <div class="card-body" style="display:flex;gap:10px;align-items:center;">
+                <div style="width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,#87CEEB,#006400);flex-shrink:0;"></div>
+                <div>
+                  <div style="font-size:14px;font-weight:600;">Bali Adventure Retreat</div>
+                  <div style="font-size:11px;color:var(--text-muted);">10 Days / Apr 5-14, 2026</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Saved Payment -->
+            <div class="card" style="margin-bottom:12px;">
+              <div class="card-body" style="padding:10px 14px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <div style="width:32px;height:32px;border-radius:8px;background:#EFF6FF;display:flex;align-items:center;justify-content:center;">
+                      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 3.72a.77.77 0 0 1 .757-.649h6.058c2.01 0 3.63.5 4.558 1.42.87.86 1.2 2.12.96 3.74-.01.07-.02.14-.03.21-.46 2.93-2.48 4.63-5.37 4.63H9.54a.77.77 0 0 0-.757.65l-.87 5.49-.24 1.52a.641.641 0 0 1-.633.74h.036z" fill="#003087"/><path d="M19.276 7.98c-.01.07-.02.14-.03.21-.95 4.87-4.21 6.55-8.37 6.55H9.54a.77.77 0 0 0-.757.65l-1.11 7.01a.565.565 0 0 0 .558.654h3.917a.677.677 0 0 0 .669-.572l.027-.14.53-3.37.034-.186a.677.677 0 0 1 .669-.572h.422c2.728 0 4.864-1.108 5.488-4.312.26-1.337.125-2.453-.562-3.237a2.68 2.68 0 0 0-.77-.584z" fill="#0070ba"/></svg>
+                    </div>
+                    <div>
+                      <div style="font-size:12px;font-weight:600;">PayPal Account Saved</div>
+                      <div style="font-size:10px;color:var(--text-muted);">john.doe@email.com</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="destructive-link" style="text-align:left;margin-top:6px;font-size:11px;">Remove Saved Payment</div>
+              </div>
+            </div>
+
+            <!-- Charges Timeline -->
+            <div class="section-title">Charges</div>
+            <div class="card" style="margin-bottom:12px;">
+              <div class="card-body" style="padding:10px 14px;">
+                <div class="timeline">
+                  <div class="timeline-item">
+                    <div class="timeline-dot done"><i data-lucide="check" style="width:12px;height:12px"></i></div>
+                    <div class="timeline-text"><strong>Setup Fee</strong> — $500<span class="tl-date">Apr 5, 2026</span></div>
+                  </div>
+                  <div class="timeline-item">
+                    <div class="timeline-dot done"><i data-lucide="check" style="width:12px;height:12px"></i></div>
+                    <div class="timeline-text"><strong>Spa Package</strong> (add-on) — $200<span class="tl-date">Apr 8, 2026</span></div>
+                  </div>
+                  <div class="timeline-item">
+                    <div class="timeline-dot done"><i data-lucide="check" style="width:12px;height:12px"></i></div>
+                    <div class="timeline-text"><strong>Island Excursion</strong> (add-on) — $300<span class="tl-date">Apr 10, 2026</span></div>
+                  </div>
+                  <div class="timeline-item">
+                    <div class="timeline-dot pending"></div>
+                    <div class="timeline-text"><strong>Final Settlement</strong><span class="tl-date">Pending</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Progress -->
+            <div class="card" style="margin-bottom:12px;">
+              <div class="card-body">
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+                  <span style="font-weight:600;">Total Charged</span>
+                  <span style="color:var(--text-muted);">$1,000 / $2,500</span>
+                </div>
+                <div class="progress-bar"><div class="fill" style="width:40%;"></div></div>
+                <div style="font-size:10px;color:var(--text-muted);text-align:right;margin-top:2px;">40% charged</div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-bar">
+            <div class="tab-item"><i data-lucide="home"></i><span>Home</span></div>
+            <div class="tab-item"><i data-lucide="search"></i><span>Search</span></div>
+            <div class="tab-item active"><i data-lucide="book-open"></i><span>Bookings</span></div>
+            <div class="tab-item"><i data-lucide="user"></i><span>Profile</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="screen-label">6. Booking Detail</div>
+      <div class="screen-sublabel">Customer view — charges timeline</div>
+    </div>
+
+    <!-- ══════════════ Screen 7: Merchant Booking Detail ══════════════ -->
+    <div class="screen-col">
+      <div class="arrow-label">Charge Add-on</div>
+      <div class="iphone-frame">
+        <div class="iphone-inner">
+          <div class="dynamic-island"></div>
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 10l3-3 3 3 3-5 3 4"/></svg>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="10" height="8" rx="1"/><rect x="11" y="6" width="3" height="4" rx="0.5"/><rect x="2.5" y="5.5" width="4" height="5" rx="0.5" fill="currentColor"/></svg>
+            </span>
+          </div>
+          <div class="nav-bar">
+            <div class="back-btn"><i data-lucide="chevron-left" style="width:20px;height:20px"></i> Orders</div>
+            <div class="nav-title">Booking</div>
+          </div>
+          <div class="screen-content">
+            <div class="merchant-header">
+              <span class="badge badge-merchant"><i data-lucide="building" style="width:10px;height:10px"></i> Merchant View</span>
+            </div>
+
+            <!-- Customer -->
+            <div class="card" style="margin-bottom:10px;">
+              <div class="card-body" style="display:flex;gap:10px;align-items:center;">
+                <div style="width:36px;height:36px;border-radius:50%;background:var(--mocha);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:600;flex-shrink:0;">JD</div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;">John Doe</div>
+                  <div style="font-size:11px;color:var(--text-muted);">TERRA-B7V8 / Bali Adventure</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vault Status -->
+            <div class="section-title">Vault Status</div>
+            <div class="card" style="margin-bottom:10px;">
+              <div class="card-body" style="padding:10px 14px;">
+                <div class="kv-row"><span class="kv-label">Status</span><span class="badge badge-success" style="font-size:10px;padding:2px 8px;"><i data-lucide="check-circle" style="width:8px;height:8px"></i> Active</span></div>
+                <div class="kv-row"><span class="kv-label">Vault Token</span><span class="kv-value" style="font-size:10px;font-family:monospace;">VLT-&#x2022;&#x2022;&#x2022;&#x2022;9F3A</span></div>
+                <div class="kv-row"><span class="kv-label">Payment Method</span><span class="kv-value" style="display:flex;align-items:center;gap:3px;font-size:11px;"><i data-lucide="shield" style="width:10px;height:10px;color:var(--blue-paypal)"></i> PayPal</span></div>
+              </div>
+            </div>
+
+            <!-- Charges Table -->
+            <div class="section-title">Charges</div>
+            <div class="card" style="margin-bottom:10px;">
+              <div class="card-body" style="padding:8px 10px;">
+                <table class="charges-table">
+                  <thead>
+                    <tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Apr 5</td>
+                      <td>Setup Fee</td>
+                      <td style="font-weight:600;">$500</td>
+                      <td style="color:var(--sage);display:flex;align-items:center;gap:2px;"><i data-lucide="check-circle" style="width:10px;height:10px"></i> Captured</td>
+                    </tr>
+                    <tr>
+                      <td>Apr 8</td>
+                      <td>Spa Package</td>
+                      <td style="font-weight:600;">$200</td>
+                      <td style="color:var(--sage);display:flex;align-items:center;gap:2px;"><i data-lucide="check-circle" style="width:10px;height:10px"></i> Captured</td>
+                    </tr>
+                    <tr>
+                      <td>Apr 10</td>
+                      <td>Island Excursion</td>
+                      <td style="font-weight:600;">$300</td>
+                      <td style="color:var(--sage);display:flex;align-items:center;gap:2px;"><i data-lucide="check-circle" style="width:10px;height:10px"></i> Captured</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Totals -->
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+              <span style="font-weight:600;">Charged</span>
+              <span style="color:var(--text-muted);">$1,000 / $2,500</span>
+            </div>
+            <div class="progress-bar" style="margin-bottom:14px;"><div class="fill" style="width:40%;"></div></div>
+
+            <!-- Buttons -->
+            <button class="btn btn-terra"><i data-lucide="plus-circle" style="width:16px;height:16px"></i> Charge Add-on</button>
+            <button class="btn btn-outline-terra"><i data-lucide="banknote" style="width:16px;height:16px"></i> Final Settlement</button>
+            <div class="destructive-link" style="margin-top:4px;font-size:11px;"><i data-lucide="trash-2" style="width:11px;height:11px;vertical-align:middle"></i> Delete Vault Token</div>
+          </div>
+        </div>
+      </div>
+      <div class="screen-label">7. Merchant View</div>
+      <div class="screen-sublabel">Vault management & charges</div>
+    </div>
+
+    <!-- ══════════════ Screen 8: Charge Add-on Dialog ══════════════ -->
+    <div class="screen-col">
+      <div class="iphone-frame">
+        <div class="iphone-inner">
+          <div class="dynamic-island"></div>
+          <div class="status-bar">
+            <span class="time">9:41</span>
+            <span class="icons">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 10l3-3 3 3 3-5 3 4"/></svg>
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="10" height="8" rx="1"/><rect x="11" y="6" width="3" height="4" rx="0.5"/><rect x="2.5" y="5.5" width="4" height="5" rx="0.5" fill="currentColor"/></svg>
+            </span>
+          </div>
+          <div class="nav-bar">
+            <div class="back-btn" style="visibility:hidden;"><i data-lucide="chevron-left" style="width:20px;height:20px"></i></div>
+            <div class="nav-title">Booking</div>
+          </div>
+          <div class="screen-content"></div>
+          <!-- Bottom Sheet -->
+          <div class="bottom-sheet-overlay">
+            <div class="bottom-sheet">
+              <div class="handle"></div>
+              <h3>Charge Add-on</h3>
+
+              <!-- Preset Amounts -->
+              <div class="preset-grid">
+                <div class="preset-card">
+                  <div class="preset-name">Activity Pass</div>
+                  <div class="preset-amount">$100</div>
+                </div>
+                <div class="preset-card selected">
+                  <div class="preset-name">Spa Package</div>
+                  <div class="preset-amount">$200</div>
+                </div>
+                <div class="preset-card">
+                  <div class="preset-name">Island Excursion</div>
+                  <div class="preset-amount">$300</div>
+                </div>
+                <div class="preset-card">
+                  <div class="preset-name">Custom Amount</div>
+                  <div style="margin-top:4px;"><input class="input-field" style="margin-bottom:0;padding:6px 8px;font-size:12px;text-align:center;width:80px;display:inline-block;" placeholder="$0.00"></div>
+                </div>
+              </div>
+
+              <!-- Description -->
+              <input class="input-field" placeholder="Enter a description for this charge">
+
+              <!-- Customer Info -->
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;padding:8px 10px;background:var(--alpine-oat);border-radius:8px;">
+                <i data-lucide="user" style="width:14px;height:14px;color:var(--text-muted)"></i>
+                <div>
+                  <div style="font-size:11px;color:var(--text-muted);">Charging to</div>
+                  <div style="font-size:12px;font-weight:600;">John Doe's PayPal</div>
+                </div>
+                <div style="margin-left:auto;font-size:10px;font-family:monospace;color:var(--text-muted);">VLT-&#x2022;&#x2022;&#x2022;&#x2022;9F3A</div>
+              </div>
+
+              <button class="btn btn-terra"><i data-lucide="zap" style="width:16px;height:16px"></i> Charge $200</button>
+              <div class="btn-ghost" style="text-align:center;padding:6px;font-size:13px;color:var(--text-muted);cursor:pointer;">Cancel</div>
+              <div class="terms" style="margin-top:2px;">This will immediately charge the customer's saved payment method</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="screen-label">8. Charge Add-on</div>
+      <div class="screen-sublabel">Bottom sheet with preset amounts</div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script>
+  lucide.createIcons();
+</script>
+</body>
+</html>

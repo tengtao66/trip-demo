@@ -1,0 +1,53 @@
+[
+  {
+    "id": "t1",
+    "slug": "tokyo-cherry-blossom",
+    "name": "Tokyo Cherry Blossom",
+    "description": "Experience Japan's iconic cherry blossoms",
+    "duration_days": 5,
+    "base_price": 800.0,
+    "deposit_amount": 200.0,
+    "payment_flow": "authorize",
+    "daily_rate": null,
+    "category": "tour",
+    "image_gradient": "linear-gradient(135deg, #FFB7C5 0%, #C71585 100%)",
+    "itinerary": [
+      {"day": 1, "title": "Arrive Tokyo", "details": "Shinjuku Gyoen Gardens"},
+      {"day": 2, "title": "Asakusa", "details": "Senso-ji Temple"},
+      {"day": 3, "title": "Day Trip", "details": "Mount Fuji"},
+      {"day": 4, "title": "Kyoto", "details": "Arashiyama"},
+      {"day": 5, "title": "Kyoto", "details": "Fushimi Inari & Departure"}
+    ]
+  },
+  {
+    "id": "t2",
+    "slug": "economy-sedan",
+    "name": "Economy Sedan",
+    "description": "Compact and fuel-efficient",
+    "duration_days": 1,
+    "base_price": 50.0,
+    "deposit_amount": 0.0,
+    "payment_flow": "instant",
+    "daily_rate": 50.0,
+    "category": "car_rental",
+    "image_gradient": "linear-gradient(135deg, #a08060 0%, #c4a882 100%)",
+    "itinerary": []
+  },
+  {
+    "id": "t3",
+    "slug": "caribbean-paradise",
+    "name": "Caribbean Paradise",
+    "description": "Island-hop through turquoise waters",
+    "duration_days": 7,
+    "base_price": 2800.0,
+    "deposit_amount": 0.0,
+    "payment_flow": "instant",
+    "daily_rate": null,
+    "category": "cruise",
+    "image_gradient": "linear-gradient(135deg, #0077B6 0%, #48CAE4 100%)",
+    "itinerary": [
+      {"day": 1, "title": "Departure", "details": "Miami"},
+      {"day": 2, "title": "Nassau", "details": "Bahamas"}
+    ]
+  }
+]
