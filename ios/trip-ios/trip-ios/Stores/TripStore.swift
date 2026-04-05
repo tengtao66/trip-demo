@@ -23,10 +23,18 @@ final class TripStore {
         error = nil
         do {
             trips = try await tripService.fetchTrips()
+        } catch is CancellationError {
+            // Task cancelled by SwiftUI (e.g. view transition) — ignore
+            return
         } catch let apiError as APIError {
+            if case .networkError(let msg) = apiError, msg.contains("cancelled") {
+                return // URLSession cancelled — not a real error
+            }
             error = apiError
         } catch {
-            self.error = .networkError(error.localizedDescription)
+            let desc = error.localizedDescription
+            if desc.contains("cancelled") { return }
+            self.error = .networkError(desc)
         }
         isLoading = false
     }

@@ -18,10 +18,15 @@ final class BookingStore {
         error = nil
         do {
             bookings = try await bookingService.fetchBookings()
+        } catch is CancellationError {
+            return
         } catch let apiError as APIError {
+            if case .networkError(let msg) = apiError, msg.contains("cancelled") { return }
             error = apiError
         } catch {
-            self.error = .networkError(error.localizedDescription)
+            let desc = error.localizedDescription
+            if desc.contains("cancelled") { return }
+            self.error = .networkError(desc)
         }
         isLoading = false
     }
